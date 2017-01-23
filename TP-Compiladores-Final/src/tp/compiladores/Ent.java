@@ -16,16 +16,27 @@ import tp.compiladores.ast.Type;
  * @author adrian
  */
 public class Ent {
-  
+    
+    //Tabla de símbolos
     private Hashtable table;
+    //Entorno padre
     private Ent prev;
-    //LinkedList<String> list = new LinkedList<String>();
+    //Identificador del entorno
+    private String id;
     
-    
-    public Ent(Ent p) {
+    /*
+    * Crea un nuevo entorno con su hashtable y un entorno padre
+    * si es el primer entorno del programa, su padre es null.
+    */
+    public Ent(Ent parent) {
         table = new Hashtable();
-        prev = p;
-        
+        prev = parent;
+    }
+    
+    public Ent(Ent parent, String name){
+        table = new Hashtable();
+        prev = parent;
+        id = name;
     }
     
     /*
@@ -35,20 +46,32 @@ public class Ent {
     sup.put(id.lexema,s)}
     */
     
+    /*
+    Agrega una variable al entorno.
+    name es el nombre de la variable
+    type es el tipo de la variable
+    */
     //String s es el nombre de la variable
-    public void put(String s, Object info){
-        Symbol sim = new Symbol(1, info);
-        //System.out.println(this.table);
-        if (table.containsKey(s)){
-            //ERROR identificador definido en ese nivel
+    public void put(String name, Object type){
+        //Crea un símbolo auxiliar que es agregado a la tabla de símbolos con su nombre como clave.
+        Symbol sim = new Symbol(1, type);
+        //Si ya existe una variable con el mismo nombre en la tabla de este entorno, comunicamos el error.
+        if (table.containsKey(name)){
+            System.out.println("tp.compiladores.Ent.put() -- Symbol already defined");
+        //Sino, agrega la variable a la tabla con el nombre como clave y el símbolo como valor
         }else{
-            table.put(s, sim);
+            table.put(name, sim);
         }
     }
     
-    public Symbol get(String s){
+    /**
+     * Devuelve el símbolo asociado a la clave pasada como parámetro
+     * @param key
+     * @return el símbolo si es que existe en el entorno actual
+     */
+    public Symbol get(String key){
         for( Ent e = this; e != null; e = e.prev){
-            Symbol found = (Symbol)(e.table.get(s));
+            Symbol found = (Symbol)(e.table.get(key));
             if(found != null){
                 return found;
             }
@@ -60,22 +83,25 @@ public class Ent {
     public void show(){
         for( Ent e = this; e != null; e = e.prev){
             Enumeration enume = e.table.keys();
+            System.out.println("tp.compiladores.Ent.show() -- Entorno "+ e.id);
             while(enume.hasMoreElements()){
                 String key = (String) enume.nextElement();
-                System.out.print(key);
+                System.out.print(key+ " ");
             }
+            System.out.println(" ");
         }
-        for( Ent e = this; e != null; e = e.prev){
-            Enumeration enumee = e.table.elements();
-            while(enumee.hasMoreElements()){
-                Symbol sim = (Symbol) enumee.nextElement();
-                MyAttribute asd = (MyAttribute) sim.value;
-                System.out.println(asd.toString());
-            }
-        }
+//        for( Ent e = this; e != null; e = e.prev){
+//            Enumeration enumee = e.table.elements();
+//            while(enumee.hasMoreElements()){
+//                Symbol sim = (Symbol) enumee.nextElement();
+//                MyAttribute asd = (MyAttribute) sim.value;
+////                System.out.println(asd.toString());
+//            }
+//        }
     }
     
     public void showCurrent(){
+        System.out.println("tp.compiladores.Ent.show() -- Entorno "+ this.id);
         if (!table.isEmpty()){
             Enumeration enume = this.table.keys();
             while(enume.hasMoreElements()){
@@ -95,30 +121,35 @@ public class Ent {
         MyAttribute asd = new MyAttribute("asd",Type.BOOLEAN);
         
         
-        Ent one = new Ent(sup);
+        Ent one = new Ent(sup, "uno");
         
         one.put("y", intAtr);
         one.put("x", intAtr);
         
 
         
-        Ent two = new Ent(one);
+        Ent two = new Ent(one, "dos");
 
         two.put("x", intAtr);
         
-        Ent three = new Ent(two);
+        Ent three = new Ent(two, "tres");
 
         
         three.put("x", asd);
-        
+        three.put("x", intAtr);
         
         three.put("y", intAtr);
                 
         three.put("asd", asd);
         
         
-        
-        three.show();
+        //Andan:
+        //show();
+        //showCurrent();
+        //get();
+        //put();
+        //Probar:
+        two.show();
     }
 }
 
