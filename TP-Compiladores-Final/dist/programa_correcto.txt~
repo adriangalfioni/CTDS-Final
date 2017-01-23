@@ -1,0 +1,14 @@
+
+class Factorial{
+
+int factorial(int n){
+
+	return n;
+}
+
+int main(){
+    factorial(3);
+    return 6;
+}
+
+}

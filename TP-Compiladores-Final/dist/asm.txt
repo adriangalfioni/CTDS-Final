@@ -1,0 +1,21 @@
+inc:
+enter $(8*4)$0
+mov   -32%(rbp)%r10
+mov   %r10%rax
+main:
+enter $(8*1)$0
+mov  %rdi, -8(%rbp)
+mov  %rsi, -16(%rbp)
+mov   %rdx, -24(%rbp)
+mov   %rcx, -32(%rbp)
+mov   %r8,  -40(%rbp)
+mov   %r9,  -48(%rbp)
+call  inc
+mov   -8%(rbp), %r10
+cmp   %r10, $1
+jne   elseif3
+printf:
+jmp   ENDIF3
+.elseif3
+printf:
+.endif3

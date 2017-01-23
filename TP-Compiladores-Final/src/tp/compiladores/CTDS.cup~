@@ -1,0 +1,233 @@
+/* Import the class java_cup.runtime.*  */
+import java_cup.runtime.*;
+
+/* Parser code to change the way the parser reports errors (include
+   line and column number of the error). */
+parser code {:
+    
+    /* Change the method report_error so it will display the line and
+       column of where the error occurred in the input as well as the
+       reason for the error which is passed into the method in the
+       String 'message'. */
+    public void report_error(String message, Object info) {
+   
+        /* Create a StringBuilder called 'm' with the string 'Error' in it. */
+        StringBuilder m = new StringBuilder("Error");
+   
+        /* Check if the information passed to the method is the same
+           type as the type java_cup.runtime.Symbol. */
+        if (info instanceof java_cup.runtime.Symbol) {
+            /* Declare a java_cup.runtime.Symbol object 's' with the
+               information in the object info that is being typecasted
+               as a java_cup.runtime.Symbol object. */
+            java_cup.runtime.Symbol s = ((java_cup.runtime.Symbol) info);
+   
+            /* Check if the line number in the input is greater or
+               equal to zero. */
+            if (s.left >= 0) {                
+                /* Add to the end of the StringBuilder error message
+                   the line number of the error in the input. */
+                m.append(" in line "+(s.left+1));   
+                /* Check if the column number in the input is greater
+                   or equal to zero. */
+                if (s.right >= 0)                    
+                    /* Add to the end of the StringBuilder error message
+                       the column number of the error in the input. */
+                    m.append(", column "+(s.right+1));
+            }
+        }
+   
+        /* Add to the end of the StringBuilder error message created in
+           this method the message that was passed into this method. */
+        m.append(" : "+message);
+   
+        /* Print the contents of the StringBuilder 'm', which contains
+           an error message, out on a line. */
+        System.err.println(m);
+    }
+   
+    /* Change the method report_fatal_error so when it reports a fatal
+       error it will display the line and column number of where the
+       fatal error occurred in the input as well as the reason for the
+       fatal error which is passed into the method in the object
+       'message' and then exit.*/
+    public void report_fatal_error(String message, Object info) {
+        report_error(message, info);
+        System.exit(1);
+    }
+:};
+
+
+/* ------------Declaration of Terminals and Non Terminals Section----------- */
+   
+/* Terminals (tokens returned by the scanner).  
+
+   Terminals that have no value are listed first and then terminals
+   that do have an value, in this case an integer value, are listed on
+   the next line down. */
+
+/*Program beggining terminal*/
+terminal CLASS;
+/*Identificator terminal*/
+terminal ID;
+/*Estructural terminals*/
+terminal LLLAVE, RLLAVE, LCORCHETE, RCORCHETE, LPARENTESIS, RPARENTESIS, PUNTOYCOMA, COMA, EXTERNINVK, IF, ELSE, RETURN;
+/*Cycling terminals*/
+terminal FOR, WHILE, BREAK, CONTINUE;
+/*Literal terminals and type terminals*/
+terminal INT, INTEGER, FLT, FLOAT, VOID, STRING, BOOLEAN;
+/*Arithmetic operations terminals*/
+terminal SUMA, MENOS, DIVISION, DIVENTERA, MULTIPLICACION;
+/*Comparation and equivalence terminals*/
+terminal MAYOR, MENOR, IGUAL;
+/*Logic operators terminals*/
+terminal CONJUNCION, DISYUNCION, ADMIRACION;
+/*Boolean terminals*/
+terminal TRUE, FALSE;
+
+
+
+/* Non terminals used in the grammar section.  
+
+   Non terminals that have an object value are listed first and then
+   non terminals that have an integer value are listed.  An object
+   value means that it can be any type, it isn't set to a specific
+   type.  So it could be an Integer or a String or whatever. */
+
+/*Program, field and method declarations*/
+non terminal program, declaration, field_decls, field_decl, method_decls, method_decl;
+/*Identificators, parameters, statements, blocks*/
+non terminal identificadores, identificador, recursive_statement, statement, param, block;
+/*Method calling, location, expresions, externinvk_args*/
+non terminal method_call, location, expr, exprs, externinvk_arg, externinvk_args;
+/*Operators*/
+non terminal assign_op, bin_op, arith_op, rel_op, eq_op, cond_op;
+/*Type Literals*/
+non terminal type, bool_literal, literal;
+
+/*Precedence*/
+precedence left DISYUNCION;
+precedence left CONJUNCION;
+precedence left MAYOR, MENOR, IGUAL;
+precedence left SUMA, MENOS;
+precedence left MULTIPLICACION, DIVISION, DIVENTERA;
+precedence left ADMIRACION, MENOS;
+
+/*Grammar*/
+
+program ::= CLASS ID LLLAVE RLLAVE
+	   | CLASS ID LLLAVE declaration RLLAVE;
+
+declaration ::= field_decls
+		| method_decls
+		| field_decls method_decls;
+
+field_decls ::= field_decl PUNTOYCOMA
+		| field_decls field_decl PUNTOYCOMA;
+
+field_decl ::= type identificadores;
+
+identificadores ::= identificador
+		| identificadores COMA identificador;
+
+identificador ::= ID 
+		| ID LCORCHETE INT RCORCHETE;
+
+method_decls ::= method_decl
+		| method_decls method_decl;
+
+method_decl ::=   type ID LPARENTESIS RPARENTESIS block
+		| VOID ID LPARENTESIS RPARENTESIS block
+		| type ID LPARENTESIS param RPARENTESIS block
+		| VOID ID LPARENTESIS param RPARENTESIS block;
+
+param ::= type ID
+	| param COMA type ID;
+
+block ::= LLLAVE RLLAVE
+	| LLLAVE field_decls RLLAVE
+	| LLLAVE recursive_statement RLLAVE
+	| LLLAVE field_decls recursive_statement RLLAVE;
+
+recursive_statement ::= statement
+			| recursive_statement statement;
+
+statement ::= location assign_op expr PUNTOYCOMA
+	      | method_call PUNTOYCOMA
+	      | IF LPARENTESIS expr RPARENTESIS block
+	      | IF LPARENTESIS expr RPARENTESIS block ELSE block 
+	      | FOR ID IGUAL expr COMA expr block
+	      | WHILE expr block	
+	      | RETURN expr PUNTOYCOMA
+	      | RETURN PUNTOYCOMA
+	      | BREAK PUNTOYCOMA
+	      | CONTINUE PUNTOYCOMA
+	      | PUNTOYCOMA
+	      | block;
+
+assign_op ::= IGUAL
+	     | SUMA IGUAL
+	     | MENOS IGUAL;
+
+method_call ::= ID LPARENTESIS RPARENTESIS
+	      | ID LPARENTESIS exprs RPARENTESIS
+	      | EXTERNINVK LPARENTESIS STRING COMA type RPARENTESIS
+	      | EXTERNINVK LPARENTESIS STRING COMA VOID RPARENTESIS
+	      | EXTERNINVK LPARENTESIS STRING COMA type COMA externinvk_args RPARENTESIS
+	      | EXTERNINVK LPARENTESIS STRING COMA VOID COMA externinvk_args RPARENTESIS;
+
+externinvk_args ::= externinvk_arg
+		   | externinvk_args COMA externinvk_arg;
+
+externinvk_arg ::= expr
+		| STRING;
+
+exprs ::= expr
+	| exprs COMA expr;
+
+expr ::= location
+	| method_call
+	| literal
+	| expr bin_op expr
+	| MENOS expr
+	| ADMIRACION expr
+	| LPARENTESIS expr RPARENTESIS;
+
+location ::= ID
+	   | ID LCORCHETE expr RCORCHETE;
+
+bin_op ::= arith_op
+	| rel_op
+	| eq_op
+	| cond_op;
+
+arith_op ::= SUMA
+	| MENOS
+	| MULTIPLICACION
+	| DIVISION
+	| DIVENTERA;
+
+rel_op ::= MENOR
+	| MAYOR
+	| MENOR IGUAL
+	| MAYOR IGUAL;
+
+eq_op ::= IGUAL IGUAL
+	| ADMIRACION IGUAL;
+
+cond_op ::= CONJUNCION
+	| DISYUNCION;
+
+type ::= INT
+     | FLT
+     | BOOLEAN;
+
+literal ::= INTEGER
+	| FLOAT
+	| bool_literal;
+
+bool_literal ::= TRUE
+		| FALSE;
+
+
+

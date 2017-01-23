@@ -1,0 +1,370 @@
+/* Import the class java_cup.runtime.*  */
+package tp.compiladores;
+
+import java_cup.runtime.*;
+import java.util.LinkedList;
+import tp.compiladores.ast.*;
+import tp.compiladores.semcheck.TypeCheckVisitor;
+import java.util.Stack;
+
+
+/* Parser code to change the way the parser reports errors (include
+   line and column number of the error). */
+parser code {:
+    
+    /* Change the method report_error so it will display the line and
+       column of where the error occurred in the input as well as the
+       reason for the error which is passed into the method in the
+       String 'message'. */
+    public void report_error(String message, Object info) {
+   
+        /* Create a StringBuilder called 'm' with the string 'Error' in it. */
+        StringBuilder m = new StringBuilder("Error");
+   
+        /* Check if the information passed to the method is the same
+           type as the type java_cup.runtime.Symbol. */
+        if (info instanceof java_cup.runtime.Symbol) {
+            /* Declare a java_cup.runtime.Symbol object 's' with the
+               information in the object info that is being typecasted
+               as a java_cup.runtime.Symbol object. */
+            java_cup.runtime.Symbol s = ((java_cup.runtime.Symbol) info);
+   
+            /* Check if the line number in the input is greater or
+               equal to zero. */
+            if (s.left >= 0) {                
+                /* Add to the end of the StringBuilder error message
+                   the line number of the error in the input. */
+                m.append(" in line "+(s.left+1));   
+                /* Check if the column number in the input is greater
+                   or equal to zero. */
+                if (s.right >= 0)                    
+                    /* Add to the end of the StringBuilder error message
+                       the column number of the error in the input. */
+                    m.append(", column "+(s.right+1));
+            }
+        }
+   
+        /* Add to the end of the StringBuilder error message created in
+           this method the message that was passed into this method. */
+        m.append(" : "+message);
+   
+        /* Print the contents of the StringBuilder 'm', which contains
+           an error message, out on a line. */
+        System.err.println(m);
+    }
+   
+    /* Change the method report_fatal_error so when it reports a fatal
+       error it will display the line and column number of where the
+       fatal error occurred in the input as well as the reason for the
+       fatal error which is passed into the method in the object
+       'message' and then exit.*/
+    public void report_fatal_error(String message, Object info) {
+        report_error(message, info);
+        System.exit(1);
+    }
+:};
+
+action code {:
+    //Actual scope
+    Ent actual;
+
+    Stack<Ent> entStack = new Stack<Ent>();
+    LinkedList<AST> ASTList = new LinkedList<AST>();
+    LinkedList<MyAttribute> list = new LinkedList<MyAttribute>();
+    LinkedList<Type> auxList = new LinkedList<Type>();
+    //Auxiliar expression list
+    LinkedList<Expression> exprList = new LinkedList<Expression>();
+    LinkedList<Expression> exArgList = new LinkedList<Expression>();
+    //Auxiliar statement list
+    LinkedList<Statement> stmtList = new LinkedList<Statement>();
+    //Auxiliar filed list
+    LinkedList<String> fieldList = new LinkedList<String>();
+    //List of errors found
+    LinkedList<SemError> errors = new LinkedList<SemError>();
+    //Auxiliar MethodDecls list
+    LinkedList<MethodDecl> methDList = new LinkedList<MethodDecl>();
+
+    int offset = 0;
+
+    public LinkedList<AST> getAST(){
+        return ASTList;
+    }
+:}
+
+
+/* ------------Declaration of Terminals and Non Terminals Section----------- */
+   
+/* Terminals (tokens returned by the scanner).  
+
+   Terminals that have no value are listed first and then terminals
+   that do have an value, in this case an integer value, are listed on
+   the next line down. */
+
+/*Program beggining terminal*/
+terminal CLASS;
+/*Identificator terminal*/
+terminal String ID;
+/*Estructural terminals*/
+terminal LLLAVE, RLLAVE, LCORCHETE, RCORCHETE, LPARENTESIS, RPARENTESIS, PUNTOYCOMA, COMA, EXTERNINVK, IF, ELSE, RETURN;
+/*Cycling terminals*/
+terminal FOR, WHILE, BREAK, CONTINUE;
+/*Literal terminals and type terminals*/
+terminal String INT, FLT, VOID, STRING, BOOLEAN;
+terminal Integer INTEGER;
+terminal Float FLOAT;
+/*Arithmetic operations terminals*/
+terminal SUMA, MENOS, DIVISION, DIVENTERA, MULTIPLICACION;
+/*Comparation and equivalence terminals*/
+terminal MAYOR, MENOR, IGUAL;
+/*Logic operators terminals*/
+terminal CONJUNCION, DISYUNCION, ADMIRACION;
+/*Boolean terminals*/
+terminal String TRUE, FALSE;
+
+
+
+/* Non terminals used in the grammar section.  
+
+   Non terminals that have an object value are listed first and then
+   non terminals that have an integer value are listed.  An object
+   value means that it can be any type, it isn't set to a specific
+   type.  So it could be an Integer or a String or whatever. */
+
+/*Program, field and method declarations*/
+non terminal program, declaration;
+non terminal LinkedList<MethodDecl> method_decls;
+non terminal MethodDecl method_decl;
+non terminal LinkedList<String> field_decl, field_decls;
+/*Identificators, parameters, statements, blocks*/
+non terminal LinkedList<String> identificadores;
+non terminal String identificador;
+non terminal param;
+non terminal LinkedList<Statement> recursive_statement;
+non terminal Statement statement;
+non terminal  Block block, else_stmt;
+/*Method calling, location, expresions, externinvk_args*/
+non terminal MethodExpr method_call;
+non terminal Location location;
+non terminal Expression expr;
+non terminal LinkedList<Expression> exprs;
+non terminal LinkedList<Expression> externinvk_args;
+non terminal  externinvk_arg;
+/*Operators*/
+non terminal AssignOpType assign_op;
+non terminal BinOpType bin_op, arith_op, rel_op, eq_op, cond_op;
+/*Type Literals*/
+non terminal Type type;
+non terminal Literal bool_literal, literal;
+
+/*Precedence*/
+precedence left DISYUNCION;
+precedence left CONJUNCION;
+precedence left MAYOR, MENOR, IGUAL;
+precedence left SUMA, MENOS;
+precedence left MULTIPLICACION, DIVISION, DIVENTERA;
+precedence left ADMIRACION, MENOS;
+
+/*Grammar*/
+
+program ::= CLASS ID LLLAVE {:Ent sup = null;:} RLLAVE //Empty program
+            //Non empty program, updates the scope and the superior scope becomes null.
+	   |CLASS ID  LLLAVE  {:list = new LinkedList();actual = new Ent(null);entStack.push(actual);:} declaration RLLAVE; 
+
+declaration ::= field_decls //One or more fields, no methods
+		| method_decls {:if(/*actual*/entStack.peek().get("main")==null){
+                                    errors.add(new SemError(0,0,"Method main not find"));
+                                    this.parser.report_error("Method main not find", "main");
+                                }else{
+                                    MyAttribute mainMeth = (MyAttribute) /*actual*/entStack.peek().get("main").value;
+                                    if (mainMeth.getList().size() > 0){
+                                        errors.add(new SemError(0,0,"Method main musnt have parameters"));
+                                        this.parser.report_error("Method main musnt have parameters", "main");
+                                    }
+                                }    
+                                :}
+		| field_decls method_decls {:if(/*actual*/entStack.peek().get("main")==null){
+                                                errors.add(new SemError(0,0,"Method main didnt find"));
+                                                this.parser.report_error("Method main didnt find", "main");
+                                            }else{
+                                                MyAttribute mainMeth = (MyAttribute) /*actual*/entStack.peek().get("main").value;
+                                                if (mainMeth.getList().size() > 0){
+                                                    errors.add(new SemError(0,0,"Method main musnt have parameters"));
+                                                    this.parser.report_error("Method main musnt have parameters", "main");
+                                                }
+                                            }    
+                                            :};
+
+field_decls ::= field_decl:fd PUNTOYCOMA {:RESULT = new LinkedList(fd);:} //Just one field declaration
+		| field_decls:fds field_decl:fd PUNTOYCOMA {:for(String s: fd){fds.add(s);}RESULT = fds;:}; //At least two fields are declarated
+
+field_decl ::= type:t identificadores:idents{:
+        for (MyAttribute at: list) {
+            if (at.whatAmI() == "variable"){
+                //Searchs the variables on the atribute list and adds it to the actual scope
+                entStack.peek().put(at.getId(),new MyAttribute(at.getId(),t)); //put(id,MyAttribute(type)) 
+            }else{
+                entStack.peek().put(at.getId(),new MyAttribute(at.getId(),t,at.getLength())); //put(id,MyAttribute(type,length))
+            }
+        }
+        RESULT = idents;
+        :};
+
+identificadores ::= identificador:id {:fieldList= new LinkedList(); fieldList.add(id); RESULT = fieldList;:}//Only one identifier
+                    | identificadores:idList COMA identificador:id {:idList.add(id); RESULT = idList;:}; //At least two identifiers
+
+identificador ::= ID:ident {:list.add(new MyAttribute(ident,null)); RESULT = ident;:} //New identifier
+		| ID:ident LCORCHETE INTEGER:length RCORCHETE{: //New array
+                    int intLength = length; //Parse the length of the array
+                    if(intLength > 0){  
+                        list.add(new MyAttribute((String) ident,null, intLength));} //If the array length is greater than zero, then it's added to the scope
+                    else {
+                        errors.add(new SemError(lengthleft,lengthright,"Array length lower than 1")); //Creates a new error and adds it to the error list
+                        this.parser.report_error("Array length lower than 1", length); //Reports the error
+                    }
+                    RESULT = ident;
+                    :};             
+
+method_decls ::=  method_decl//Just one method
+		| method_decls method_decl; //At least two methods
+
+method_decl ::=   type:t ID:ident LPARENTESIS RPARENTESIS {:auxList= new LinkedList(); entStack.peek().put(ident,new MyAttribute(ident,t,auxList));list = new LinkedList(); Ent actual = new Ent(entStack.peek());entStack.push(actual);offset=0;:} block: blk {: MethodDecl methD = new MethodDecl(ident,t,null,blk,blkleft,blkright);ASTList.add(methD);:}  //Method without arguments, creates a new scope.
+		| type:t ID:ident LPARENTESIS {:auxList = new LinkedList();list = new LinkedList();Ent actual = new Ent(entStack.peek());entStack.push(actual);:}param RPARENTESIS {:entStack.peek().getPrev().put(ident,new MyAttribute(ident,t,auxList));offset=0;:} block: blk {:/*ASTList.add(blk);*/ MethodDecl methD = new MethodDecl(ident,t,auxList,blk,blkleft,blkright);ASTList.add(methD);:}; //Method with arguments, adds the arguments to the scope and creates a new one
+
+param ::= type:t ID: id  {:if (t.equals(Type.VOID)){
+                    errors.add(new SemError(tleft,tright,"Void can't be used as type for a parameter")); //If a parameter is declared as Void
+                    this.parser.report_error("Void can't be used as type for a parameter", t);
+
+                }auxList.add(t);entStack.peek().put(id, new MyAttribute(id,t));:} //One param, with type and id.
+	| param COMA type:t ID: id {:if (t.equals(Type.VOID)){
+                    errors.add(new SemError(tleft,tright,"Void can't be used as type for a parameter")); //If a parameter is declared as Void
+                    this.parser.report_error("Void can't be used as type for a parameter", t);
+
+                }auxList.add(t);/*actual*/entStack.peek().put(id, new MyAttribute(id,t));:}; //At least two parameters
+
+block ::= LLLAVE RLLAVE {:RESULT = new Block(1);entStack.pop();list = new LinkedList();:} //Empty block
+	| LLLAVE field_decls:fieldDecl RLLAVE {:RESULT = new Block(1,null,fieldDecl);entStack.pop();list = new LinkedList();:} //Block with field declarations but no statements
+	| LLLAVE recursive_statement:recurSt RLLAVE {:RESULT = new Block(1,recurSt,null);entStack.pop();list = new LinkedList();:} //Block with one or more statements, but no field declarations
+	| LLLAVE field_decls:fieldDecl recursive_statement:recurSt RLLAVE{:RESULT = new Block(1,recurSt,fieldDecl);Ent a = entStack.pop();list = new LinkedList();a.showCurrent();/*System.out.println(entStack.size());*/:}; //Both statements and field declarations
+
+recursive_statement ::= statement:st {:stmtList= new LinkedList(); stmtList.add(st); RESULT = stmtList;:} //One statement, adds this statement to the statement list.
+			| recursive_statement:recSt statement:st {:recSt.add(st); RESULT = recSt;:}; //At least two statements
+
+statement ::= location:l assign_op:assOp expr:e PUNTOYCOMA {: RESULT = new AssignStmt(l,assOp,e,assOpleft,assOpright) ;:} //Assign operation.
+	      | method_call:methCall PUNTOYCOMA {:RESULT = new MethodStmt(methCall,methCallleft,methCallright);:} //Method call as a statement
+	      | IF LPARENTESIS expr:exp RPARENTESIS {:list = new LinkedList();Ent actual = new Ent(entStack.peek());entStack.push(actual);list = new LinkedList();:} block:ifBlock else_stmt:elseBlock {:RESULT = new IfStmt(exp, ifBlock, elseBlock,expleft,expright);:} //New scope for the if block
+              | FOR ID:id IGUAL expr:expI COMA expr:expF {:/*Ent sup = actual; Ent actual = new Ent(sup);*/Ent actual = new Ent(entStack.peek()/*sup*/);entStack.push(actual);list = new LinkedList();:} block:b {:b.setInCycleB(true);offset=offset+8;RESULT = new ForStmt(new VarLocation(id,Type.VOID,offset,idleft,idright),expI,expF,b,idleft,idright);:} //For statement
+	      | WHILE expr:cond {:list = new LinkedList();Ent actual = new Ent(entStack.peek());entStack.push(actual);list = new LinkedList();:} block:b {:b.setInCycleB(true);RESULT = new WhileStmt(cond,b,condleft,condright);:} //While statement
+	      | RETURN expr:exp PUNTOYCOMA {:RESULT = new ReturnStmt(exp);:} //Return statement with a expression
+	      | RETURN PUNTOYCOMA {:RESULT = new ReturnStmt();:} //Empty return statement
+	      | BREAK PUNTOYCOMA {:RESULT = new BreakStmt();:} //Break.
+	      | CONTINUE PUNTOYCOMA {:RESULT = new ContinueStmt();:} //Continue.
+	      | PUNTOYCOMA {:RESULT = new PuntoYComaStmt();:} 
+	      | {:list = new LinkedList();:} block:b {:RESULT = new Block(1);:};//New block with a new scope
+
+else_stmt::= 
+            | ELSE {:list = new LinkedList();Ent actual = new Ent(entStack.peek());entStack.push(actual);list = new LinkedList();:} block:bElse {:RESULT = bElse;:}; //Else statement with a new block.
+
+assign_op ::= IGUAL {:RESULT = AssignOpType.ASSIGN;:}
+	     | SUMA IGUAL {:RESULT = AssignOpType.INCREMENT;:}
+	     | MENOS IGUAL {:RESULT = AssignOpType.DECREMENT;:};
+
+method_call ::= ID:ident LPARENTESIS RPARENTESIS {:MyAttribute method = (MyAttribute) /*actual*/entStack.peek().get(ident).value ;
+                                                 if (method.getList().size() != 0){
+                                                    errors.add(new SemError(identleft,identright,"This method doesn't have arguments")); //If the method doesn't have arguments but instead it's called with them, adds a error to the list
+                                                    this.parser.report_error("This method doesn't have arguments", ident);
+                                                 }else{
+                                                    /*if(ident.equalsIgnoreCase("externinvk")){
+                                                        RESULT = new MethodExpr(exprList,true,identleft,identright);
+                                                    }else{*/
+                                                        RESULT = new MethodExpr(ident,method.getType(),null,null,identleft,identright);
+                                                    /*}*/
+                                                 }
+                                                 :}
+	      | ID:ident LPARENTESIS exprs:exprList RPARENTESIS{:
+                /*System.out.println(ident);
+                if(ident.equalsIgnoreCase("externinvk")){
+                        System.out.println("Nunca entra1");
+                    RESULT = new MethodExpr(exprList,true,identleft,identright);
+                }else{*/
+                    MyAttribute method = (MyAttribute) /*actual*/entStack.peek().get(ident).value;
+                    RESULT = new MethodExpr((String) ident,method.getType(),exprList,method.getList(),identleft,identright);
+                /*}*/
+                :}
+	      | EXTERNINVK:e LPARENTESIS STRING:s COMA type:t RPARENTESIS{:
+                    System.out.println("Nunca entra2");
+                    if (s != null){
+                        RESULT = new MethodExpr(s,t,null,true,eleft,eright);
+                    } 
+                :}
+	      | EXTERNINVK:e LPARENTESIS STRING:s COMA type:t COMA externinvk_args:exArg RPARENTESIS {:/*System.out.println("Nunca entra3");*/ RESULT = new MethodExpr(s,t,exArg,true,eleft,eright); :}; 
+
+externinvk_args ::= {: exArgList = new LinkedList();:} externinvk_arg:exArg {: exArgList.add((Expression)exArg); RESULT = exArgList;:}
+		   | externinvk_args: exArgs COMA externinvk_arg: exArg {:exArgs.add((Expression)exArg); RESULT = exArgs;:}; 
+
+externinvk_arg ::= expr:e {:RESULT = e;:};
+
+exprs ::=  {:auxList= new LinkedList(); exprList= new LinkedList();:} expr:e {:exprList.add(e); RESULT = exprList;:} 
+	| exprs:exprss COMA expr:e {:exprss.add(e); RESULT = exprss;:}; 
+
+expr ::= location:loc {:RESULT = loc;:}
+	| method_call:methCall {:RESULT = methCall;:}
+	| literal:lit {:RESULT = lit;:}
+	| expr:e1 bin_op:bop expr:e2 {:RESULT = new BinOpExpr(e1,bop,e2,bopleft,bopright);:}
+	| MENOS:minus expr:e1 {:RESULT = new UnaryOpExpr(e1,UnaryOpType.MINUS,e1left,e1right);:}
+	| ADMIRACION:not expr:e1 {:RESULT = new UnaryOpExpr(e1,UnaryOpType.NOT,e1left,e1right);:}
+	| LPARENTESIS expr:e RPARENTESIS {:RESULT = e;:};
+
+location ::= ID:id {:if(entStack.peek().get(id) == null){
+                            errors.add(new SemError(idleft,idright,"Null id: "));
+                            this.parser.report_error("Null id: "+id, id);
+                    }
+                
+                MyAttribute var = (MyAttribute) entStack.peek().get(id).value;offset = offset+8; VarLocation varL = new VarLocation(id,var.getType(),offset,idleft,idright); RESULT= varL;:}
+	   | ID:id LCORCHETE expr:exp RCORCHETE {:
+                    if(/*actual*/entStack.peek().get(id) == null){
+                            errors.add(new SemError(idleft,idright,"Null id: "));
+                            this.parser.report_error("Null id: "+id, id);
+                    }
+                    MyAttribute var = (MyAttribute) /*actual*/entStack.peek().get(id).value;
+                    RESULT = new ArrayLocation(id,exp,var.getType(),expleft,expright);:};
+
+
+
+//Operations
+bin_op ::= arith_op:arith {:RESULT = arith;:}
+	| rel_op:rel {:RESULT = rel;:}  
+	| eq_op:eq {:RESULT = eq;:}
+	| cond_op:cond {:RESULT = cond;:}; 
+
+arith_op ::= SUMA {:RESULT = BinOpType.PLUS;:}
+	| MENOS {:RESULT = BinOpType.MINUS;:}
+	| MULTIPLICACION {:RESULT = BinOpType.MULTIPLY;:}
+	| DIVISION {:RESULT = BinOpType.DIVIDE;:}
+	| DIVENTERA {:RESULT = BinOpType.MOD;:}; 
+
+rel_op ::= MENOR {:RESULT = BinOpType.LE;:}
+	| MAYOR {:RESULT = BinOpType.GE;:}
+	| MENOR IGUAL {:RESULT = BinOpType.LEQ;:}
+	| MAYOR IGUAL {:RESULT = BinOpType.GEQ;:}; 
+
+eq_op ::= IGUAL IGUAL {:RESULT = BinOpType.CEQ;:}
+	| ADMIRACION IGUAL {:RESULT = BinOpType.NEQ;:}; 
+
+cond_op ::= CONJUNCION:c {:RESULT = BinOpType.AND;:}
+	| DISYUNCION:d {:RESULT = BinOpType.OR;:};
+
+//Types
+type ::= INT {:RESULT = Type.INT;:}
+     | FLT {:RESULT = Type.FLOAT;:}
+     | BOOLEAN {:RESULT = Type.BOOLEAN;:}
+     | VOID {:RESULT = Type.VOID;:};
+
+//Literals
+literal ::= INTEGER:i {:auxList.add(Type.INT); RESULT = new IntLiteral(i.toString());:}
+	| FLOAT:f {:auxList.add(Type.FLOAT); RESULT = new FloatLiteral(f.toString());:}
+        | STRING: s {:RESULT = new StringLiteral(s.toString());:}
+	| bool_literal:b {:auxList.add(Type.BOOLEAN); RESULT = b;:};
+        
+
+bool_literal ::= TRUE:t {:RESULT = new BoolLiteral(t);:}
+		| FALSE:f {:RESULT = new BoolLiteral(f);:};
