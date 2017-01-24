@@ -65,23 +65,38 @@ parser code {:
 :};
 
 action code {:
+
     //Actual scope
     Ent actual;
 
+    // Stack with all scopes
     Stack<Ent> entStack = new Stack<Ent>();
+
+    // Ver si la estamos usando o borramos
     LinkedList<AST> ASTList = new LinkedList<AST>();
+
+    // List of arrays, variables and methods
     LinkedList<MyAttribute> list = new LinkedList<MyAttribute>();
+
+    // Auxiliar list used to save method params type or literal types in expresion
     LinkedList<Type> auxList = new LinkedList<Type>();
-    //Auxiliar expression list
+
+    // List of expressions
     LinkedList<Expression> exprList = new LinkedList<Expression>();
+
+    // List of expressions arguments
     LinkedList<Expression> exArgList = new LinkedList<Expression>();
-    //Auxiliar statement list
+
+    // List of statements
     LinkedList<Statement> stmtList = new LinkedList<Statement>();
-    //Auxiliar filed list
+
+    // List of fields
     LinkedList<String> fieldList = new LinkedList<String>();
+
     //List of errors found
     LinkedList<SemError> errors = new LinkedList<SemError>();
-    //Auxiliar MethodDecls list
+
+    // List of methods declarations
     LinkedList<MethodDecl> methDList = new LinkedList<MethodDecl>();
 
     int offset = 0;
