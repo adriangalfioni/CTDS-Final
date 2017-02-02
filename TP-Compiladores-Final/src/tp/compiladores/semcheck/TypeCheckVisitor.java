@@ -425,7 +425,7 @@ public class TypeCheckVisitor implements ASTVisitor<Type> {
     }
     
     public Type visit(ExternInvkStmt extInv){
-        return Type.VOID;
+        return Type.VOID;//extInv.getType();
     }
 
 

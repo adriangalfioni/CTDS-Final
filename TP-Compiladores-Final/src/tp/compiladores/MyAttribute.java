@@ -14,6 +14,7 @@ import tp.compiladores.ast.Type;
  * @author adrian
  */
 public class MyAttribute {
+
     
     private String id;
     private Type type;
@@ -85,6 +86,13 @@ public class MyAttribute {
      */
     public void setId(String id) {
         this.id = id;
+    }
+    
+    /**
+     * @param type the type to set
+     */
+    public void setType(Type type) {
+        this.type = type;
     }
     
     @Override

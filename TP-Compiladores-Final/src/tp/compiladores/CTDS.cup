@@ -213,13 +213,15 @@ field_decls ::= field_decl:fd PUNTOYCOMA {:RESULT = new LinkedList(fd);:} //Just
 		| field_decls:fds field_decl:fd PUNTOYCOMA {:for(String s: fd){fds.add(s);}RESULT = fds;:}; //At least two fields are declarated
 
 field_decl ::= type:t identificadores:idents{:
-        for (MyAttribute at: list) {
-            if (at.whatAmI() == "variable"){
+        for (String at: fieldList) {
+            /*if (at.whatAmI() == "variable"){
                 //Searchs the variables on the atribute list and adds it to the actual scope
                 entStack.peek().put(at.getId(),new MyAttribute(at.getId(),t)); //put(id,MyAttribute(type)) 
             }else{
                 entStack.peek().put(at.getId(),new MyAttribute(at.getId(),t,at.getLength())); //put(id,MyAttribute(type,length))
-            }
+            }*/
+            MyAttribute actualAttr = (MyAttribute) entStack.peek().get(at).value;
+            actualAttr.setType(t);
         }
         RESULT = idents;
         :};
@@ -227,17 +229,18 @@ field_decl ::= type:t identificadores:idents{:
 identificadores ::= identificador:id {:fieldList= new LinkedList(); fieldList.add(id); RESULT = fieldList;:}//Only one identifier
                     | identificadores:idList COMA identificador:id {:idList.add(id); RESULT = idList;:}; //At least two identifiers
 
-identificador ::= ID:ident {:list.add(new MyAttribute(ident,null)); RESULT = ident;:} //New identifier
+identificador ::= ID:ident {:list.add(new MyAttribute(ident,null)); RESULT = ident;entStack.peek().put(ident,new MyAttribute(ident,Type.VOID));:} //New identifier
 		| ID:ident LCORCHETE INTEGER:length RCORCHETE{: //New array
                     int intLength = length; //Parse the length of the array
                     if(intLength > 0){  
-                        list.add(new MyAttribute((String) ident,null, intLength));} //If the array length is greater than zero, then it's added to the scope
+                        list.add(new MyAttribute((String) ident,null, intLength));
+                        entStack.peek().put(ident,new MyAttribute(ident,Type.VOID,length));} //If the array length is greater than zero, then it's added to the scope
                     else {
                         errors.add(new SemError(lengthleft,lengthright,"Array length lower than 1")); //Creates a new error and adds it to the error list
                         this.parser.report_error("Array length lower than 1", length); //Reports the error
                     }
                     RESULT = ident;
-                    :};             
+                    :};
 
 method_decls ::=  method_decl//Just one method
 		| method_decls method_decl; //At least two methods
