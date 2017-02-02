@@ -214,12 +214,7 @@ field_decls ::= field_decl:fd PUNTOYCOMA {:RESULT = new LinkedList(fd);:} //Just
 
 field_decl ::= type:t identificadores:idents{:
         for (String at: fieldList) {
-            /*if (at.whatAmI() == "variable"){
-                //Searchs the variables on the atribute list and adds it to the actual scope
-                entStack.peek().put(at.getId(),new MyAttribute(at.getId(),t)); //put(id,MyAttribute(type)) 
-            }else{
-                entStack.peek().put(at.getId(),new MyAttribute(at.getId(),t,at.getLength())); //put(id,MyAttribute(type,length))
-            }*/
+            // Obtain field (unique in the enviroment) and set type
             MyAttribute actualAttr = (MyAttribute) entStack.peek().get(at).value;
             actualAttr.setType(t);
         }
