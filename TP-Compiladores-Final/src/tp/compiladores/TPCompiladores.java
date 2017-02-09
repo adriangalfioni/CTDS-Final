@@ -44,7 +44,7 @@ public class TPCompiladores {
         //System.out.println("Size: "+lista.size());
         
         for (AST a: lista){
-            System.out.println(a);
+            System.out.println("A: "+ a);
             a.accept(gen3d);
             a.accept(astv);
             //a.accept(astv).toString();

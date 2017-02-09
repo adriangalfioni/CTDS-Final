@@ -19,16 +19,18 @@ public class MyAttribute {
     private String id;
     private Type type;
     private int length = -1;
-    private LinkedList<Type> list = null;
+    private LinkedList<Type> list;
     
     // Constructor for variables
     public MyAttribute(String id, Type type){
+        this.list = new LinkedList<>();
         this.type = type;
         this.id=id;
     }
     
     // Constructor for arrays
     public MyAttribute(String id, Type type, int length){
+        this.list = new LinkedList<>();
         this.type = type;
         this.length = length;
         this.id=id;
@@ -37,7 +39,7 @@ public class MyAttribute {
     // Constructor for methods
     public MyAttribute(String id, Type returnType, LinkedList list){
         type = returnType;
-        this.list = new LinkedList<>(list);
+        this.list = list == null ? new LinkedList<>() : list;
         this.id=id;
     }
 

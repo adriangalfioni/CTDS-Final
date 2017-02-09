@@ -267,8 +267,6 @@ public class TypeCheckVisitor implements ASTVisitor<Type> {
             if(tableParams != null){
                 //if(methodParams.size() != tableParams.size()){
                 if(methExpr.getNumberOfParams() != tableParams.size()){
-                    //System.out.println("MethodParams: "+methodParams.size()+" TableParams: "+tableParams.size());
-                    //System.out.println(methExpr.toStringName());
                     addError(methExpr, "Wrong number of arguments");
                     return Type.ERROR;
                 }else{
@@ -400,7 +398,7 @@ public class TypeCheckVisitor implements ASTVisitor<Type> {
     }
     
     public Type visit(ExternInvkStmt extInv){
-        return Type.VOID;//extInv.getType();
+        return extInv.getType();
     }
 
 

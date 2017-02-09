@@ -1,6 +1,7 @@
 package tp.compiladores.ast;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 import tp.compiladores.ASTVisitor;
 
@@ -11,16 +12,17 @@ public class Block extends Statement {
         private boolean inCycleB = false;
 	
 	public Block(int bId) {
-		statements = new ArrayList<Statement>();
-                fields = new ArrayList<String>();
+		statements = new ArrayList<>();
+                fields = new ArrayList<>();
 		blockId = bId;
 	}
         
         	
 	public Block(int bId, List<Statement> s, List<String> f) {
 		blockId = bId;
-		statements = s;
-                fields = f;
+		statements = (s == null) ? new LinkedList<Statement>() : s;
+                fields = f == null ? new LinkedList<String>() : f;
+                System.out.println("F: "+fields.toString());
 	}
 	
 	public void addStatement(Statement s) {
@@ -42,8 +44,13 @@ public class Block extends Statement {
 	@Override
 	public String toString() {
 		String rtn = "";
+                rtn += "\n Fields: ";
+            for (String f : fields){
+                rtn += f + ", ";
+            }
+            rtn += "\n Statements: ";
 	    for (Statement s: statements) {
-			rtn += s.toString() + '\n';
+                    rtn += s.toString() + '\n';
 		}
 		
 		if (rtn.length() > 0) return rtn.substring(0, rtn.length() - 1); // remove last new line char
