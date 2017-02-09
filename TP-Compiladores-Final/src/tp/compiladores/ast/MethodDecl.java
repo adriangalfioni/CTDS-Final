@@ -24,8 +24,8 @@ public class MethodDecl extends Statement{
         this.id=id;
         methType=type;
         block=b;
-        parmsType=parametersType;
         
+        parmsType= parametersType == null ? new LinkedList<Type>() : parametersType;
         this.setLineNumber(row);
         this.setColumnNumber(column);
     }
@@ -37,7 +37,7 @@ public class MethodDecl extends Statement{
     
     @Override
     public String toString() {
-        return methType.toString()+" "+getId()+"(parameters){bloque}";
+        return methType.toString()+" "+getId()+"("+parmsType.toString()+")"+"{"+block.toString()+"}";
     }
 
     /**

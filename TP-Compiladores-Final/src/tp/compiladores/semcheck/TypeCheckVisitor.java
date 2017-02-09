@@ -219,6 +219,7 @@ public class TypeCheckVisitor implements ASTVisitor<Type> {
     @Override
     public Type visit(MethodStmt methStmt) {
         MethodExpr methExpr = methStmt.getMethodExpr();
+        System.out.println("METHEXPR EN TYPE CHECK: "+methExpr.toString());
         if(methExpr.getIsExternInvk()){
             if(methExpr.getExpression() != null){
                 for(Expression e: methExpr.getExpression()){
@@ -257,38 +258,12 @@ public class TypeCheckVisitor implements ASTVisitor<Type> {
 
     @Override
     public Type visit(MethodExpr methExpr) {
-        
         if(methExpr.getIsExternInvk()){
-            //System.out.println("ahora si");
-            return Type.VOID;
+            return methExpr.getMethodType();
         }else{
             Type methType = methExpr.getMethodType();
             LinkedList<Expression> methodParams = methExpr.getExpression();
             LinkedList<Type> tableParams = methExpr.getTableSymParamsType();
-
-            //System.out.println("Method: "+methExpr.toString());
-    //        System.out.println("Method return Type: "+methType);
-    //        System.out.print("Method params: ");
-    //        for (Expression e: methodParams){
-    //            System.out.print(e.toString()+" ");
-    //        }
-    //        
-    //        if(tableParams == null){
-    //            System.out.println("ESTA VACIA");
-    //        }
-    //        System.out.println(" ");
-    //        System.out.print("Table params: ");
-    //        for (Type t: tableParams){
-    //            System.out.print(t.toString()+" ");
-    //        }
-           // System.out.println(methodParams.size());
-    //        System.out.println(" ");
-            //System.out.println("Method: "+methExpr.toString());
-    //        System.out.print("Method params: ");
-    //        for (Expression e: methodParams){
-    //            System.out.print(e.toString()+" ");
-    //        }
-    //        System.out.println(" ");
             if(tableParams != null){
                 //if(methodParams.size() != tableParams.size()){
                 if(methExpr.getNumberOfParams() != tableParams.size()){

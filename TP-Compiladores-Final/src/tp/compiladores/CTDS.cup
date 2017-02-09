@@ -81,6 +81,9 @@ action code {:
     // Auxiliar list used to save method params type or literal types in expresion
     LinkedList<Type> auxList = new LinkedList<Type>();
 
+    // Auxiliar list used to save literals
+    LinkedList<Type> literalList = new LinkedList<Type>();
+
     // List of expressions
     LinkedList<Expression> exprList = new LinkedList<Expression>();
 
@@ -241,13 +244,13 @@ method_decls ::=  method_decl//Just one method
 		| method_decls method_decl; //At least two methods
 
 method_decl ::=   type:t ID:ident LPARENTESIS RPARENTESIS {:auxList= new LinkedList(); entStack.peek().put(ident,new MyAttribute(ident,t,auxList));list = new LinkedList(); Ent actual = new Ent(entStack.peek());entStack.push(actual);offset=0;:} block: blk {: MethodDecl methD = new MethodDecl(ident,t,null,blk,blkleft,blkright);ASTList.add(methD);:}  //Method without arguments, creates a new scope.
-		| type:t ID:ident LPARENTESIS {:auxList = new LinkedList();list = new LinkedList();Ent actual = new Ent(entStack.peek());entStack.push(actual);:}param RPARENTESIS {:entStack.peek().getPrev().put(ident,new MyAttribute(ident,t,auxList));offset=0;:} block: blk {:/*ASTList.add(blk);*/ MethodDecl methD = new MethodDecl(ident,t,auxList,blk,blkleft,blkright);ASTList.add(methD);:}; //Method with arguments, adds the arguments to the scope and creates a new one
+		| type:t ID:ident LPARENTESIS {:auxList = new LinkedList();list = new LinkedList();Ent actual = new Ent(entStack.peek());entStack.push(actual);:}param RPARENTESIS {:entStack.peek().getPrev().put(ident,new MyAttribute(ident,t,auxList)); offset=0;:} block: blk {:/*ASTList.add(blk);*/MethodDecl methD = new MethodDecl(ident,t,auxList,blk,blkleft,blkright);ASTList.add(methD); System.out.println("Declara metodo con argumentos");:}; //Method with arguments, adds the arguments to the scope and creates a new one
 
 param ::= type:t ID: id  {:if (t.equals(Type.VOID)){
                     errors.add(new SemError(tleft,tright,"Void can't be used as type for a parameter")); //If a parameter is declared as Void
                     this.parser.report_error("Void can't be used as type for a parameter", t);
 
-                }auxList.add(t);entStack.peek().put(id, new MyAttribute(id,t));:} //One param, with type and id.
+                }auxList.add(t);entStack.peek().put(id, new MyAttribute(id,t)); System.out.println("Parametro a agregar: "+id);:} //One param, with type and id.
 	| param COMA type:t ID: id {:if (t.equals(Type.VOID)){
                     errors.add(new SemError(tleft,tright,"Void can't be used as type for a parameter")); //If a parameter is declared as Void
                     this.parser.report_error("Void can't be used as type for a parameter", t);
@@ -257,7 +260,7 @@ param ::= type:t ID: id  {:if (t.equals(Type.VOID)){
 block ::= LLLAVE RLLAVE {:RESULT = new Block(1);entStack.pop();list = new LinkedList();:} //Empty block
 	| LLLAVE field_decls:fieldDecl RLLAVE {:RESULT = new Block(1,null,fieldDecl);entStack.pop();list = new LinkedList();:} //Block with field declarations but no statements
 	| LLLAVE recursive_statement:recurSt RLLAVE {:RESULT = new Block(1,recurSt,null);entStack.pop();list = new LinkedList();:} //Block with one or more statements, but no field declarations
-	| LLLAVE field_decls:fieldDecl recursive_statement:recurSt RLLAVE{:RESULT = new Block(1,recurSt,fieldDecl);Ent a = entStack.pop();list = new LinkedList();a.showCurrent();/*System.out.println(entStack.size());*/:}; //Both statements and field declarations
+	| LLLAVE field_decls:fieldDecl recursive_statement:recurSt RLLAVE{:RESULT = new Block(1,recurSt,fieldDecl);Ent a = entStack.pop();list = new LinkedList();a.showCurrent();:}; //Both statements and field declarations
 
 recursive_statement ::= statement:st {:stmtList= new LinkedList(); stmtList.add(st); RESULT = stmtList;:} //One statement, adds this statement to the statement list.
 			| recursive_statement:recSt statement:st {:recSt.add(st); RESULT = recSt;:}; //At least two statements
@@ -265,7 +268,7 @@ recursive_statement ::= statement:st {:stmtList= new LinkedList(); stmtList.add(
 statement ::= location:l assign_op:assOp expr:e PUNTOYCOMA {: RESULT = new AssignStmt(l,assOp,e,assOpleft,assOpright) ;:} //Assign operation.
 	      | method_call:methCall PUNTOYCOMA {:RESULT = new MethodStmt(methCall,methCallleft,methCallright);:} //Method call as a statement
 	      | IF LPARENTESIS expr:exp RPARENTESIS {:list = new LinkedList();Ent actual = new Ent(entStack.peek());entStack.push(actual);list = new LinkedList();:} block:ifBlock else_stmt:elseBlock {:RESULT = new IfStmt(exp, ifBlock, elseBlock,expleft,expright);:} //New scope for the if block
-              | FOR ID:id IGUAL expr:expI COMA expr:expF {:/*Ent sup = actual; Ent actual = new Ent(sup);*/Ent actual = new Ent(entStack.peek()/*sup*/);entStack.push(actual);list = new LinkedList();:} block:b {:b.setInCycleB(true);offset=offset+8;RESULT = new ForStmt(new VarLocation(id,Type.VOID,offset,idleft,idright),expI,expF,b,idleft,idright);:} //For statement
+              | FOR ID:id IGUAL expr:expI COMA expr:expF {:/*Ent sup = actual; Ent actual = new Ent(sup);*/Ent actual = new Ent(entStack.peek()/*sup*/);entStack.push(actual);list = new LinkedList();:} block:b {:b.setInCycleB(true);offset=offset+8;  System.out.println("+8 offset FOR"); RESULT = new ForStmt(new VarLocation(id,Type.VOID,offset,idleft,idright),expI,expF,b,idleft,idright);:} //For statement
 	      | WHILE expr:cond {:list = new LinkedList();Ent actual = new Ent(entStack.peek());entStack.push(actual);list = new LinkedList();:} block:b {:b.setInCycleB(true);RESULT = new WhileStmt(cond,b,condleft,condright);:} //While statement
 	      | RETURN expr:exp PUNTOYCOMA {:RESULT = new ReturnStmt(exp);:} //Return statement with a expression
 	      | RETURN PUNTOYCOMA {:RESULT = new ReturnStmt();:} //Empty return statement
@@ -304,9 +307,9 @@ method_call ::= ID:ident LPARENTESIS RPARENTESIS {:MyAttribute method = (MyAttri
                 /*}*/
                 :}
 	      | EXTERNINVK:e LPARENTESIS STRING:s COMA type:t RPARENTESIS{:
-                    System.out.println("Nunca entra2");
+                    System.out.println("External invocation");
                     if (s != null){
-                        RESULT = new MethodExpr(s,t,null,true,eleft,eright);
+                        RESULT = new MethodExpr(s,t,new LinkedList<Expression>(),true,eleft,eright);
                     } 
                 :}
 	      | EXTERNINVK:e LPARENTESIS STRING:s COMA type:t COMA externinvk_args:exArg RPARENTESIS {:/*System.out.println("Nunca entra3");*/ RESULT = new MethodExpr(s,t,exArg,true,eleft,eright); :}; 
@@ -320,9 +323,9 @@ exprs ::=  {:auxList= new LinkedList(); exprList= new LinkedList();:} expr:e {:e
 	| exprs:exprss COMA expr:e {:exprss.add(e); RESULT = exprss;:}; 
 
 expr ::= location:loc {:RESULT = loc;:}
-	| method_call:methCall {:RESULT = methCall;:}
+	| method_call:methCall {:RESULT = methCall; System.out.println("Method call inside expression");:}
 	| literal:lit {:RESULT = lit;:}
-	| expr:e1 bin_op:bop expr:e2 {:RESULT = new BinOpExpr(e1,bop,e2,bopleft,bopright);:}
+	| expr:e1 bin_op:bop expr:e2 {:RESULT = new BinOpExpr(e1,bop,e2,bopleft,bopright); System.out.println("BinOp: "+ bop);:}
 	| MENOS:minus expr:e1 {:RESULT = new UnaryOpExpr(e1,UnaryOpType.MINUS,e1left,e1right);:}
 	| ADMIRACION:not expr:e1 {:RESULT = new UnaryOpExpr(e1,UnaryOpType.NOT,e1left,e1right);:}
 	| LPARENTESIS expr:e RPARENTESIS {:RESULT = e;:};
@@ -332,7 +335,7 @@ location ::= ID:id {:if(entStack.peek().get(id) == null){
                             this.parser.report_error("Null id: "+id, id);
                     }
                 
-                MyAttribute var = (MyAttribute) entStack.peek().get(id).value;offset = offset+8; VarLocation varL = new VarLocation(id,var.getType(),offset,idleft,idright); RESULT= varL;:}
+                MyAttribute var = (MyAttribute) entStack.peek().get(id).value;offset = offset+8; System.out.println("+8 offset LOCATION"); VarLocation varL = new VarLocation(id,var.getType(),offset,idleft,idright); RESULT= varL;:}
 	   | ID:id LCORCHETE expr:exp RCORCHETE {:
                     if(/*actual*/entStack.peek().get(id) == null){
                             errors.add(new SemError(idleft,idright,"Null id: "));
@@ -373,10 +376,10 @@ type ::= INT {:RESULT = Type.INT;:}
      | VOID {:RESULT = Type.VOID;:};
 
 //Literals
-literal ::= INTEGER:i {:auxList.add(Type.INT); RESULT = new IntLiteral(i.toString());:}
-	| FLOAT:f {:auxList.add(Type.FLOAT); RESULT = new FloatLiteral(f.toString());:}
+literal ::= INTEGER:i {:literalList.add(Type.INT);RESULT = new IntLiteral(i.toString());:}
+	| FLOAT:f {:literalList.add(Type.FLOAT); RESULT = new FloatLiteral(f.toString());:}
         | STRING: s {:RESULT = new StringLiteral(s.toString());:}
-	| bool_literal:b {:auxList.add(Type.BOOLEAN); RESULT = b;:};
+	| bool_literal:b {:literalList.add(Type.BOOLEAN); RESULT = b;:};
         
 
 bool_literal ::= TRUE:t {:RESULT = new BoolLiteral(t);:}

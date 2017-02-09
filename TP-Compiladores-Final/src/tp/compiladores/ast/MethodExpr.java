@@ -35,7 +35,6 @@ public class MethodExpr extends Expression {
         methodType = type;
         methodId = meth;
         expression=expr;
-        
         this.setIsExternInvk(isExtInv);
         this.setLineNumber(row+1);
         this.setColumnNumber(column);

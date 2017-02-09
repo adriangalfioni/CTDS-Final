@@ -44,8 +44,10 @@ public class TPCompiladores {
         //System.out.println("Size: "+lista.size());
         
         for (AST a: lista){
+            System.out.println(a);
             a.accept(gen3d);
-            a.accept(astv).toString();
+            a.accept(astv);
+            //a.accept(astv).toString();
         }
         PrintWriter writer = new PrintWriter("i3d.txt","UTF-8");
         for (I3D i: gen3d.getI3d()){
