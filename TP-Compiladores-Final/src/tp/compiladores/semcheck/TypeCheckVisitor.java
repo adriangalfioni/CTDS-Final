@@ -148,8 +148,8 @@ public class TypeCheckVisitor implements ASTVisitor<Type> {
         UnaryOpType unOp = unaryExpr.getOperator();
         Expression expr = unaryExpr.getOperand();
         Type exprType = expr.accept(this);
-        System.out.println("Unary operador "+unOp.toString());
-        System.out.println("Unary operando "+expr.toString());
+        //System.out.println("Unary operador "+unOp.toString());
+        //System.out.println("Unary operando "+expr.toString());
         if (unOp.equals(UnaryOpType.MINUS) &&  (exprType.equals(Type.FLOAT)||exprType.equals(Type.INT))){
             return expr.getType();
         } else if (unOp.equals(UnaryOpType.NOT) && (exprType.equals(Type.BOOLEAN))){

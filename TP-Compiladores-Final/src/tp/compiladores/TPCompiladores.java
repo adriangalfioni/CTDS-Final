@@ -45,7 +45,7 @@ public class TPCompiladores {
         
         for (AST a: lista){
             System.out.println("A: "+ a);
-            a.accept(gen3d);
+            //a.accept(gen3d);
             a.accept(astv);
             //a.accept(astv).toString();
         }

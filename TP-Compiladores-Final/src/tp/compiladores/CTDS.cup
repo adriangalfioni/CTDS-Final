@@ -275,7 +275,7 @@ statement ::= location:l assign_op:assOp expr:e PUNTOYCOMA {: RESULT = new Assig
 	      | BREAK PUNTOYCOMA {:RESULT = new BreakStmt();:} //Break.
 	      | CONTINUE PUNTOYCOMA {:RESULT = new ContinueStmt();:} //Continue.
 	      | PUNTOYCOMA {:RESULT = new PuntoYComaStmt();:} 
-	      | {:list = new LinkedList();:} block:b {:RESULT = new Block(1);:};//New block with a new scope
+	      | {:list = new LinkedList();Ent actual = new Ent(entStack.peek());entStack.push(actual);:} block:b {:RESULT = new Block(1);:};//New block with a new scope
 
 else_stmt::= 
             | ELSE {:list = new LinkedList();Ent actual = new Ent(entStack.peek());entStack.push(actual);list = new LinkedList();:} block:bElse {:RESULT = bElse;:}; //Else statement with a new block.

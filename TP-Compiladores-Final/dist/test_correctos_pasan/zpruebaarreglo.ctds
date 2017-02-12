@@ -1,0 +1,14 @@
+class test_zarreglos{
+
+int A[5];
+int b;
+
+
+void main(){
+	b = 3;	
+	A[b] = 2;
+
+}
+
+}
+

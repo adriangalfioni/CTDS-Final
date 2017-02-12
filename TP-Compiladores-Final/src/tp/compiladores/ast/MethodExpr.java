@@ -79,14 +79,14 @@ public class MethodExpr extends Expression {
         return v.visit(this);
     }
     
-    @Override
+    /*@Override
     public String toString() {
         String ret="";
         for (Expression e: expression){
             ret=ret+" "+e.toString();
         }
             return methodId + " " + ret + ":" + methodType.toString();
-    }
+    }*/
 
     @Override
     public String getId(){

@@ -13,12 +13,16 @@ boolean or(boolean a, boolean b){
 }
 void main(){
 
-    boolean a,b,c;
+    boolean a,b,c,d;
     int x,y;
     a= true;
     b= false;
     b= neg(a);
-    c= or(and(a,b,a), neg(b) );
+    d=and(a,b);
+    c= or(d, neg(b) );
+    // El original era  c= or(and(a,b), neg(b) ); pero como indicamos
+    // en el informe no podemos usar funciones que como primer parametro
+    // toman otra función 
 
     externinvk("printf", boolean , c);
 }
