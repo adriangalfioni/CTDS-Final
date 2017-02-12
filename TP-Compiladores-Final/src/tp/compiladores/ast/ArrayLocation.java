@@ -17,7 +17,7 @@ public class ArrayLocation extends Location {
                 this.setIsArrayLocation(true);
                 this.setLineNumber(row+1);
                 this.setColumnNumber(column);
-                int length;
+                int length=0;
                 if(expr instanceof IntLiteral){
                     length = ((IntLiteral) expr).getValue();
                 }
