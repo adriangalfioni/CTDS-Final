@@ -17,9 +17,17 @@ public class ArrayLocation extends Location {
                 this.setIsArrayLocation(true);
                 this.setLineNumber(row+1);
                 this.setColumnNumber(column);
-                int length = ((IntLiteral) expr).getValue();
-                count += length;
-                this.offset = count*4;
+                int length;
+                if(expr instanceof IntLiteral){
+                    length = ((IntLiteral) expr).getValue();
+                }
+                
+                
+                
+                // CONTROLAR EN EL GENERADOR ASM!!!!!!!!
+                // !!!!!!!!!!!!!!!!!!!!!!!!!!!!
+               // count += length;
+                //this.offset = count*4;
 	}
 	
 	public int getBlockId() {

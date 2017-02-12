@@ -49,8 +49,9 @@ public class TPCompiladores {
             a.accept(astv);
             //a.accept(astv).toString();
         }
-        PrintWriter writer = new PrintWriter("i3d.txt","UTF-8");
+        /*PrintWriter writer = new PrintWriter("i3d.txt","UTF-8");
         for (I3D i: gen3d.getI3d()){
+            System.out.println("Nodo gen3D "+i.toString());
             writer.println(i.toString());
             asmG.check(i);
         }
@@ -60,7 +61,7 @@ public class TPCompiladores {
         for (asmNode n: asmG.getNodes()){
             asmWriter.println(n.toString());
         }
-        asmWriter.close();
+        asmWriter.close();*/
         
     }
     
