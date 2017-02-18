@@ -17,7 +17,7 @@ class test_prueba{
 				}
 			} 
 		}
-		return c;
+		return ;
 	}
 
 		int main(){

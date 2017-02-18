@@ -226,7 +226,16 @@ public class TypeCheckVisitor implements ASTVisitor<Type> {
         if(methExpr.getIsExternInvk()){
             if(methExpr.getExpression() != null){
                 for(Expression e: methExpr.getExpression()){
-                    e.accept(this);
+                    //System.out.println("Aca en null??? 222");
+                    //System.out.println("asdasdas "+ e.toString());
+                    //System.out.println(e != null);
+                    //System.out.println("Averrrrrrjsasdkasdkjahsd "+ (e == null));
+                    
+                    // No debería ir este checkeo pero hay algún problema
+                    // Para probar descomentar lo de arriba
+                    if (e != null){
+                        e.accept(this);
+                    }
                 }
             }
             return Type.VOID;
@@ -380,6 +389,9 @@ public class TypeCheckVisitor implements ASTVisitor<Type> {
                     return Type.ERROR;
                 }
             }else{
+                System.out.println("acaaaaaaaaaaaaaaaaaa");
+                System.out.println("asdasdasd "+ (s.toString()));
+                System.out.println("jaja");
                 s.accept(this);
             }
         }

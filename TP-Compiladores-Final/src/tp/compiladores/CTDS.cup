@@ -285,9 +285,10 @@ assign_op ::= IGUAL {:RESULT = AssignOpType.ASSIGN;:}
 	     | MENOS IGUAL {:RESULT = AssignOpType.DECREMENT;:};
 
 method_call ::= ID:ident LPARENTESIS RPARENTESIS {:MyAttribute method = (MyAttribute) /*actual*/entStack.peek().get(ident).value ;
-                                                 if (method.getList().size() != 0){
-                                                    errors.add(new SemError(identleft,identright,"This method doesn't have arguments")); //If the method doesn't have arguments but instead it's called with them, adds a error to the list
-                                                    this.parser.report_error("This method doesn't have arguments", ident);
+                                                System.out.println("averrr "+method.getList().size());
+                                                if (method.getList().size() != 0){
+                                                    errors.add(new SemError(identleft,identright,"This method doesn't have arguments in call")); //If the method doesn't have arguments but instead it's called with them, adds a error to the list
+                                                    this.parser.report_error("This method doesn't have arguments in call", ident);
                                                  }else{
                                                     /*if(ident.equalsIgnoreCase("externinvk")){
                                                         RESULT = new MethodExpr(exprList,true,identleft,identright);

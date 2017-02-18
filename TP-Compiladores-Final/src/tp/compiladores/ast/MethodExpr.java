@@ -14,7 +14,7 @@ import tp.compiladores.ASTVisitor;
  * @author adrian
  */
 public class MethodExpr extends Expression {
-    private LinkedList<Expression> expression;
+    private LinkedList<Expression> expression = new LinkedList<>();
     private String methodId;
     private Type methodType;
     private LinkedList<Type> tableSymParamsType;
@@ -28,6 +28,7 @@ public class MethodExpr extends Expression {
         this.setLineNumber(row+1);
         this.setColumnNumber(column);
         this.setIsMethod(true);
+        this.setIsExternInvk(false);
     }
     
     // ExternInvk constructor
@@ -35,6 +36,7 @@ public class MethodExpr extends Expression {
         methodType = type;
         methodId = meth;
         expression=expr;
+        this.setIsMethod(false);
         this.setIsExternInvk(isExtInv);
         this.setLineNumber(row+1);
         this.setColumnNumber(column);

@@ -32,7 +32,8 @@ float pruContinue(float x, int b){
 }
 
 int main(){
-    externinvk("printf", float , pruContinue( ));
+    externinvk("printf", float , pruContinue(3.0,4 ));
+return 1;
 }
 
 }
