@@ -26,7 +26,7 @@ files=`ls test_correctos/*.ctds`
 
 for file in $files ; do 
 	echo "---------------- Test $file ... -------------------" 
-        java -jar $comp $file
+        java -jar $comp $file | grep error
 	echo "---------------------------------------------------" 
         echo "  "
         echo "  "

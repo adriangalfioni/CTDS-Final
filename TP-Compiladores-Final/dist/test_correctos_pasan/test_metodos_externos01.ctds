@@ -15,6 +15,7 @@ class test_externinvk{
     externinvk("printf", void , "-estoEsUnaPrueba");
     externinvk("printf", void , "%d",alo(5));
     externinvk("/home/programas/primer_primo_par", int ); //podria no tener argumentos
+    return 2;
 }
 
 }

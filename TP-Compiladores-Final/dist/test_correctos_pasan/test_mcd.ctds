@@ -21,6 +21,7 @@ int maxcomdiv (int a, int b){
 
 int main(){
     externinvk("printf", float , "mcd%d", maxcomdiv(6,9 ));
+    return 2;
 }
 
 }

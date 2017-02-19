@@ -69,6 +69,8 @@ public class TypeCheckVisitor implements ASTVisitor<Type> {
             Type lExpType, rExpType; // Variables for the operands
             lExpType = expr.getLeftOperand().accept(this);
             rExpType = expr.getRightOperand().accept(this);
+            System.out.println(expr.getLeftOperand().toString()+" LEXP Type: "+ lExpType.toString());
+            System.out.println(expr.getRightOperand().toString()+" REXP Type: "+ rExpType.toString());
             if (binOp.equals(BinOpType.OR) || binOp.equals(BinOpType.AND)){ //If the operator is Conditional 
                 if (lExpType.equals(Type.BOOLEAN) && rExpType.equals(Type.BOOLEAN)){ // Checks that both values are Boolean
                     return Type.BOOLEAN;

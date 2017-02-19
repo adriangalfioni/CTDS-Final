@@ -17,11 +17,12 @@ class test_prueba{
 				}
 			} 
 		}
-		return ;
+		return 2.0;
 	}
 
 		int main(){
 		  externinvk("printf", float , prueba(6));
+			return 1;
 	}
 
 }

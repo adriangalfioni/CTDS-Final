@@ -16,16 +16,18 @@ class test_prueba1{
 			pi=3.14;
 			f= 2.0*pi;
 		}
-		if ((a/f)>5){
+		if ((a/f)>5.0){
 			return 1;
 		}
 		else{
 			return 0;	
 		}
+	return 1;
 	}
 
 			int main(){
 		  externinvk("printf", float , prueba(6));
+return 1;
 	}
 
 }

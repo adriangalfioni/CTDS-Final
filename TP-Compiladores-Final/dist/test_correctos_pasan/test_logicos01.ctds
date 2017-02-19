@@ -1,6 +1,6 @@
 class test_logicos{
 
-int pruebaLogica(boolean i){
+boolean pruebaLogica(boolean i){
 		boolean a;
                 a = true;
 		return ( ((false || a ) && !true) && !i);
@@ -8,6 +8,7 @@ int pruebaLogica(boolean i){
 
 int main(){
     externinvk("printf", int , pruebaLogica(false));
+    return 2;
 }
 
 }

@@ -20,7 +20,7 @@ float potencia(float x, int n){
 		prod = prod * x;
 		i = i + 1;
 	}
-	if !(!neg){
+	if (!(!neg)){
 		return 1.0/prod;
         }
 	else{
