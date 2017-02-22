@@ -16,5 +16,6 @@ class test_suma{
 
 		int main(){
 		  externinvk("printf", int , suma(4,9));
+  		  return 2;
 	}
 }

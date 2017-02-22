@@ -38,6 +38,7 @@ class test_retorno{
 
 		int main(){
 		  externinvk("printf", int , id(9));
+  		  return 2;
 	}
 
 }
