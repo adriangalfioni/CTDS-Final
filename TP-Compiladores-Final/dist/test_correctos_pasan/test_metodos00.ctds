@@ -3,18 +3,20 @@ class test_class{
    
    void alo(int x){
       x= x + 1;
+      return;
    }
 
    void alo2(int x){
       alo(x);
+      return;
    }
 
    void main(){
         int y;
         y = 7;
         c = 8.0;
-        y = alo2(y);
-        y = alo2((3)*y);
+        alo2(y);
+        alo2((3)*y);
         return;
    }
 

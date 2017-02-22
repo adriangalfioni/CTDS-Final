@@ -6,6 +6,7 @@ class Test_metodos {
 	int inc (int x) {
 		return x+1;
 	}
+
 	int resto(int x, float y) {
 		
 		int res;
@@ -16,11 +17,16 @@ class Test_metodos {
 		else {
 			res = x%2;
 		}
+
 		return res;
 	}
+
 	int main() {
                 int A[1];
+		int incAux;
                 res = false;
-		A[0] = resto(inc(5),10.2);
+		incAux = inc(5);
+		A[0] = resto(incAux,10.2);
+		return 2;
 	}
 }
