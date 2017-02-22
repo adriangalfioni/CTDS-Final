@@ -11,6 +11,7 @@ int pruMult( ){
 
 int main(){
     externinvk("printf", int , pruMult());
+    return 2;
 }
 
 }

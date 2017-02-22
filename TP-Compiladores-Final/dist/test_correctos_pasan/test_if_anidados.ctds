@@ -27,6 +27,7 @@ int main(){
     externinvk("printf", int);
     externinvk("printf", int , pruAritmetica(4,4 ));
     externinvk("printf", int , pruAritmetica(8,5 ));
+    return 2;
 }
 
 }

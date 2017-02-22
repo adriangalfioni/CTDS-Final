@@ -11,6 +11,7 @@ int pruAritmetica( ){
 
 int main(){
     externinvk("printf", int , pruAritmetica( ));
+    return 2;
 }
 
 }
