@@ -261,7 +261,7 @@ public class TypeCheckVisitor implements ASTVisitor<Type> {
                     }
                 }  
             }
-            if (methType.equals(Type.BOOLEAN) || methType.equals(Type.INT) || methType.equals(Type.FLOAT)){
+            if (methType.equals(Type.BOOLEAN) || methType.equals(Type.INT) || methType.equals(Type.FLOAT) || methType.equals(Type.VOID)){
                 return methType;
             }else{
                 addError(methExpr,"Wrong method type.");
