@@ -12,7 +12,7 @@ class Test_metodos {
 		int res;
 		
 		if (x > 3*2) {
-			res = x / 3;
+			res = x % 3;
 		}
 		else {
 			res = x%2;

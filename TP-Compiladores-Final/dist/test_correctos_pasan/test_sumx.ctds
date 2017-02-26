@@ -19,7 +19,8 @@ class test_sumx{
 
 	
 		int main(){
-		  externinvk("printf", float , sumx(6));
+		  externinvk("printf", float , sumx(2.0,6));
+		return 2;
 	}
 
 }
