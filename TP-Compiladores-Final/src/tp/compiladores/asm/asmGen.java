@@ -27,37 +27,51 @@ public class asmGen {
    
    public void check(I3D node){
        switch (node.getOperation()){
+           //This should be working, baby mc babe face
+           //Addy McAddFace
            case ADD :
-               if ((node.getV1() instanceof IntLiteral) && (node.getV2() instanceof IntLiteral)){
-                   IntLiteral v1 = (IntLiteral) node.getV1();
-                   IntLiteral v2 = (IntLiteral) node.getV2();
-                   VarLocation res = (VarLocation) node.getResult();
-                   asm = new asmNode("mov   ","$"+v1.getRawValue(),", %r10");
-                   getNodes().add(asm);
-                   asm = new asmNode("add   ","$"+v2.getRawValue(),", %r10");
-                   getNodes().add(asm);
-                   asm = new asmNode("mov   ","%r10",", -"+res.getOffset()+"(%rbp)");
-                   getNodes().add(asm);
-               } else if ((node.getV1() instanceof IntLiteral) && (node.getV2() instanceof VarLocation)){
-                   IntLiteral v1 = (IntLiteral) node.getV1();
+               if ((node.getV1() instanceof Literal) && (node.getV2() instanceof VarLocation)){
                    VarLocation v2 = (VarLocation) node.getV2();
                    VarLocation res = (VarLocation) node.getResult();
-                   asm = new asmNode("mov   ","-"+v2.getOffset()+"(%rbp)",", %r10");
-                   getNodes().add(asm);
-                   asm = new asmNode("add   ","$"+v1.getRawValue(),", %r10");
-                   getNodes().add(asm);
-                   asm = new asmNode("mov   ","%r10",", -"+(res.getOffset())+"%(rbp)");
-                   getNodes().add(asm);
-               } else if ((node.getV1() instanceof VarLocation) && (node.getV2() instanceof IntLiteral)){
-                   IntLiteral v2 = (IntLiteral) node.getV2();
+                   if (node.getV1() instanceof FloatLiteral) {
+                       //Do float stuff
+                   } else if (node.getV1() instanceof IntLiteral){
+                        IntLiteral v1 = (IntLiteral) node.getV1();
+                        asm = new asmNode("mov   ","$"+v2.getOffset(),", %r10");
+                        getNodes().add(asm);
+                        asm = new asmNode("add   ","$"+v1.getRawValue(),", %r10");
+                        getNodes().add(asm);
+                        asm = new asmNode("mov   ","%r10",", -"+res.getOffset()+"(%rbp)");
+                        getNodes().add(asm);    
+                   }
+               } else if ((node.getV2() instanceof Literal) && (node.getV1() instanceof VarLocation)){
                    VarLocation v1 = (VarLocation) node.getV1();
                    VarLocation res = (VarLocation) node.getResult();
-                   asm = new asmNode("mov   ","-"+v1.getOffset()+"(%rbp)",", %r10");
-                   getNodes().add(asm);
-                   asm = new asmNode("add   ","$"+v2.getRawValue(),", %r10");
-                   getNodes().add(asm);
-                   asm = new asmNode("mov   ","%r10",", -"+(res.getOffset())+"%(rbp)");
-                   getNodes().add(asm);
+                   if (node.getV2() instanceof FloatLiteral) {
+                       //Do float stuff
+                   } else if (node.getV2() instanceof IntLiteral){
+                        IntLiteral v2 = (IntLiteral) node.getV2();
+                        asm = new asmNode("mov   ","$"+v1.getOffset(),", %r10");
+                        getNodes().add(asm);
+                        asm = new asmNode("add   ","$"+v2.getRawValue(),", %r10");
+                        getNodes().add(asm);
+                        asm = new asmNode("mov   ","%r10",", -"+res.getOffset()+"(%rbp)");
+                        getNodes().add(asm);    
+                   }
+               } else if (node.getV1() instanceof Literal && node.getV2() instanceof Literal) {
+                   if (node.getV1() instanceof FloatLiteral || node.getV2() instanceof FloatLiteral) {
+                       //Floaty McFloatFace
+                   } else {
+                       IntLiteral v1 = (IntLiteral) node.getV1();
+                       IntLiteral v2 = (IntLiteral) node.getV2();
+                       VarLocation res = (VarLocation) node.getResult();
+                       asm = new asmNode("mov   ","$"+v2.getRawValue(),", %r10");
+                       getNodes().add(asm);
+                       asm = new asmNode("add   ","$"+v1.getRawValue(),", %r10");
+                       getNodes().add(asm);
+                       asm = new asmNode("mov   ","%r10",", -"+(res.getOffset())+"%(rbp)");
+                       getNodes().add(asm);    
+                   }
                } else if ((node.getV1() instanceof VarLocation) && (node.getV2() instanceof VarLocation)){
                    VarLocation v1 = (VarLocation) node.getV1();
                    VarLocation v2 = (VarLocation) node.getV2();
@@ -73,36 +87,48 @@ public class asmGen {
                }
                break;
            case SUB:
-               if ((node.getV1() instanceof IntLiteral) && (node.getV2() instanceof IntLiteral)){
-                   IntLiteral v1 = (IntLiteral) node.getV1();
-                   IntLiteral v2 = (IntLiteral) node.getV2();
-                   VarLocation res = (VarLocation) node.getResult();
-                   asm = new asmNode("mov   ","$"+v1.getRawValue(),", %r10");
-                   getNodes().add(asm);
-                   asm = new asmNode("sub   ","$"+v2.getRawValue(),", %r10");
-                   getNodes().add(asm);
-                   asm = new asmNode("mov   ","%r10",", -"+res.getOffset()+"(%rbp)");
-                   getNodes().add(asm);
-               } else if ((node.getV1() instanceof IntLiteral) && (node.getV2() instanceof VarLocation)){
-                   IntLiteral v1 = (IntLiteral) node.getV1();
+               if ((node.getV1() instanceof Literal) && (node.getV2() instanceof VarLocation)){
                    VarLocation v2 = (VarLocation) node.getV2();
                    VarLocation res = (VarLocation) node.getResult();
-                   asm = new asmNode("mov   ","-"+v2.getOffset()+"(%rbp)",", %r10");
-                   getNodes().add(asm);
-                   asm = new asmNode("sub   ","$"+v1.getRawValue(),", %r10");
-                   getNodes().add(asm);
-                   asm = new asmNode("mov   ","%r10",", -"+(res.getOffset())+"%(rbp)");
-                   getNodes().add(asm);
-               } else if ((node.getV1() instanceof VarLocation) && (node.getV2() instanceof IntLiteral)){
-                   IntLiteral v2 = (IntLiteral) node.getV2();
+                   if (node.getV1() instanceof FloatLiteral) {
+                       //Do float stuff
+                   } else if (node.getV1() instanceof IntLiteral){
+                        IntLiteral v1 = (IntLiteral) node.getV1();
+                        asm = new asmNode("mov   ","$"+v2.getOffset(),", %r10");
+                        getNodes().add(asm);
+                        asm = new asmNode("sub   ","$"+v1.getRawValue(),", %r10");
+                        getNodes().add(asm);
+                        asm = new asmNode("mov   ","%r10",", -"+res.getOffset()+"(%rbp)");
+                        getNodes().add(asm);    
+                   }
+               } else if ((node.getV2() instanceof Literal) && (node.getV1() instanceof VarLocation)){
                    VarLocation v1 = (VarLocation) node.getV1();
                    VarLocation res = (VarLocation) node.getResult();
-                   asm = new asmNode("mov   ","-"+v1.getOffset()+"(%rbp)",", %r10");
-                   getNodes().add(asm);
-                   asm = new asmNode("sub   ","$"+v2.getRawValue(),", %r10");
-                   getNodes().add(asm);
-                   asm = new asmNode("mov   ","%r10",", -"+(res.getOffset())+"%(rbp)");
-                   getNodes().add(asm);
+                   if (node.getV2() instanceof FloatLiteral) {
+                       //Do float stuff
+                   } else if (node.getV2() instanceof IntLiteral){
+                        IntLiteral v2 = (IntLiteral) node.getV2();
+                        asm = new asmNode("mov   ","$"+v1.getOffset(),", %r10");
+                        getNodes().add(asm);
+                        asm = new asmNode("sub   ","$"+v2.getRawValue(),", %r10");
+                        getNodes().add(asm);
+                        asm = new asmNode("mov   ","%r10",", -"+res.getOffset()+"(%rbp)");
+                        getNodes().add(asm);    
+                   }
+               } else if (node.getV1() instanceof Literal && node.getV2() instanceof Literal) {
+                   if (node.getV1() instanceof FloatLiteral || node.getV2() instanceof FloatLiteral) {
+                       //Floaty McFloatFace
+                   } else {
+                       IntLiteral v1 = (IntLiteral) node.getV1();
+                       IntLiteral v2 = (IntLiteral) node.getV2();
+                       VarLocation res = (VarLocation) node.getResult();
+                       asm = new asmNode("mov   ","$"+v2.getRawValue(),", %r10");
+                       getNodes().add(asm);
+                       asm = new asmNode("sub   ","$"+v1.getRawValue(),", %r10");
+                       getNodes().add(asm);
+                       asm = new asmNode("mov   ","%r10",", -"+(res.getOffset())+"%(rbp)");
+                       getNodes().add(asm);    
+                   }
                } else if ((node.getV1() instanceof VarLocation) && (node.getV2() instanceof VarLocation)){
                    VarLocation v1 = (VarLocation) node.getV1();
                    VarLocation v2 = (VarLocation) node.getV2();
@@ -111,43 +137,59 @@ public class asmGen {
                    getNodes().add(asm);
                    asm = new asmNode("mov   ","-"+v2.getOffset()+"(%rbp)",", %r11");
                    getNodes().add(asm);
-                   asm = new asmNode("sub   ","%r10",", %r11");
+                   asm = new asmNode("sub   ","%r10","%r11");
                    getNodes().add(asm);
                    asm = new asmNode("mov   ","%r11",", -"+(res.getOffset())+"%(rbp)");
                    getNodes().add(asm);
                }
                break;
            case MULT:
-               if ((node.getV1() instanceof IntLiteral) && (node.getV2() instanceof IntLiteral)){
-                   IntLiteral v1 = (IntLiteral) node.getV1();
-                   IntLiteral v2 = (IntLiteral) node.getV2();
-                   VarLocation res = (VarLocation) node.getResult();
-                   asm = new asmNode("mov   ","$"+v1.getRawValue(),", %r10");
-                   getNodes().add(asm);
-                   asm = new asmNode("imul   ","$"+v2.getRawValue(),", %r10");
-                   getNodes().add(asm);
-                   asm = new asmNode("mov   ","%r10",", -"+res.getOffset()+"(%rbp)");
-                   getNodes().add(asm);
-               } else if ((node.getV1() instanceof IntLiteral) && (node.getV2() instanceof VarLocation)){
-                   IntLiteral v1 = (IntLiteral) node.getV1();
+               if ((node.getV1() instanceof Literal) && (node.getV2() instanceof VarLocation)){
                    VarLocation v2 = (VarLocation) node.getV2();
                    VarLocation res = (VarLocation) node.getResult();
-                   asm = new asmNode("mov   ","-"+v2.getOffset()+"(%rbp)",", %r10");
-                   getNodes().add(asm);
-                   asm = new asmNode("imul   ","$"+v1.getRawValue(),", %r10");
-                   getNodes().add(asm);
-                   asm = new asmNode("mov   ","%r10",", -"+(res.getOffset())+"%(rbp)");
-                   getNodes().add(asm);
-               } else if ((node.getV1() instanceof VarLocation) && (node.getV2() instanceof IntLiteral)){
-                   IntLiteral v2 = (IntLiteral) node.getV2();
+                   if (node.getV1() instanceof FloatLiteral) {
+                       //Do float stuff
+                   } else if (node.getV1() instanceof IntLiteral){
+                        IntLiteral v1 = (IntLiteral) node.getV1();
+                        v2 = (VarLocation) node.getV2();
+                        res = (VarLocation) node.getResult();
+                        asm = new asmNode("mov   ","-"+v2.getOffset()+"(%rbp)",", %r10");
+                        getNodes().add(asm);
+                        asm = new asmNode("imul   ","$"+v1.getRawValue(),", %r10");
+                        getNodes().add(asm);
+                        asm = new asmNode("mov   ","%r10",", -"+(res.getOffset())+"%(rbp)");
+                        getNodes().add(asm);
+                   }
+               } else if ((node.getV2() instanceof Literal) && (node.getV1() instanceof VarLocation)){
                    VarLocation v1 = (VarLocation) node.getV1();
                    VarLocation res = (VarLocation) node.getResult();
-                   asm = new asmNode("mov   ","-"+v1.getOffset()+"(%rbp)",", %r10");
-                   getNodes().add(asm);
-                   asm = new asmNode("imul   ","$"+v2.getRawValue(),", %r10");
-                   getNodes().add(asm);
-                   asm = new asmNode("mov   ","%r10",", -"+(res.getOffset())+"%(rbp)");
-                   getNodes().add(asm);
+                   if (node.getV2() instanceof FloatLiteral) {
+                       //Do float stuff
+                   } else if (node.getV2() instanceof IntLiteral){
+                        IntLiteral v2 = (IntLiteral) node.getV2();
+                        v1 = (VarLocation) node.getV1();
+                        res = (VarLocation) node.getResult();
+                        asm = new asmNode("mov   ","-"+v1.getOffset()+"(%rbp)",", %r10");
+                        getNodes().add(asm);
+                        asm = new asmNode("imul   ","$"+v2.getRawValue(),", %r10");
+                        getNodes().add(asm);
+                        asm = new asmNode("mov   ","%r10",", -"+(res.getOffset())+"%(rbp)");
+                        getNodes().add(asm);
+                   }
+               } else if (node.getV1() instanceof Literal && node.getV2() instanceof Literal) {
+                   if (node.getV1() instanceof FloatLiteral || node.getV2() instanceof FloatLiteral) {
+                       //Floaty McFloatFace
+                   } else {
+                       IntLiteral v1 = (IntLiteral) node.getV1();
+                       IntLiteral v2 = (IntLiteral) node.getV2();
+                       VarLocation res = (VarLocation) node.getResult();
+                       asm = new asmNode("mov   ","$"+v1.getRawValue(),", %r10");
+                       getNodes().add(asm);
+                       asm = new asmNode("imul   ","$"+v2.getRawValue(),", %r10");
+                       getNodes().add(asm);
+                       asm = new asmNode("mov   ","%r10",", -"+res.getOffset()+"(%rbp)");
+                       getNodes().add(asm);
+                   }
                } else if ((node.getV1() instanceof VarLocation) && (node.getV2() instanceof VarLocation)){
                    VarLocation v1 = (VarLocation) node.getV1();
                    VarLocation v2 = (VarLocation) node.getV2();
@@ -163,53 +205,59 @@ public class asmGen {
                }
                break;
            case DIV:
-               if ((node.getV1() instanceof IntLiteral) && (node.getV2() instanceof IntLiteral)){
-                   IntLiteral v1 = (IntLiteral) node.getV1();
-                   IntLiteral v2 = (IntLiteral) node.getV2();
-                   VarLocation res = (VarLocation) node.getResult();
-                   asm = new asmNode("mov   ","$"+v1.getRawValue(),", %rdx");
-                   getNodes().add(asm);
-                   asm = new asmNode("mov   ","$0",", %rax");
-                   getNodes().add(asm);
-                   asm = new asmNode("idiv   ","$"+v2.getRawValue(),null);
-                   getNodes().add(asm);
-                   asm = new asmNode("mov   ","%rax",", -"+res.getOffset()+"(%rbp)");
-                   getNodes().add(asm);
-               } else if ((node.getV1() instanceof IntLiteral) && (node.getV2() instanceof VarLocation)){
-                   IntLiteral v1 = (IntLiteral) node.getV1();
+               if ((node.getV1() instanceof Literal) && (node.getV2() instanceof VarLocation)){
                    VarLocation v2 = (VarLocation) node.getV2();
                    VarLocation res = (VarLocation) node.getResult();
-                   asm = new asmNode("mov   ","$"+v1.getRawValue(),", %rdx");
-                   getNodes().add(asm);
-                   asm = new asmNode("mov   ","$0",", %rax");
-                   getNodes().add(asm);
-                   asm = new asmNode("idiv   ","-"+v2.getOffset()+"%(rbp)",null);
-                   getNodes().add(asm);
-                   asm = new asmNode("mov   ","%rax",", -"+res.getOffset()+"(%rbp)");
-                   getNodes().add(asm);
-               } else if ((node.getV1() instanceof VarLocation) && (node.getV2() instanceof IntLiteral)){
-                   IntLiteral v2 = (IntLiteral) node.getV2();
+                   if (node.getV1() instanceof FloatLiteral) {
+                       //Do float stuff
+                   } else if (node.getV1() instanceof IntLiteral){
+                        IntLiteral v1 = (IntLiteral) node.getV1();
+                        asm = new asmNode("mov   ","$"+v2.getOffset(),", %r10");
+                        getNodes().add(asm);
+                        asm = new asmNode("sub   ","$"+v1.getRawValue(),", %r10");
+                        getNodes().add(asm);
+                        asm = new asmNode("mov   ","%r10",", -"+res.getOffset()+"(%rbp)");
+                        getNodes().add(asm);
+                   }
+               } else if ((node.getV2() instanceof Literal) && (node.getV1() instanceof VarLocation)){
                    VarLocation v1 = (VarLocation) node.getV1();
                    VarLocation res = (VarLocation) node.getResult();
-                   asm = new asmNode("mov   ","-"+v1.getOffset()+"%(rbp)",", %rdx");
-                   getNodes().add(asm);
-                   asm = new asmNode("mov   ","$0",", %rax");
-                   getNodes().add(asm);
-                   asm = new asmNode("idiv   ","-"+v2.getRawValue()+"%(rbp)",null);
-                   getNodes().add(asm);
-                   asm = new asmNode("mov   ","%rax",", -"+res.getOffset()+"(%rbp)");
-                   getNodes().add(asm);
+                   if (node.getV2() instanceof FloatLiteral) {
+                       //Do float stuff
+                   } else if (node.getV2() instanceof IntLiteral){
+                       IntLiteral v2 = (IntLiteral) node.getV2();
+                        asm = new asmNode("mov   ","$"+v1.getOffset(),", %r10");
+                        getNodes().add(asm);
+                        asm = new asmNode("sub   ","$"+v2.getRawValue(),", %r10");
+                        getNodes().add(asm);
+                        asm = new asmNode("mov   ","%r10",", -"+res.getOffset()+"(%rbp)");
+                        getNodes().add(asm);
+                   }
+               } else if (node.getV1() instanceof Literal && node.getV2() instanceof Literal) {
+                   if (node.getV1() instanceof FloatLiteral || node.getV2() instanceof FloatLiteral) {
+                       //Floaty McFloatFace
+                   } else {
+                       IntLiteral v1 = (IntLiteral) node.getV1();
+                       IntLiteral v2 = (IntLiteral) node.getV2();
+                       VarLocation res = (VarLocation) node.getResult();
+                       asm = new asmNode("mov   ","$"+v2.getRawValue(),", %r10");
+                       getNodes().add(asm);
+                       asm = new asmNode("sub   ","$"+v1.getRawValue(),", %r10");
+                       getNodes().add(asm);
+                       asm = new asmNode("mov   ","%r10",", -"+(res.getOffset())+"%(rbp)");
+                       getNodes().add(asm); 
+                   }
                } else if ((node.getV1() instanceof VarLocation) && (node.getV2() instanceof VarLocation)){
                    VarLocation v1 = (VarLocation) node.getV1();
                    VarLocation v2 = (VarLocation) node.getV2();
                    VarLocation res = (VarLocation) node.getResult();
-                   asm = new asmNode("mov   ","-"+v1.getOffset()+"%(rbp)",", %rdx");
+                   asm = new asmNode("mov   ","-"+v1.getOffset()+"(%rbp)",", %r10");
                    getNodes().add(asm);
-                   asm = new asmNode("mov   ","$0",", %rax");
+                   asm = new asmNode("mov   ","-"+v2.getOffset()+"(%rbp)",", %r11");
                    getNodes().add(asm);
-                   asm = new asmNode("idiv   ","-"+v2.getOffset()+"%(rbp)",null);
+                   asm = new asmNode("sub   ","%r10","%r11");
                    getNodes().add(asm);
-                   asm = new asmNode("mov   ","%rax",", -"+res.getOffset()+"(%rbp)");
+                   asm = new asmNode("mov   ","%r11",", -"+(res.getOffset())+"%(rbp)");
                    getNodes().add(asm);
                }
                break;
@@ -1296,3 +1344,31 @@ public class asmGen {
     }
 
 }
+/*
+               if ((node.getV1() instanceof Literal) && (node.getV2() instanceof VarLocation)){
+                   VarLocation v2 = (VarLocation) node.getV2();
+                   VarLocation res = (VarLocation) node.getResult();
+                   if (node.getV1() instanceof FloatLiteral) {
+                       //Do float stuff
+                   } else if (node.getV1() instanceof IntLiteral){
+                           
+                   }
+               } else if ((node.getV2() instanceof Literal) && (node.getV1() instanceof VarLocation)){
+                   VarLocation v1 = (VarLocation) node.getV1();
+                   VarLocation res = (VarLocation) node.getResult();
+                   if (node.getV2() instanceof FloatLiteral) {
+                       //Do float stuff
+                   } else if (node.getV2() instanceof IntLiteral){
+                          
+                   }
+               } else if (node.getV1() instanceof Literal && node.getV2() instanceof Literal) {
+                   if (node.getV1() instanceof FloatLiteral || node.getV2() instanceof FloatLiteral) {
+                       //Floaty McFloatFace
+                   } else {
+                           
+                   }
+               } else if ((node.getV1() instanceof VarLocation) && (node.getV2() instanceof VarLocation)){
+                   
+               }
+               break;
+*/
