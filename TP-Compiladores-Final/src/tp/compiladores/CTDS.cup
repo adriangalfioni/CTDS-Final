@@ -139,7 +139,7 @@ terminal CONJUNCION, DISYUNCION, ADMIRACION;
 /*Boolean terminals*/
 terminal String TRUE, FALSE;
 
-
+terminal UMINUS;
 
 /* Non terminals used in the grammar section.  
 
@@ -176,12 +176,14 @@ non terminal Type type_void;
 non terminal Literal bool_literal, literal;
 
 /*Precedence*/
+
 precedence left DISYUNCION;
 precedence left CONJUNCION;
 precedence nonassoc MAYOR, MENOR, IGUAL;
 precedence left SUMA, MENOS;
 precedence left MULTIPLICACION, DIVISION, DIVENTERA;
 precedence right ADMIRACION, MENOS;
+precedence right UMINUS;
 
 /*Grammar*/
 
@@ -337,10 +339,22 @@ expr ::= location:loc {:RESULT = loc;:}
 	| method_call:methCall {:RESULT = methCall; System.out.println("Method call inside expression");:}
 	| literal:lit {:RESULT = lit;:}
 	
-        | expr:e1 bin_op:bop expr:e2 {:RESULT = new BinOpExpr(e1,bop,e2,bopleft,bopright); System.out.println("BinOp: "+ bop);:}
+        | expr:e1 SUMA expr:e2 {:RESULT = new BinOpExpr(e1,BinOpType.PLUS,e2,e1left,e1right); System.out.println("BinOp: ");:}
+        | expr:e1 MENOS expr:e2 {:RESULT = new BinOpExpr(e1,BinOpType.MINUS,e2,e1left,e1right); System.out.println("BinOp: ");:}
+        | expr:e1 MULTIPLICACION expr:e2 {:RESULT = new BinOpExpr(e1,BinOpType.MULTIPLY,e2,e1left,e1right); System.out.println("BinOp: ");:}
+        | expr:e1 DIVENTERA expr:e2 {:RESULT = new BinOpExpr(e1,BinOpType.MOD,e2,e1left,e1right); System.out.println("BinOp: ");:}
+        | expr:e1 DIVISION expr:e2 {:RESULT = new BinOpExpr(e1,BinOpType.DIVIDE,e2,e1left,e1right); System.out.println("BinOp: ");:}
+        | expr:e1 MENOR expr:e2 {:RESULT = new BinOpExpr(e1,BinOpType.LE,e2,e1left,e1right); System.out.println("BinOp: ");:}
+        | expr:e1 MAYOR expr:e2 {:RESULT = new BinOpExpr(e1,BinOpType.GE,e2,e1left,e1right); System.out.println("BinOp: ");:}
+        | expr:e1 MENOR IGUAL expr:e2 {:RESULT = new BinOpExpr(e1,BinOpType.LEQ,e2,e1left,e1right); System.out.println("BinOp: ");:}
+        | expr:e1 MAYOR IGUAL expr:e2 {:RESULT = new BinOpExpr(e1,BinOpType.GEQ,e2,e1left,e1right); System.out.println("BinOp: ");:}
+        | expr:e1 IGUAL IGUAL expr:e2 {:RESULT = new BinOpExpr(e1,BinOpType.CEQ,e2,e1left,e1right); System.out.println("BinOp: ");:}
+        | expr:e1 ADMIRACION IGUAL expr:e2 {:RESULT = new BinOpExpr(e1,BinOpType.NEQ,e2,e1left,e1right); System.out.println("BinOp: ");:}
+        | expr:e1 CONJUNCION expr:e2 {:RESULT = new BinOpExpr(e1,BinOpType.AND,e2,e1left,e1right); System.out.println("BinOp: ");:}
+        | expr:e1 DISYUNCION expr:e2 {:RESULT = new BinOpExpr(e1,BinOpType.OR,e2,e1left,e1right); System.out.println("BinOp: ");:}
 
-        | MENOS:minus expr:e1 {:RESULT = new UnaryOpExpr(e1,UnaryOpType.MINUS,e1left,e1right);:}
-	| ADMIRACION:not expr:e1 {:RESULT = new UnaryOpExpr(e1,UnaryOpType.NOT,e1left,e1right);:}
+        | MENOS:minus expr:e1 {:RESULT = new UnaryOpExpr(e1,UnaryOpType.MINUS,e1left,e1right);:} %prec UMINUS
+	| ADMIRACION:not expr:e1 {:RESULT = new UnaryOpExpr(e1,UnaryOpType.NOT,e1left,e1right);:} %prec UMINUS
 	| LPARENTESIS expr:e RPARENTESIS {:RESULT = e;:};
 
 location ::= ID:id {:if(entStack.peek().get(id) == null){
@@ -360,10 +374,10 @@ location ::= ID:id {:if(entStack.peek().get(id) == null){
 
 
 //Operations
-bin_op ::= arith_op:arith {:RESULT = arith;:}
-	| rel_op:rel {:RESULT = rel;:}  
-	| eq_op:eq {:RESULT = eq;:}
-	| cond_op:cond {:RESULT = cond;:}; 
+bin_op ::=  cond_op:cond {:RESULT = cond;:}
+        | eq_op:eq {:RESULT = eq;:}
+        | rel_op:rel {:RESULT = rel;:}  
+        | arith_op:arith {:RESULT = arith;:};
 
 arith_op ::= SUMA {:RESULT = BinOpType.PLUS;:}
 	| MENOS {:RESULT = BinOpType.MINUS;:}
