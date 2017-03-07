@@ -11,6 +11,9 @@ import tp.compiladores.ast.*;
 public class TypeCheckVisitor implements ASTVisitor<Type> {
 	
 	public List<SemError> errors = new LinkedList<SemError>();
+        boolean allBlocksHaveReturn; // Used to check if all method blocks have return statement 
+        boolean allBlocksWithSameMethodType; // Used to check if all method blocks have same method return type 
+        Type visitedMethodType;
 
 	@Override
 	public Type visit(AssignStmt stmt) {
@@ -70,6 +73,7 @@ public class TypeCheckVisitor implements ASTVisitor<Type> {
             lExpType = expr.getLeftOperand().accept(this);
             rExpType = expr.getRightOperand().accept(this);
             System.out.println(expr.getLeftOperand().toString()+" LEXP Type: "+ lExpType.toString());
+            System.out.println("Operador: "+binOp.toString());
             System.out.println(expr.getRightOperand().toString()+" REXP Type: "+ rExpType.toString());
             if (binOp.equals(BinOpType.OR) || binOp.equals(BinOpType.AND)){ //If the operator is Conditional 
                 if (lExpType.equals(Type.BOOLEAN) && rExpType.equals(Type.BOOLEAN)){ // Checks that both values are Boolean
@@ -94,10 +98,13 @@ public class TypeCheckVisitor implements ASTVisitor<Type> {
                 }
             } else {  //If binOp it's an Arithmetic operator
                 if (lExpType.equals(Type.INT) && rExpType.equals(lExpType)){ //if both operand types are INT
+                    if(binOp.equals(BinOpType.DIVIDE)){
+                        return Type.FLOAT;
+                    }
                     return Type.INT;
                 } else if (lExpType.equals(Type.FLOAT) && rExpType.equals(lExpType)){ //if both operand types are Float
                     return Type.FLOAT;
-                } else if ((lExpType.equals(Type.FLOAT)||lExpType.equals(Type.INT)) && (rExpType.equals(Type.FLOAT) || rExpType.equals(Type.INT))){ //if both operands ar either int or float
+                } else if ( (lExpType.equals(Type.FLOAT) && rExpType.equals(Type.INT)) || (rExpType.equals(Type.FLOAT) && lExpType.equals(Type.INT))){ //if both operands ar either int or float
                     return Type.FLOAT;
                 } else { //Otherwise, error
                     addError(expr,"Both types should be either floar or int.");
@@ -119,6 +126,15 @@ public class TypeCheckVisitor implements ASTVisitor<Type> {
 
     @Override
     public Type visit(IfStmt stmt) {
+        System.out.println("Estoy visitando el if");
+        Block ifBlock = stmt.getIfBlock();
+        Block elseBlock = stmt.getElseBlock();
+        
+        ifBlock.accept(this);
+        if(elseBlock != null){
+            elseBlock.accept(this);
+        }
+        
         if (stmt.getCondition().accept(this).equals(Type.BOOLEAN)){
             return Type.BOOLEAN; //Checks that the condition is boolean
         }
@@ -175,11 +191,21 @@ public class TypeCheckVisitor implements ASTVisitor<Type> {
 
     @Override
     public Type visit(Block block) {
-//        System.out.println(block.toString());
-        //System.out.println(block.getStatements().size());
+        System.out.println("Entro bloqueeee");
+        System.out.println(block.toString());
+        System.out.println(block.getStatements().size());
+        boolean someIsReturn = false;
         for(Statement st: block.getStatements()){
-          //  System.out.println(st.toString());
-            if(st.accept(this).equals(Type.ERROR) || st.accept(this).equals(Type.UNDEFINED)){
+            System.out.println("Statement "+st.toString()+" es un return? "+ st.getIsReturnStmt());
+            Type stmtType = st.accept(this);
+            if(st.getIsReturnStmt() == true){
+                someIsReturn = true;
+                System.out.println("stmtType "+stmtType.toString());
+                if (visitedMethodType != stmtType){
+                    allBlocksWithSameMethodType = false;
+                }
+            }
+            if(stmtType.equals(Type.ERROR) || stmtType.equals(Type.UNDEFINED)){
                 addError(block,"Block error");
                 return Type.ERROR;
             }
@@ -189,6 +215,10 @@ public class TypeCheckVisitor implements ASTVisitor<Type> {
                     return Type.ERROR;
                 }
             }
+        }
+        // If block does not have return statement
+        if(someIsReturn == false){
+            boolean allBlocksHaveReturn = false;
         }
         
         List<String> fields = block.getFields();
@@ -378,6 +408,10 @@ public class TypeCheckVisitor implements ASTVisitor<Type> {
     public Type visit(MethodDecl methD) {
         Type methType = methD.getMethType();
         Block methBlock = methD.getBlock();
+        allBlocksHaveReturn = true;
+        allBlocksWithSameMethodType = true;
+        visitedMethodType = methType;
+
         
         boolean haveReturnStmt = false;
         Type returnType = null;
@@ -391,19 +425,32 @@ public class TypeCheckVisitor implements ASTVisitor<Type> {
                     return Type.ERROR;
                 }
             }else{
-                System.out.println("acaaaaaaaaaaaaaaaaaa");
+                System.out.println("acuuuuuuuuuuuu");
                 System.out.println("asdasdasd "+ (s.toString()));
                 System.out.println("jaja");
                 s.accept(this);
             }
         }
+        // If methodDecl block does not have a return statement
+        // check if all blocks contained in methodDecl have
+        // return statement
+        if (haveReturnStmt == false){
+            haveReturnStmt = allBlocksHaveReturn;
+        }
+        if (allBlocksWithSameMethodType){
+            returnType = methType;
+        }else{
+            addError(methD,"Return statement inner block wrong type");
+            return Type.ERROR;
+        }
+        
         if(!methType.equals(Type.VOID) && !haveReturnStmt){
             addError(methD,"Return statement missing.");
             return Type.ERROR;
         }
         if(!methType.equals(Type.VOID) && haveReturnStmt){
             if(methType.equals(returnType)){
-                return Type.VOID;
+                return methType;
             }else{
                 addError(methD,"Return statement wrong type.");
                 return Type.ERROR;

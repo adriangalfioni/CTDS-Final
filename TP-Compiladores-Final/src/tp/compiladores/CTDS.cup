@@ -172,15 +172,16 @@ non terminal AssignOpType assign_op;
 non terminal BinOpType bin_op, arith_op, rel_op, eq_op, cond_op;
 /*Type Literals*/
 non terminal Type type;
+non terminal Type type_void;
 non terminal Literal bool_literal, literal;
 
 /*Precedence*/
 precedence left DISYUNCION;
 precedence left CONJUNCION;
-precedence left MAYOR, MENOR, IGUAL;
+precedence nonassoc MAYOR, MENOR, IGUAL;
 precedence left SUMA, MENOS;
 precedence left MULTIPLICACION, DIVISION, DIVENTERA;
-precedence left ADMIRACION, MENOS;
+precedence right ADMIRACION, MENOS;
 
 /*Grammar*/
 
@@ -244,7 +245,9 @@ method_decls ::=  method_decl//Just one method
 		| method_decls method_decl; //At least two methods
 
 method_decl ::=   type:t ID:ident LPARENTESIS RPARENTESIS {:auxList= new LinkedList(); entStack.peek().put(ident,new MyAttribute(ident,t,auxList));list = new LinkedList(); Ent actual = new Ent(entStack.peek());entStack.push(actual);offset=0;:} block: blk {: MethodDecl methD = new MethodDecl(ident,t,null,blk,blkleft,blkright);ASTList.add(methD);:}  //Method without arguments, creates a new scope.
-		| type:t ID:ident LPARENTESIS {:auxList = new LinkedList();list = new LinkedList();Ent actual = new Ent(entStack.peek());entStack.push(actual);:}param RPARENTESIS {:entStack.peek().getPrev().put(ident,new MyAttribute(ident,t,auxList)); offset=0;:} block: blk {:/*ASTList.add(blk);*/MethodDecl methD = new MethodDecl(ident,t,auxList,blk,blkleft,blkright);ASTList.add(methD); System.out.println("Declara metodo con argumentos");:}; //Method with arguments, adds the arguments to the scope and creates a new one
+                | type_void:t ID:ident LPARENTESIS RPARENTESIS {:auxList= new LinkedList(); entStack.peek().put(ident,new MyAttribute(ident,t,auxList));list = new LinkedList(); Ent actual = new Ent(entStack.peek());entStack.push(actual);offset=0;:} block: blk {: MethodDecl methD = new MethodDecl(ident,t,null,blk,blkleft,blkright);ASTList.add(methD);:}  //Method without arguments, creates a new scope.
+		| type:t ID:ident LPARENTESIS {:auxList = new LinkedList();list = new LinkedList();Ent actual = new Ent(entStack.peek());entStack.push(actual);:}param RPARENTESIS {:entStack.peek().getPrev().put(ident,new MyAttribute(ident,t,auxList)); offset=0;:} block: blk {:/*ASTList.add(blk);*/MethodDecl methD = new MethodDecl(ident,t,auxList,blk,blkleft,blkright);ASTList.add(methD); System.out.println("Declara metodo con argumentos");:} //Method with arguments, adds the arguments to the scope and creates a new one
+                | type_void:t ID:ident LPARENTESIS {:auxList = new LinkedList();list = new LinkedList();Ent actual = new Ent(entStack.peek());entStack.push(actual);:}param RPARENTESIS {:entStack.peek().getPrev().put(ident,new MyAttribute(ident,t,auxList)); offset=0;:} block: blk {:/*ASTList.add(blk);*/MethodDecl methD = new MethodDecl(ident,t,auxList,blk,blkleft,blkright);ASTList.add(methD); System.out.println("Declara metodo con argumentos");:}; //Method with arguments, adds the arguments to the scope and creates a new one
 
 param ::= type:t ID: id  {:if (t.equals(Type.VOID)){
                     errors.add(new SemError(tleft,tright,"Void can't be used as type for a parameter")); //If a parameter is declared as Void
@@ -313,7 +316,14 @@ method_call ::= ID:ident LPARENTESIS RPARENTESIS {:MyAttribute method = (MyAttri
                         RESULT = new MethodExpr(s,t,new LinkedList<Expression>(),true,eleft,eright);
                     } 
                 :}
-	      | EXTERNINVK:e LPARENTESIS STRING:s COMA type:t COMA externinvk_args:exArg RPARENTESIS {:/*System.out.println("Nunca entra3");*/ RESULT = new MethodExpr(s,t,exArg,true,eleft,eright); :}; 
+              | EXTERNINVK:e LPARENTESIS STRING:s COMA type_void:t RPARENTESIS{:
+                    System.out.println("External invocation");
+                    if (s != null){
+                        RESULT = new MethodExpr(s,t,new LinkedList<Expression>(),true,eleft,eright);
+                    } 
+                :}
+	      | EXTERNINVK:e LPARENTESIS STRING:s COMA type:t COMA externinvk_args:exArg RPARENTESIS {:/*System.out.println("Nunca entra3");*/ RESULT = new MethodExpr(s,t,exArg,true,eleft,eright); :}
+              | EXTERNINVK:e LPARENTESIS STRING:s COMA type_void:t COMA externinvk_args:exArg RPARENTESIS {:/*System.out.println("Nunca entra3");*/ RESULT = new MethodExpr(s,t,exArg,true,eleft,eright); :}; 
 
 externinvk_args ::= {: exArgList = new LinkedList();:} externinvk_arg:exArg {: exArgList.add((Expression)exArg); RESULT = exArgList;:}
 		   | externinvk_args: exArgs COMA externinvk_arg: exArg {:exArgs.add((Expression)exArg); RESULT = exArgs;:}; 
@@ -326,8 +336,10 @@ exprs ::=  {:auxList= new LinkedList(); exprList= new LinkedList();:} expr:e {:e
 expr ::= location:loc {:RESULT = loc;:}
 	| method_call:methCall {:RESULT = methCall; System.out.println("Method call inside expression");:}
 	| literal:lit {:RESULT = lit;:}
-	| expr:e1 bin_op:bop expr:e2 {:RESULT = new BinOpExpr(e1,bop,e2,bopleft,bopright); System.out.println("BinOp: "+ bop);:}
-	| MENOS:minus expr:e1 {:RESULT = new UnaryOpExpr(e1,UnaryOpType.MINUS,e1left,e1right);:}
+	
+        | expr:e1 bin_op:bop expr:e2 {:RESULT = new BinOpExpr(e1,bop,e2,bopleft,bopright); System.out.println("BinOp: "+ bop);:}
+
+        | MENOS:minus expr:e1 {:RESULT = new UnaryOpExpr(e1,UnaryOpType.MINUS,e1left,e1right);:}
 	| ADMIRACION:not expr:e1 {:RESULT = new UnaryOpExpr(e1,UnaryOpType.NOT,e1left,e1right);:}
 	| LPARENTESIS expr:e RPARENTESIS {:RESULT = e;:};
 
@@ -373,8 +385,10 @@ cond_op ::= CONJUNCION:c {:RESULT = BinOpType.AND;:}
 //Types
 type ::= INT {:RESULT = Type.INT;:}
      | FLT {:RESULT = Type.FLOAT;:}
-     | BOOLEAN {:RESULT = Type.BOOLEAN;:}
-     | VOID {:RESULT = Type.VOID;:};
+     | BOOLEAN {:RESULT = Type.BOOLEAN;:};
+
+// Void type
+type_void ::= VOID {:RESULT = Type.VOID;:};
 
 //Literals
 literal ::= INTEGER:i {:literalList.add(Type.INT);RESULT = new IntLiteral(i.toString());:}
