@@ -62,14 +62,20 @@ SingleCharacter = [^\r\n\'\\]
 <YYINITIAL> {
 /*operators*/
 "-"     {return symbol(sym.MENOS); }
+"-="     {return symbol(sym.MENOSIGUAL); }
 "!"     {return symbol(sym.ADMIRACION); }
+"!="     {return symbol(sym.ADMIRACIONIGUAL); }
 "*"     {return symbol(sym.MULTIPLICACION); }
 "/"     {return symbol(sym.DIVISION); }
 "%"     {return symbol(sym.DIVENTERA); }
 "+"     {return symbol(sym.SUMA); }
+"+="     {return symbol(sym.SUMAIGUAL); }
 "<"     {return symbol(sym.MENOR); }
+"<="     {return symbol(sym.MENORIGUAL); }
 ">"     {return symbol(sym.MAYOR); }
+">="     {return symbol(sym.MAYORIGUAL); }
 "=" 	{return symbol(sym.IGUAL); }
+"==" 	{return symbol(sym.IGUALIGUAL); }
 "&&"    {return symbol(sym.CONJUNCION); }
 "||"    {return symbol(sym.DISYUNCION); }
 

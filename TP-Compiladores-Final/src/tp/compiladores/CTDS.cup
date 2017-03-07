@@ -131,11 +131,11 @@ terminal String INT, FLT, VOID, STRING, BOOLEAN;
 terminal Integer INTEGER;
 terminal Float FLOAT;
 /*Arithmetic operations terminals*/
-terminal SUMA, MENOS, DIVISION, DIVENTERA, MULTIPLICACION;
+terminal SUMA, MENOS, DIVISION, DIVENTERA, MULTIPLICACION, SUMAIGUAL, MENOSIGUAL;
 /*Comparation and equivalence terminals*/
-terminal MAYOR, MENOR, IGUAL;
+terminal MAYOR, MENOR, IGUAL, MAYORIGUAL, MENORIGUAL, IGUALIGUAL;
 /*Logic operators terminals*/
-terminal CONJUNCION, DISYUNCION, ADMIRACION;
+terminal CONJUNCION, DISYUNCION, ADMIRACION, ADMIRACIONIGUAL;
 /*Boolean terminals*/
 terminal String TRUE, FALSE;
 
@@ -169,7 +169,6 @@ non terminal LinkedList<Expression> externinvk_args;
 non terminal  externinvk_arg;
 /*Operators*/
 non terminal AssignOpType assign_op;
-non terminal BinOpType bin_op, arith_op, rel_op, eq_op, cond_op;
 /*Type Literals*/
 non terminal Type type;
 non terminal Type type_void;
@@ -179,7 +178,8 @@ non terminal Literal bool_literal, literal;
 
 precedence left DISYUNCION;
 precedence left CONJUNCION;
-precedence nonassoc MAYOR, MENOR, IGUAL;
+precedence left IGUALIGUAL, ADMIRACIONIGUAL;
+precedence nonassoc MAYORIGUAL, MENORIGUAL, MAYOR, MENOR;
 precedence left SUMA, MENOS;
 precedence left MULTIPLICACION, DIVISION, DIVENTERA;
 precedence right ADMIRACION, MENOS;
@@ -286,8 +286,8 @@ else_stmt::=
             | ELSE {:list = new LinkedList();Ent actual = new Ent(entStack.peek());entStack.push(actual);list = new LinkedList();:} block:bElse {:RESULT = bElse;:}; //Else statement with a new block.
 
 assign_op ::= IGUAL {:RESULT = AssignOpType.ASSIGN;:}
-	     | SUMA IGUAL {:RESULT = AssignOpType.INCREMENT;:}
-	     | MENOS IGUAL {:RESULT = AssignOpType.DECREMENT;:};
+	     | SUMAIGUAL {:RESULT = AssignOpType.INCREMENT;:}
+	     | MENOSIGUAL {:RESULT = AssignOpType.DECREMENT;:};
 
 method_call ::= ID:ident LPARENTESIS RPARENTESIS {:MyAttribute method = (MyAttribute) /*actual*/entStack.peek().get(ident).value ;
                                                 System.out.println("averrr "+method.getList().size());
@@ -346,10 +346,10 @@ expr ::= location:loc {:RESULT = loc;:}
         | expr:e1 DIVISION expr:e2 {:RESULT = new BinOpExpr(e1,BinOpType.DIVIDE,e2,e1left,e1right); System.out.println("BinOp: ");:}
         | expr:e1 MENOR expr:e2 {:RESULT = new BinOpExpr(e1,BinOpType.LE,e2,e1left,e1right); System.out.println("BinOp: ");:}
         | expr:e1 MAYOR expr:e2 {:RESULT = new BinOpExpr(e1,BinOpType.GE,e2,e1left,e1right); System.out.println("BinOp: ");:}
-        | expr:e1 MENOR IGUAL expr:e2 {:RESULT = new BinOpExpr(e1,BinOpType.LEQ,e2,e1left,e1right); System.out.println("BinOp: ");:}
-        | expr:e1 MAYOR IGUAL expr:e2 {:RESULT = new BinOpExpr(e1,BinOpType.GEQ,e2,e1left,e1right); System.out.println("BinOp: ");:}
-        | expr:e1 IGUAL IGUAL expr:e2 {:RESULT = new BinOpExpr(e1,BinOpType.CEQ,e2,e1left,e1right); System.out.println("BinOp: ");:}
-        | expr:e1 ADMIRACION IGUAL expr:e2 {:RESULT = new BinOpExpr(e1,BinOpType.NEQ,e2,e1left,e1right); System.out.println("BinOp: ");:}
+        | expr:e1 MENORIGUAL expr:e2 {:RESULT = new BinOpExpr(e1,BinOpType.LEQ,e2,e1left,e1right); System.out.println("BinOp: ");:}
+        | expr:e1 MAYORIGUAL expr:e2 {:RESULT = new BinOpExpr(e1,BinOpType.GEQ,e2,e1left,e1right); System.out.println("BinOp: ");:}
+        | expr:e1 IGUALIGUAL expr:e2 {:RESULT = new BinOpExpr(e1,BinOpType.CEQ,e2,e1left,e1right); System.out.println("BinOp: igualigual");:}
+        | expr:e1 ADMIRACIONIGUAL expr:e2 {:RESULT = new BinOpExpr(e1,BinOpType.NEQ,e2,e1left,e1right); System.out.println("BinOp: ");:}
         | expr:e1 CONJUNCION expr:e2 {:RESULT = new BinOpExpr(e1,BinOpType.AND,e2,e1left,e1right); System.out.println("BinOp: ");:}
         | expr:e1 DISYUNCION expr:e2 {:RESULT = new BinOpExpr(e1,BinOpType.OR,e2,e1left,e1right); System.out.println("BinOp: ");:}
 
@@ -372,29 +372,6 @@ location ::= ID:id {:if(entStack.peek().get(id) == null){
                     RESULT = new ArrayLocation(id,exp,var.getType(),expleft,expright);:};
 
 
-
-//Operations
-bin_op ::=  cond_op:cond {:RESULT = cond;:}
-        | eq_op:eq {:RESULT = eq;:}
-        | rel_op:rel {:RESULT = rel;:}  
-        | arith_op:arith {:RESULT = arith;:};
-
-arith_op ::= SUMA {:RESULT = BinOpType.PLUS;:}
-	| MENOS {:RESULT = BinOpType.MINUS;:}
-	| MULTIPLICACION {:RESULT = BinOpType.MULTIPLY;:}
-	| DIVISION {:RESULT = BinOpType.DIVIDE;:}
-	| DIVENTERA {:RESULT = BinOpType.MOD;:}; 
-
-rel_op ::= MENOR {:RESULT = BinOpType.LE;:}
-	| MAYOR {:RESULT = BinOpType.GE;:}
-	| MENOR IGUAL {:RESULT = BinOpType.LEQ;:}
-	| MAYOR IGUAL {:RESULT = BinOpType.GEQ;:}; 
-
-eq_op ::= IGUAL IGUAL {:RESULT = BinOpType.CEQ;:}
-	| ADMIRACION IGUAL {:RESULT = BinOpType.NEQ;:}; 
-
-cond_op ::= CONJUNCION:c {:RESULT = BinOpType.AND;:}
-	| DISYUNCION:d {:RESULT = BinOpType.OR;:};
 
 //Types
 type ::= INT {:RESULT = Type.INT;:}
