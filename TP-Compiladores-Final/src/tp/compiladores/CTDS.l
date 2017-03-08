@@ -143,4 +143,4 @@ SingleCharacter = [^\r\n\'\\]
 }
 
 
-. {/*Ignore*/ }
+. {throw new RuntimeException("Illegal character \""+yytext()+"\""); }
