@@ -302,6 +302,7 @@ public class GenI3DVisitor implements ASTVisitor<Object>  {
 
     @Override
     public Object visit(VarLocation loc) {
+        getI3d().add(new I3D(OpName.LOCALVAR,loc.getId(),null,loc.getOffset()));
         return loc;
     }
 

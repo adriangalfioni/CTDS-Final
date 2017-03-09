@@ -147,6 +147,7 @@ public class TypeCheckVisitor implements ASTVisitor<Type> {
 
     @Override
     public Type visit(VarLocation loc) {
+        System.out.println("Visitando VARLOCATION !!!!!!!!!! "+loc.getType());
         return loc.getType();
     }
 

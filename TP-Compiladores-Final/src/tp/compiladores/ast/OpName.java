@@ -57,7 +57,8 @@ public enum OpName {
         CONDITIONWHILE,
         CALLMETHOD,
         OFFSET,
-        EXTINV;
+        EXTINV,
+        LOCALVAR;
         
         @Override
         public String toString(){
@@ -144,6 +145,8 @@ public enum OpName {
                        return "offset";
                    case CALLMETHOD:
                        return "methodcall";
+                   case LOCALVAR:
+                       return "localvar";
                     
                            
             }

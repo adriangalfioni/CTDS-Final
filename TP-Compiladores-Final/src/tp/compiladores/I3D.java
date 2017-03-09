@@ -19,6 +19,7 @@ import tp.compiladores.ast.OpName;
  *    GOTO: {v1 = a que Statement le corresponde, v2 = null, result = Adonde dirigirse}
  *    OperacionesBinarias: {v1 = 1er operando, v2 = segundo operando, result = Adonde se guarda el resultado}
  *    LABELMETHOD: {v1 = null, v2 = null, result = Nombre del metodo}
+ *    LOCALVAR: {v1 = VarLocation name, v2 = null, result = offset}
  */
 /**
  *
