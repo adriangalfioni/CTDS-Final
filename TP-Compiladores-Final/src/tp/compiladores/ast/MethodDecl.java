@@ -19,11 +19,13 @@ public class MethodDecl extends Statement{
     private Type methType;
     private Block block;
     private LinkedList<Type> parmsType;
+    private int offset;
     
-    public MethodDecl(String id, Type type, LinkedList<Type> parametersType, Block b,int row, int column){
+    public MethodDecl(String id, Type type, LinkedList<Type> parametersType, Block b,int row, int column, int offset){
         this.id=id;
         methType=type;
         block=b;
+        this.offset = offset;
         
         parmsType= parametersType == null ? new LinkedList<Type>() : parametersType;
         this.setLineNumber(row);

@@ -103,10 +103,13 @@ action code {:
     LinkedList<MethodDecl> methDList = new LinkedList<MethodDecl>();
 
     int offset = 0;
+    boolean isGlobal = true;
 
     public LinkedList<AST> getAST(){
         return ASTList;
     }
+
+    public LinkedList<String> vars = new LinkedList<String>();
 :}
 
 
@@ -230,7 +233,7 @@ field_decl ::= type:t identificadores:idents{:
 identificadores ::= identificador:id {:fieldList= new LinkedList(); fieldList.add(id); RESULT = fieldList;:}//Only one identifier
                     | identificadores:idList COMA identificador:id {:idList.add(id); RESULT = idList;:}; //At least two identifiers
 
-identificador ::= ID:ident {:list.add(new MyAttribute(ident,null)); RESULT = ident;entStack.peek().put(ident,new MyAttribute(ident,Type.VOID));:} //New identifier
+identificador ::= ID:ident {:if(isGlobal){vars.add(ident);}list.add(new MyAttribute(ident,null)); RESULT = ident;entStack.peek().put(ident,new MyAttribute(ident,Type.VOID));:} //New identifier
 		| ID:ident LCORCHETE INTEGER:length RCORCHETE{: //New array
                     int intLength = length; //Parse the length of the array
                     if(intLength > 0){  
@@ -246,10 +249,10 @@ identificador ::= ID:ident {:list.add(new MyAttribute(ident,null)); RESULT = ide
 method_decls ::=  method_decl//Just one method
 		| method_decls method_decl; //At least two methods
 
-method_decl ::=   type:t ID:ident LPARENTESIS RPARENTESIS {:auxList= new LinkedList(); entStack.peek().put(ident,new MyAttribute(ident,t,auxList));list = new LinkedList(); Ent actual = new Ent(entStack.peek());entStack.push(actual);offset=0;:} block: blk {: MethodDecl methD = new MethodDecl(ident,t,null,blk,blkleft,blkright);ASTList.add(methD);:}  //Method without arguments, creates a new scope.
-                | type_void:t ID:ident LPARENTESIS RPARENTESIS {:auxList= new LinkedList(); entStack.peek().put(ident,new MyAttribute(ident,t,auxList));list = new LinkedList(); Ent actual = new Ent(entStack.peek());entStack.push(actual);offset=0;:} block: blk {: MethodDecl methD = new MethodDecl(ident,t,null,blk,blkleft,blkright);ASTList.add(methD);:}  //Method without arguments, creates a new scope.
-		| type:t ID:ident LPARENTESIS {:auxList = new LinkedList();list = new LinkedList();Ent actual = new Ent(entStack.peek());entStack.push(actual);:}param RPARENTESIS {:entStack.peek().getPrev().put(ident,new MyAttribute(ident,t,auxList)); offset=0;:} block: blk {:/*ASTList.add(blk);*/MethodDecl methD = new MethodDecl(ident,t,auxList,blk,blkleft,blkright);ASTList.add(methD); System.out.println("Declara metodo con argumentos");:} //Method with arguments, adds the arguments to the scope and creates a new one
-                | type_void:t ID:ident LPARENTESIS {:auxList = new LinkedList();list = new LinkedList();Ent actual = new Ent(entStack.peek());entStack.push(actual);:}param RPARENTESIS {:entStack.peek().getPrev().put(ident,new MyAttribute(ident,t,auxList)); offset=0;:} block: blk {:/*ASTList.add(blk);*/MethodDecl methD = new MethodDecl(ident,t,auxList,blk,blkleft,blkright);ASTList.add(methD); System.out.println("Declara metodo con argumentos");:}; //Method with arguments, adds the arguments to the scope and creates a new one
+method_decl ::=   type:t ID:ident LPARENTESIS RPARENTESIS {:isGlobal = false;auxList= new LinkedList(); entStack.peek().put(ident,new MyAttribute(ident,t,auxList));list = new LinkedList(); Ent actual = new Ent(entStack.peek());entStack.push(actual);:} block: blk {: MethodDecl methD = new MethodDecl(ident,t,null,blk,blkleft,blkright,offset);ASTList.add(methD);offset=0;:}  //Method without arguments, creates a new scope.
+                | type_void:t ID:ident LPARENTESIS RPARENTESIS {:isGlobal = false;auxList= new LinkedList(); entStack.peek().put(ident,new MyAttribute(ident,t,auxList));list = new LinkedList(); Ent actual = new Ent(entStack.peek());entStack.push(actual);:} block: blk {: MethodDecl methD = new MethodDecl(ident,t,null,blk,blkleft,blkright,offset);ASTList.add(methD);offset=0;:}  //Method without arguments, creates a new scope.
+		| type:t ID:ident LPARENTESIS {:isGlobal = false;auxList = new LinkedList();list = new LinkedList();Ent actual = new Ent(entStack.peek());entStack.push(actual);:}param RPARENTESIS {:entStack.peek().getPrev().put(ident,new MyAttribute(ident,t,auxList));:} block: blk {:/*ASTList.add(blk);*/MethodDecl methD = new MethodDecl(ident,t,auxList,blk,blkleft,blkright,offset);ASTList.add(methD); offset=0;System.out.println("Declara metodo con argumentos");:} //Method with arguments, adds the arguments to the scope and creates a new one
+                | type_void:t ID:ident LPARENTESIS {:isGlobal = false;auxList = new LinkedList();list = new LinkedList();Ent actual = new Ent(entStack.peek());entStack.push(actual);:}param RPARENTESIS {:entStack.peek().getPrev().put(ident,new MyAttribute(ident,t,auxList));:} block: blk {:/*ASTList.add(blk);*/MethodDecl methD = new MethodDecl(ident,t,auxList,blk,blkleft,blkright,offset);ASTList.add(methD); offset=0; System.out.println("Declara metodo con argumentos");:}; //Method with arguments, adds the arguments to the scope and creates a new one
 
 param ::= type:t ID: id  {:if (t.equals(Type.VOID)){
                     errors.add(new SemError(tleft,tright,"Void can't be used as type for a parameter")); //If a parameter is declared as Void
@@ -339,22 +342,22 @@ expr ::= location:loc {:RESULT = loc;:}
 	| method_call:methCall {:RESULT = methCall; System.out.println("Method call inside expression");:}
 	| literal:lit {:RESULT = lit;:}
 	
-        | expr:e1 SUMA expr:e2 {:RESULT = new BinOpExpr(e1,BinOpType.PLUS,e2,e1left,e1right); System.out.println("BinOp: ");:}
-        | expr:e1 MENOS expr:e2 {:RESULT = new BinOpExpr(e1,BinOpType.MINUS,e2,e1left,e1right); System.out.println("BinOp: ");:}
-        | expr:e1 MULTIPLICACION expr:e2 {:RESULT = new BinOpExpr(e1,BinOpType.MULTIPLY,e2,e1left,e1right); System.out.println("BinOp: ");:}
-        | expr:e1 DIVENTERA expr:e2 {:RESULT = new BinOpExpr(e1,BinOpType.MOD,e2,e1left,e1right); System.out.println("BinOp: ");:}
-        | expr:e1 DIVISION expr:e2 {:RESULT = new BinOpExpr(e1,BinOpType.DIVIDE,e2,e1left,e1right); System.out.println("BinOp: ");:}
-        | expr:e1 MENOR expr:e2 {:RESULT = new BinOpExpr(e1,BinOpType.LE,e2,e1left,e1right); System.out.println("BinOp: ");:}
-        | expr:e1 MAYOR expr:e2 {:RESULT = new BinOpExpr(e1,BinOpType.GE,e2,e1left,e1right); System.out.println("BinOp: ");:}
-        | expr:e1 MENORIGUAL expr:e2 {:RESULT = new BinOpExpr(e1,BinOpType.LEQ,e2,e1left,e1right); System.out.println("BinOp: ");:}
-        | expr:e1 MAYORIGUAL expr:e2 {:RESULT = new BinOpExpr(e1,BinOpType.GEQ,e2,e1left,e1right); System.out.println("BinOp: ");:}
-        | expr:e1 IGUALIGUAL expr:e2 {:RESULT = new BinOpExpr(e1,BinOpType.CEQ,e2,e1left,e1right); System.out.println("BinOp: igualigual");:}
-        | expr:e1 ADMIRACIONIGUAL expr:e2 {:RESULT = new BinOpExpr(e1,BinOpType.NEQ,e2,e1left,e1right); System.out.println("BinOp: ");:}
-        | expr:e1 CONJUNCION expr:e2 {:RESULT = new BinOpExpr(e1,BinOpType.AND,e2,e1left,e1right); System.out.println("BinOp: ");:}
-        | expr:e1 DISYUNCION expr:e2 {:RESULT = new BinOpExpr(e1,BinOpType.OR,e2,e1left,e1right); System.out.println("BinOp: ");:}
+        | expr:e1 SUMA expr:e2 {:offset+=8;RESULT = new BinOpExpr(e1,BinOpType.PLUS,e2,e1left,e1right); System.out.println("BinOp: ");:}
+        | expr:e1 MENOS expr:e2 {:offset+=8;RESULT = new BinOpExpr(e1,BinOpType.MINUS,e2,e1left,e1right); System.out.println("BinOp: ");:}
+        | expr:e1 MULTIPLICACION expr:e2 {:offset+=8;RESULT = new BinOpExpr(e1,BinOpType.MULTIPLY,e2,e1left,e1right); System.out.println("BinOp: ");:}
+        | expr:e1 DIVENTERA expr:e2 {:offset+=8;RESULT = new BinOpExpr(e1,BinOpType.MOD,e2,e1left,e1right); System.out.println("BinOp: ");:}
+        | expr:e1 DIVISION expr:e2 {:offset+=8;RESULT = new BinOpExpr(e1,BinOpType.DIVIDE,e2,e1left,e1right); System.out.println("BinOp: ");:}
+        | expr:e1 MENOR expr:e2 {:offset+=8;RESULT = new BinOpExpr(e1,BinOpType.LE,e2,e1left,e1right); System.out.println("BinOp: ");:}
+        | expr:e1 MAYOR expr:e2 {:offset+=8;RESULT = new BinOpExpr(e1,BinOpType.GE,e2,e1left,e1right); System.out.println("BinOp: ");:}
+        | expr:e1 MENORIGUAL expr:e2 {:offset+=8;RESULT = new BinOpExpr(e1,BinOpType.LEQ,e2,e1left,e1right); System.out.println("BinOp: ");:}
+        | expr:e1 MAYORIGUAL expr:e2 {:offset+=8;RESULT = new BinOpExpr(e1,BinOpType.GEQ,e2,e1left,e1right); System.out.println("BinOp: ");:}
+        | expr:e1 IGUALIGUAL expr:e2 {:offset+=8;RESULT = new BinOpExpr(e1,BinOpType.CEQ,e2,e1left,e1right); System.out.println("BinOp: igualigual");:}
+        | expr:e1 ADMIRACIONIGUAL expr:e2 {:offset+=8;RESULT = new BinOpExpr(e1,BinOpType.NEQ,e2,e1left,e1right); System.out.println("BinOp: ");:}
+        | expr:e1 CONJUNCION expr:e2 {:offset+=8;RESULT = new BinOpExpr(e1,BinOpType.AND,e2,e1left,e1right); System.out.println("BinOp: ");:}
+        | expr:e1 DISYUNCION expr:e2 {:offset+=8;RESULT = new BinOpExpr(e1,BinOpType.OR,e2,e1left,e1right); System.out.println("BinOp: ");:}
 
-        | MENOS:minus expr:e1 {:RESULT = new UnaryOpExpr(e1,UnaryOpType.MINUS,e1left,e1right);:} %prec UMINUS
-	| ADMIRACION:not expr:e1 {:RESULT = new UnaryOpExpr(e1,UnaryOpType.NOT,e1left,e1right);:} %prec UMINUS
+        | MENOS:minus expr:e1 {:offset+=8;RESULT = new UnaryOpExpr(e1,UnaryOpType.MINUS,e1left,e1right);:} %prec UMINUS
+	| ADMIRACION:not expr:e1 {:offset+=8;RESULT = new UnaryOpExpr(e1,UnaryOpType.NOT,e1left,e1right);:} %prec UMINUS
 	| LPARENTESIS expr:e RPARENTESIS {:RESULT = e;:};
 
 location ::= ID:id {:if(entStack.peek().get(id) == null){
