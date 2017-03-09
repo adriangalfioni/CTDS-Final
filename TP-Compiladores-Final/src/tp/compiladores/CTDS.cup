@@ -233,7 +233,7 @@ field_decl ::= type:t identificadores:idents{:
 identificadores ::= identificador:id {:fieldList= new LinkedList(); fieldList.add(id); RESULT = fieldList;:}//Only one identifier
                     | identificadores:idList COMA identificador:id {:idList.add(id); RESULT = idList;:}; //At least two identifiers
 
-identificador ::= ID:ident {:if(isGlobal){vars.add(ident);}list.add(new MyAttribute(ident,null)); RESULT = ident;entStack.peek().put(ident,new MyAttribute(ident,Type.VOID));VarLocation varL = new VarLocation(ident,offset);ASTList.add(varL);:} //New identifier
+identificador ::= ID:ident {:if(isGlobal){vars.add(ident);}list.add(new MyAttribute(ident,null)); RESULT = ident;entStack.peek().put(ident,new MyAttribute(ident,Type.VOID));offset+=8;VarLocation varL = new VarLocation(ident,offset);ASTList.add(varL);:} //New identifier
 		| ID:ident LCORCHETE INTEGER:length RCORCHETE{: //New array
                     int intLength = length; //Parse the length of the array
                     if(intLength > 0){  
