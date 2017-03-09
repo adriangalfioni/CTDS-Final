@@ -52,6 +52,7 @@ public class GenI3DVisitor implements ASTVisitor<Object>  {
         I3D res;
         Object expr = stmt.getExpression().accept(this);
         Object varLoc = stmt.getLocation().accept(this); 
+        System.out.println("VARLOC "+varLoc.getClass());
         switch (stmt.getOperator()){
             case ASSIGN: 
                 res = new I3D(OpName.ASSIGN, expr, null, varLoc);
@@ -281,32 +282,32 @@ public class GenI3DVisitor implements ASTVisitor<Object>  {
 
     @Override
     public Object visit(IntLiteral lit) {
-        return lit.getValue();
+        return lit;
     }
 
     @Override
     public Object visit(BoolLiteral lit) {
-        return lit.getValue();
+        return lit;
     }
 
     @Override
     public Object visit(FloatLiteral lit) {
-        return lit.getValue();
+        return lit;
     }
 
     @Override
     public Object visit(StringLiteral lit) {
-        return lit.getValue();
+        return lit;
     }
 
     @Override
     public Object visit(VarLocation loc) {
-        return loc.toString();
+        return loc;
     }
 
     @Override
     public Object visit(ArrayLocation arrLoc) {
-        return arrLoc.toString();
+        return arrLoc;
     }
 
     /**
