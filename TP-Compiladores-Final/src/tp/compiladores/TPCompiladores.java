@@ -40,7 +40,7 @@ public class TPCompiladores {
         lista = p.action_obj.getAST();
         TypeCheckVisitor astv = new TypeCheckVisitor();
         GenI3DVisitor gen3d = new GenI3DVisitor();
-        asmGen asmG = new asmGen();
+        asmGen asmG = new asmGen(/*p.action_obj.vars*/);
         //System.out.println("Size: "+lista.size());
         
         for (AST a: lista){
