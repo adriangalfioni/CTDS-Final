@@ -21,8 +21,11 @@ public class asmNode {
         this.val2 = v2;
     }
     
+    
     @Override
     public String toString(){
+        System.out.println("THIS-"+val1);
+        System.out.println("VAL2 "+val2);
         String val1S = (String) val1;
         String val2S = (String) val2;
         String opS = (String) op;
