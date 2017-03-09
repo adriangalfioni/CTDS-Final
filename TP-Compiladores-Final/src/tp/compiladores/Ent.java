@@ -53,12 +53,13 @@ public class Ent {
     */
     //String s es el nombre de la variable
     public void put(String name, Object type){
-        System.out.println("tp.compiladores.Ent.put() -- PUT ("+name+")");
+        //System.out.println("tp.compiladores.Ent.put() -- PUT ("+name+")");
         //Crea un símbolo auxiliar que es agregado a la tabla de símbolos con su nombre como clave.
         Symbol sim = new Symbol(1, type);
         //Si ya existe una variable con el mismo nombre en la tabla de este entorno, comunicamos el error.
         if (table.containsKey(name)){
-            System.out.println("tp.compiladores.Ent.put() -- Symbol already defined ("+name+")");
+            throw new RuntimeException("Symbol already defined \""+name+"\"");
+            //System.out.println("tp.compiladores.Ent.put() -- Symbol already defined ("+name+")");
         //Sino, agrega la variable a la tabla con el nombre como clave y el símbolo como valor
         }else{
             table.put(name, sim);
