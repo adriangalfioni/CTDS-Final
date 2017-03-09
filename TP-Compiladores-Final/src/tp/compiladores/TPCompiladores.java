@@ -44,12 +44,11 @@ public class TPCompiladores {
         //System.out.println("Size: "+lista.size());
         
         for (AST a: lista){
-            System.out.println("A: "+ a);
-            //a.accept(gen3d);
+            a.accept(gen3d);
             a.accept(astv);
             //a.accept(astv).toString();
         }
-        /*PrintWriter writer = new PrintWriter("i3d.txt","UTF-8");
+        PrintWriter writer = new PrintWriter("i3d.txt","UTF-8");
         for (I3D i: gen3d.getI3d()){
             System.out.println("Nodo gen3D "+i.toString());
             writer.println(i.toString());
@@ -57,11 +56,11 @@ public class TPCompiladores {
         }
         writer.close();
         
-        PrintWriter asmWriter = new PrintWriter("asm.txt","UTF-8");
+        PrintWriter asmWriter = new PrintWriter("asm.s","UTF-8");
         for (asmNode n: asmG.getNodes()){
             asmWriter.println(n.toString());
         }
-        asmWriter.close();*/
+        asmWriter.close();
         
     }
     
