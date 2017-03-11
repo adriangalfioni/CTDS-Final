@@ -1,0 +1,12 @@
+class test_potencia{
+
+int _a;
+int b[5];
+
+
+void main(){
+	b[0]= (-6);
+     return;
+}
+
+}
