@@ -156,14 +156,15 @@ public class GenI3DVisitor implements ASTVisitor<Object>  {
 
     @Override
     public Object visit(MethodStmt methStmt) {
-        VarLocation varloc = new VarLocation(methStmt.getMethodId());
-        getI3d().add(new I3D(OpName.LABELMETHOD,null,null,varloc));
-        if (methStmt.getExpression() != null){
-            for(Expression e: methStmt.getExpression()){
-                e.accept(this);
-            }
-        }
-        getI3d().add(new I3D(OpName.GOTO,null,null,methStmt.getMethodId()));
+          getI3d().add(new I3D(OpName.CALLMETHOD, null, null, methStmt.getMethodId()));
+//        VarLocation varloc = new VarLocation(methStmt.getMethodId());
+//        getI3d().add(new I3D(OpName.LABELMETHOD,null,null,varloc));
+//        if (methStmt.getExpression() != null){
+//            for(Expression e: methStmt.getExpression()){
+//                e.accept(this);
+//            }
+//        }
+//        getI3d().add(new I3D(OpName.GOTO,null,null,methStmt.getMethodId()));
         return null;
     }
 
@@ -287,6 +288,7 @@ public class GenI3DVisitor implements ASTVisitor<Object>  {
 
     @Override
     public Object visit(BoolLiteral lit) {
+        System.out.println("Entro por acá?");
         return lit;
     }
 
