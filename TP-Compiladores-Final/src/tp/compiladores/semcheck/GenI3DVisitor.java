@@ -312,6 +312,7 @@ public class GenI3DVisitor implements ASTVisitor<Object>  {
 
     @Override
     public Object visit(VarLocation loc) {
+        System.out.println(loc.toString()+" offset: "+loc.getOffset());
         //System.out.println("Orden: "+orden+ " varLoc");
         //orden++;
         /*if(!loc.getIsOnlyLocation()){
