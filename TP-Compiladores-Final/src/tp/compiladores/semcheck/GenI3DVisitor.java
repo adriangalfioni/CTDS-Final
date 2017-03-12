@@ -203,6 +203,7 @@ public class GenI3DVisitor implements ASTVisitor<Object>  {
         System.out.println("Entro a block!!!");
         
         for(VarLocation varL: block.getFields()){
+            offset+=8;
             varL.accept(this);
         }
         
