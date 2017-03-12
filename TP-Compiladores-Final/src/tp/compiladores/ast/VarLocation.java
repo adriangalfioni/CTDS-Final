@@ -6,14 +6,16 @@ public class VarLocation extends Location {
 
     private int blockId;
     private int offset;
+    private boolean onlyLocation;
 
-    public VarLocation(String id, Type type, int offset, int row, int column) {
+    public VarLocation(String id, Type type, int offset, int row, int column, boolean onlyLocation) {
         this.id = id;
         this.setType(type);
         this.blockId = -1;
         this.setIsArrayLocation(false);
         this.setLineNumber(row + 1);
         this.setColumnNumber(column);
+        this.onlyLocation = onlyLocation;
 
         this.offset = offset;
 
@@ -32,6 +34,11 @@ public class VarLocation extends Location {
     public int getBlockId() {
         return blockId;
     }
+    
+    public boolean getIsOnlyLocation(){
+        return onlyLocation;
+    }
+    
 
     public void setBlockId(int blockId) {
         this.blockId = blockId;

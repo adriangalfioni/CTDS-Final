@@ -25,6 +25,8 @@ public class TypeCheckVisitor implements ASTVisitor<Type> {
             //System.out.println("Type= "+locType);
         } else {
             locType = stmt.getLocation().getType();
+            System.out.println("El type es asdasdasdasd: "+locType);
+            System.out.println(stmt.getLocation().toString());
         }
 //            System.out.print(locType.toString()+" ");
 //            System.out.print(stmt.getLocation().toString()+" ");
@@ -220,11 +222,11 @@ public class TypeCheckVisitor implements ASTVisitor<Type> {
             boolean allBlocksHaveReturn = false;
         }
 
-        List<String> fields = block.getFields();
+        List<VarLocation> fields = block.getFields();
         if (fields != null) {
             for (int i = 0; i < fields.size(); i++) {
                 for (int j = i + 1; j < fields.size(); j++) {
-                    if (fields.get(i).equalsIgnoreCase(fields.get(j))) {
+                    if (fields.get(i).getId().equalsIgnoreCase(fields.get(j).getId())) {
                         addError(block, "Identifier already defined");
                         return Type.ERROR;
                     }
