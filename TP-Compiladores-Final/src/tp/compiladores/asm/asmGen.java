@@ -42,11 +42,11 @@ public class asmGen {
                        //Do float stuff
                    } else if (node.getV1() instanceof IntLiteral){
                         IntLiteral v1 = (IntLiteral) node.getV1();
-                        asm = new asmNode("movl ", v2.getOffset()+"(%ebp)",", %eax");
+                        asm = new asmNode("movl ", "-"+v2.getOffset()+"(%ebp)",", %eax");
                         getNodes().add(asm);
                         asm = new asmNode("addl ","$"+v1.getRawValue(),", %eax");
                         getNodes().add(asm);
-                        asm = new asmNode("movl ","%eax",", "+res.getOffset()+"(%ebp)");
+                        asm = new asmNode("movl ","%eax",", -"+res.getOffset()+"(%ebp)");
                         getNodes().add(asm);    
                    }
                } else if ((node.getV2() instanceof Literal) && (node.getV1() instanceof VarLocation)){
@@ -56,11 +56,11 @@ public class asmGen {
                        //Do float stuff
                    } else if (node.getV2() instanceof IntLiteral){
                         IntLiteral v2 = (IntLiteral) node.getV2();
-                        asm = new asmNode("movl ",v1.getOffset()+"(%ebp)",", %eax");
+                        asm = new asmNode("movl ","-"+v1.getOffset()+"(%ebp)",", %eax");
                         getNodes().add(asm);
                         asm = new asmNode("addl ","$"+v2.getRawValue(),", %eax");
                         getNodes().add(asm);
-                        asm = new asmNode("movl ","%eax",", "+res.getOffset()+"(%ebp)");
+                        asm = new asmNode("movl ","%eax",", -"+res.getOffset()+"(%ebp)");
                         getNodes().add(asm);    
                    }
                } else if (node.getV1() instanceof Literal && node.getV2() instanceof Literal) {
@@ -74,7 +74,7 @@ public class asmGen {
                        getNodes().add(asm);
                        asm = new asmNode("addl ","$"+v1.getRawValue(),", %eax");
                        getNodes().add(asm);
-                       asm = new asmNode("movl ","%eax",", "+(res.getOffset()+"(%ebp)"));
+                       asm = new asmNode("movl ","%eax",", -"+(res.getOffset()+"(%ebp)"));
                        getNodes().add(asm);    
                    }
                } else if ((node.getV1() instanceof VarLocation) && (node.getV2() instanceof VarLocation)){
@@ -88,7 +88,7 @@ public class asmGen {
                    getNodes().add(asm);
                    asm = new asmNode("addl  ","%eax",", %edx");
                    getNodes().add(asm);
-                   asm = new asmNode("movl   ","%edx",", "+(res.getOffset()+"(%ebp)"));
+                   asm = new asmNode("movl   ","%edx",", -"+(res.getOffset()+"(%ebp)"));
                    getNodes().add(asm);
                }
                break;
@@ -100,11 +100,11 @@ public class asmGen {
                        //Do float stuff
                    } else if (node.getV1() instanceof IntLiteral){
                         IntLiteral v1 = (IntLiteral) node.getV1();
-                        asm = new asmNode("mov   ",v2.getOffset(),", %eax");
+                        asm = new asmNode("movl   ","-"+v2.getOffset()+"(%ebp)",", %eax");
                         getNodes().add(asm);
-                        asm = new asmNode("sub   ",v1.getRawValue(),", %eax");
+                        asm = new asmNode("subl   ","$"+v1.getRawValue(),", %eax");
                         getNodes().add(asm);
-                        asm = new asmNode("mov   ","%eax",", "+res.getOffset());
+                        asm = new asmNode("movl   ","%eax",", -"+res.getOffset()+"(%ebp)");
                         getNodes().add(asm);    
                    }
                } else if ((node.getV2() instanceof Literal) && (node.getV1() instanceof VarLocation)){
@@ -114,11 +114,11 @@ public class asmGen {
                        //Do float stuff
                    } else if (node.getV2() instanceof IntLiteral){
                         IntLiteral v2 = (IntLiteral) node.getV2();
-                        asm = new asmNode("mov   ","$"+v1.getOffset(),", %r10");
+                        asm = new asmNode("movl   ","-"+v1.getOffset()+"(%ebp)",", %eax");
                         getNodes().add(asm);
-                        asm = new asmNode("sub   ","$"+v2.getRawValue(),", %r10");
+                        asm = new asmNode("subl   ","$"+v2.getRawValue(),", %eax");
                         getNodes().add(asm);
-                        asm = new asmNode("mov   ","%r10",", -"+res.getOffset()+"(%rbp)");
+                        asm = new asmNode("movl   ","%eax",", -"+res.getOffset()+"(%ebp)");
                         getNodes().add(asm);    
                    }
                } else if (node.getV1() instanceof Literal && node.getV2() instanceof Literal) {
@@ -128,24 +128,24 @@ public class asmGen {
                        IntLiteral v1 = (IntLiteral) node.getV1();
                        IntLiteral v2 = (IntLiteral) node.getV2();
                        VarLocation res = (VarLocation) node.getResult();
-                       asm = new asmNode("mov   ","$"+v2.getRawValue(),", %r10");
+                       asm = new asmNode("movl   ","$"+v2.getRawValue(),", %eax");
                        getNodes().add(asm);
-                       asm = new asmNode("sub   ","$"+v1.getRawValue(),", %r10");
+                       asm = new asmNode("subl   ","$"+v1.getRawValue(),", %eax");
                        getNodes().add(asm);
-                       asm = new asmNode("mov   ","%r10",", -"+(res.getOffset())+"%(rbp)");
+                       asm = new asmNode("movl   ","%eax",", -"+(res.getOffset())+"(%ebp)");
                        getNodes().add(asm);    
                    }
                } else if ((node.getV1() instanceof VarLocation) && (node.getV2() instanceof VarLocation)){
                    VarLocation v1 = (VarLocation) node.getV1();
                    VarLocation v2 = (VarLocation) node.getV2();
                    VarLocation res = (VarLocation) node.getResult();
-                   asm = new asmNode("mov   ","-"+v1.getOffset()+"(%rbp)",", %r10");
+                   asm = new asmNode("movl   ","-"+v1.getOffset()+"(%ebp)",", %eax");
                    getNodes().add(asm);
-                   asm = new asmNode("mov   ","-"+v2.getOffset()+"(%rbp)",", %r11");
+                   asm = new asmNode("movl   ","-"+v2.getOffset()+"(%ebp)",", %edx");
                    getNodes().add(asm);
-                   asm = new asmNode("sub   ","%r10","%r11");
+                   asm = new asmNode("subl   ","%eax",", %edx");
                    getNodes().add(asm);
-                   asm = new asmNode("mov   ","%r11",", -"+(res.getOffset())+"%(rbp)");
+                   asm = new asmNode("movl   ","%edx",", -"+(res.getOffset())+"(%ebp)");
                    getNodes().add(asm);
                }
                break;
@@ -159,11 +159,11 @@ public class asmGen {
                         IntLiteral v1 = (IntLiteral) node.getV1();
                         v2 = (VarLocation) node.getV2();
                         res = (VarLocation) node.getResult();
-                        asm = new asmNode("mov   ","-"+v2.getOffset()+"(%rbp)",", %r10");
+                        asm = new asmNode("movl   ","-"+v2.getOffset()+"(%ebp)",", %eax");
                         getNodes().add(asm);
-                        asm = new asmNode("imul   ","$"+v1.getRawValue(),", %r10");
+                        asm = new asmNode("imul   ","$"+v1.getRawValue(),", %eax");
                         getNodes().add(asm);
-                        asm = new asmNode("mov   ","%r10",", -"+(res.getOffset())+"%(rbp)");
+                        asm = new asmNode("movl   ","%eax",", -"+(res.getOffset())+"(%ebp)");
                         getNodes().add(asm);
                    }
                } else if ((node.getV2() instanceof Literal) && (node.getV1() instanceof VarLocation)){
@@ -175,11 +175,11 @@ public class asmGen {
                         IntLiteral v2 = (IntLiteral) node.getV2();
                         v1 = (VarLocation) node.getV1();
                         res = (VarLocation) node.getResult();
-                        asm = new asmNode("mov   ","-"+v1.getOffset()+"(%rbp)",", %r10");
+                        asm = new asmNode("movl   ","-"+v1.getOffset()+"(%ebp)",", %eax");
                         getNodes().add(asm);
-                        asm = new asmNode("imul   ","$"+v2.getRawValue(),", %r10");
+                        asm = new asmNode("imul   ","$"+v2.getRawValue(),", %eax");
                         getNodes().add(asm);
-                        asm = new asmNode("mov   ","%r10",", -"+(res.getOffset())+"%(rbp)");
+                        asm = new asmNode("movl   ","%eax",", -"+(res.getOffset())+"(%ebp)");
                         getNodes().add(asm);
                    }
                } else if (node.getV1() instanceof Literal && node.getV2() instanceof Literal) {
@@ -189,24 +189,24 @@ public class asmGen {
                        IntLiteral v1 = (IntLiteral) node.getV1();
                        IntLiteral v2 = (IntLiteral) node.getV2();
                        VarLocation res = (VarLocation) node.getResult();
-                       asm = new asmNode("mov   ","$"+v1.getRawValue(),", %r10");
+                       asm = new asmNode("movl   ","$"+v1.getRawValue(),", %eax");
                        getNodes().add(asm);
-                       asm = new asmNode("imul   ","$"+v2.getRawValue(),", %r10");
+                       asm = new asmNode("imul   ","$"+v2.getRawValue(),", %eax");
                        getNodes().add(asm);
-                       asm = new asmNode("mov   ","%r10",", -"+res.getOffset()+"(%rbp)");
+                       asm = new asmNode("movl   ","%eax",", -"+res.getOffset()+"(%ebp)");
                        getNodes().add(asm);
                    }
                } else if ((node.getV1() instanceof VarLocation) && (node.getV2() instanceof VarLocation)){
                    VarLocation v1 = (VarLocation) node.getV1();
                    VarLocation v2 = (VarLocation) node.getV2();
                    VarLocation res = (VarLocation) node.getResult();
-                   asm = new asmNode("mov   ","-"+v1.getOffset()+"(%rbp)",", %r10");
+                   asm = new asmNode("movl   ","-"+v1.getOffset()+"(%ebp)",", %eax");
                    getNodes().add(asm);
-                   asm = new asmNode("mov   ","-"+v2.getOffset()+"(%rbp)",", %r11");
+                   asm = new asmNode("movl   ","-"+v2.getOffset()+"(%ebp)",", %edx");
                    getNodes().add(asm);
-                   asm = new asmNode("imul   ","%r10",", %r11");
+                   asm = new asmNode("imul   ","%eax",", %edx");
                    getNodes().add(asm);
-                   asm = new asmNode("mov   ","%r11",", -"+(res.getOffset())+"%(rbp)");
+                   asm = new asmNode("movl   ","%edx",", -"+(res.getOffset())+"(%ebp)");
                    getNodes().add(asm);
                }
                break;
@@ -218,11 +218,11 @@ public class asmGen {
                        //Do float stuff
                    } else if (node.getV1() instanceof IntLiteral){
                         IntLiteral v1 = (IntLiteral) node.getV1();
-                        asm = new asmNode("mov   ","$"+v2.getOffset(),", %r10");
+                        asm = new asmNode("movl   ","-"+v2.getOffset()+"(%ebp)",", %eax");
                         getNodes().add(asm);
-                        asm = new asmNode("sub   ","$"+v1.getRawValue(),", %r10");
+                        asm = new asmNode("divl   ","$"+v1.getRawValue(),", %eax");
                         getNodes().add(asm);
-                        asm = new asmNode("mov   ","%r10",", -"+res.getOffset()+"(%rbp)");
+                        asm = new asmNode("movl   ","%eax",", -"+res.getOffset()+"(%ebp)");
                         getNodes().add(asm);
                    }
                } else if ((node.getV2() instanceof Literal) && (node.getV1() instanceof VarLocation)){
@@ -232,11 +232,11 @@ public class asmGen {
                        //Do float stuff
                    } else if (node.getV2() instanceof IntLiteral){
                        IntLiteral v2 = (IntLiteral) node.getV2();
-                        asm = new asmNode("mov   ","$"+v1.getOffset(),", %r10");
+                        asm = new asmNode("movl   ","-"+v1.getOffset()+"(%ebp)",", %eax");
                         getNodes().add(asm);
-                        asm = new asmNode("sub   ","$"+v2.getRawValue(),", %r10");
+                        asm = new asmNode("divl   ","$"+v2.getRawValue(),", %eax");
                         getNodes().add(asm);
-                        asm = new asmNode("mov   ","%r10",", -"+res.getOffset()+"(%rbp)");
+                        asm = new asmNode("movl   ","%eax",", -"+res.getOffset()+"(%ebp)");
                         getNodes().add(asm);
                    }
                } else if (node.getV1() instanceof Literal && node.getV2() instanceof Literal) {
@@ -246,24 +246,24 @@ public class asmGen {
                        IntLiteral v1 = (IntLiteral) node.getV1();
                        IntLiteral v2 = (IntLiteral) node.getV2();
                        VarLocation res = (VarLocation) node.getResult();
-                       asm = new asmNode("mov   ","$"+v2.getRawValue(),", %r10");
+                       asm = new asmNode("movl   ","$"+v2.getRawValue(),", %eax");
                        getNodes().add(asm);
-                       asm = new asmNode("sub   ","$"+v1.getRawValue(),", %r10");
+                       asm = new asmNode("divl   ","$"+v1.getRawValue(),", %eax");
                        getNodes().add(asm);
-                       asm = new asmNode("mov   ","%r10",", -"+(res.getOffset())+"%(rbp)");
+                       asm = new asmNode("movl   ","%eax",", -"+(res.getOffset())+"(%ebp)");
                        getNodes().add(asm); 
                    }
                } else if ((node.getV1() instanceof VarLocation) && (node.getV2() instanceof VarLocation)){
                    VarLocation v1 = (VarLocation) node.getV1();
                    VarLocation v2 = (VarLocation) node.getV2();
                    VarLocation res = (VarLocation) node.getResult();
-                   asm = new asmNode("mov   ","-"+v1.getOffset()+"(%rbp)",", %r10");
+                   asm = new asmNode("movl   ","-"+v1.getOffset()+"(%ebp)",", %eax");
                    getNodes().add(asm);
-                   asm = new asmNode("mov   ","-"+v2.getOffset()+"(%rbp)",", %r11");
+                   asm = new asmNode("movl   ","-"+v2.getOffset()+"(%ebp)",", %edx");
                    getNodes().add(asm);
-                   asm = new asmNode("sub   ","%r10","%r11");
+                   asm = new asmNode("divl   ","%eax","%edx");
                    getNodes().add(asm);
-                   asm = new asmNode("mov   ","%r11",", -"+(res.getOffset())+"%(rbp)");
+                   asm = new asmNode("movl   ","%edx",", -"+(res.getOffset())+"(%ebp)");
                    getNodes().add(asm);
                }
                break;
@@ -272,49 +272,49 @@ public class asmGen {
                    IntLiteral v1 = (IntLiteral) node.getV1();
                    IntLiteral v2 = (IntLiteral) node.getV2();
                    VarLocation res = (VarLocation) node.getResult();
-                   asm = new asmNode("mov   ","$"+v1.getRawValue(),", %rdx");
+                   asm = new asmNode("movl   ","$"+v1.getRawValue(),", %eax");
                    getNodes().add(asm);
-                   asm = new asmNode("mov   ","$0",", %rax");
+                   asm = new asmNode("movl   ","$0",", %edx");
                    getNodes().add(asm);
-                   asm = new asmNode("idiv   ","$"+v2.getRawValue(),null);
+                   asm = new asmNode("idivl   ","$"+v2.getRawValue(),null);
                    getNodes().add(asm);
-                   asm = new asmNode("mov   ","%rdx",", -"+res.getOffset()+"(%rbp)");
+                   asm = new asmNode("movl   ","%edx",", -"+res.getOffset()+"(%ebp)");
                    getNodes().add(asm);
                } else if ((node.getV1() instanceof IntLiteral) && (node.getV2() instanceof VarLocation)){
                    IntLiteral v1 = (IntLiteral) node.getV1();
                    VarLocation v2 = (VarLocation) node.getV2();
                    VarLocation res = (VarLocation) node.getResult();
-                   asm = new asmNode("mov   ","$"+v1.getRawValue(),", %rdx");
+                   asm = new asmNode("movl   ","$"+v1.getRawValue(),", %eax");
                    getNodes().add(asm);
-                   asm = new asmNode("mov   ","$0",", %rax");
+                   asm = new asmNode("movl   ","$0",", %edx");
                    getNodes().add(asm);
-                   asm = new asmNode("idiv   ","-"+v2.getOffset()+"%(rbp)",null);
+                   asm = new asmNode("idivl   ","-"+v2.getOffset()+"(%ebp)",null);
                    getNodes().add(asm);
-                   asm = new asmNode("mov   ","%rdx",", -"+res.getOffset()+"(%rbp)");
+                   asm = new asmNode("movl   ","%edx",", -"+res.getOffset()+"(%ebp)");
                    getNodes().add(asm);
                } else if ((node.getV1() instanceof VarLocation) && (node.getV2() instanceof IntLiteral)){
                    IntLiteral v2 = (IntLiteral) node.getV2();
                    VarLocation v1 = (VarLocation) node.getV1();
                    VarLocation res = (VarLocation) node.getResult();
-                   asm = new asmNode("mov   ","-"+v1.getOffset()+"%(rbp)",", %rdx");
+                   asm = new asmNode("movl   ","-"+v1.getOffset()+"(%ebp)",", %eax");
                    getNodes().add(asm);
-                   asm = new asmNode("mov   ","$0",", %rax");
+                   asm = new asmNode("movl   ","$0",", %edx");
                    getNodes().add(asm);
-                   asm = new asmNode("idiv   ","-"+v2.getRawValue()+"%(rbp)",null);
+                   asm = new asmNode("idivl   ","$"+v2.getRawValue(),null);
                    getNodes().add(asm);
-                   asm = new asmNode("mov   ","%rdx",", -"+res.getOffset()+"(%rbp)");
+                   asm = new asmNode("movl   ","%edx",", -"+res.getOffset()+"(%ebp)");
                    getNodes().add(asm);
                } else if ((node.getV1() instanceof VarLocation) && (node.getV2() instanceof VarLocation)){
                    VarLocation v1 = (VarLocation) node.getV1();
                    VarLocation v2 = (VarLocation) node.getV2();
                    VarLocation res = (VarLocation) node.getResult();
-                   asm = new asmNode("mov   ","-"+v1.getOffset()+"%(rbp)",", %rdx");
+                   asm = new asmNode("movl   ","-"+v1.getOffset()+"(%ebp)",", %eax");
                    getNodes().add(asm);
-                   asm = new asmNode("mov   ","$0",", %rax");
+                   asm = new asmNode("movl   ","$0",", %edx");
                    getNodes().add(asm);
-                   asm = new asmNode("idiv   ","-"+v2.getOffset()+"%(rbp)",null);
+                   asm = new asmNode("idivl   ","-"+v2.getOffset()+"(%ebp)",null);
                    getNodes().add(asm);
-                   asm = new asmNode("mov   ","%rdx",", -"+res.getOffset()+"(%rbp)");
+                   asm = new asmNode("movl   ","%edx",", -"+res.getOffset()+"(%ebp)");
                    getNodes().add(asm);
                }
                break;
@@ -323,21 +323,21 @@ public class asmGen {
                    IntLiteral v1 = (IntLiteral) node.getV1();
                    IntLiteral v2 = (IntLiteral) node.getV2();
                    VarLocation res = (VarLocation) node.getResult();
-                   asm = new asmNode("mov   ","$"+v1.getRawValue(),", %r10");
+                   asm = new asmNode("movl   ","$"+v1.getRawValue(),", %eax");
                    getNodes().add(asm);
-                   asm = new asmNode("mov   ","$"+v2.getRawValue(),", %r11");
+                   asm = new asmNode("movl   ","$"+v2.getRawValue(),", %ebx");
                    getNodes().add(asm);
-                   asm = new asmNode("cmp   ","%r10",", %r11");
+                   asm = new asmNode("cmp   ","%eax",", %ebx");
                    getNodes().add(asm);
                    asm = new asmNode("jge    ",".L1",null);
                    getNodes().add(asm);
-                   asm = new asmNode("mov   ","$1",", -"+res.getOffset()+"%(rbp)");
+                   asm = new asmNode("movl   ","$1",", -"+res.getOffset()+"(%ebp)");
                    getNodes().add(asm);
                    asm = new asmNode("jmp   ",".L2",null);
                    getNodes().add(asm);
                    asm = new asmNode(".L1:",null,null);
                    getNodes().add(asm);
-                   asm = new asmNode("mov   ","$0",", -"+res.getOffset()+"%(rbp)");
+                   asm = new asmNode("movl   ","$0",", -"+res.getOffset()+"(%ebp)");
                    getNodes().add(asm);
                    asm = new asmNode(".L2:",null,null);
                    getNodes().add(asm);
@@ -345,21 +345,21 @@ public class asmGen {
                    IntLiteral v1 = (IntLiteral) node.getV1();
                    VarLocation v2 = (VarLocation) node.getV2();
                    VarLocation res = (VarLocation) node.getResult();
-                   asm = new asmNode("mov   ","$"+v1.getRawValue(),", %r10");
+                   asm = new asmNode("movl   ","$"+v1.getRawValue(),", %eax");
                    getNodes().add(asm);
-                   asm = new asmNode("mov   ","-"+v2.getOffset(),", %r11");
+                   asm = new asmNode("movl   ","-"+v2.getOffset()+"(%ebp)",", %ebx");
                    getNodes().add(asm);
-                   asm = new asmNode("cmp   ","%r10",", %r11");
+                   asm = new asmNode("cmp   ","%eax",", %ebx");
                    getNodes().add(asm);
                    asm = new asmNode("jge    ",".L1",null);
                    getNodes().add(asm);
-                   asm = new asmNode("mov   ","$1",", -"+res.getOffset()+"%(rbp)");
+                   asm = new asmNode("movl   ","$1",", -"+res.getOffset()+"(%ebp)");
                    getNodes().add(asm);
                    asm = new asmNode("jmp   ",".L2",null);
                    getNodes().add(asm);
                    asm = new asmNode(".L1:",null,null);
                    getNodes().add(asm);
-                   asm = new asmNode("mov   ","$0",", -"+res.getOffset()+"%(rbp)");
+                   asm = new asmNode("movl   ","$0",", -"+res.getOffset()+"(%ebp)");
                    getNodes().add(asm);
                    asm = new asmNode(".L2:",null,null);
                    getNodes().add(asm);
@@ -367,21 +367,21 @@ public class asmGen {
                    IntLiteral v2 = (IntLiteral) node.getV2();
                    VarLocation v1 = (VarLocation) node.getV1();
                    VarLocation res = (VarLocation) node.getResult();
-                   asm = new asmNode("mov   ","$"+v1.getOffset(),", %r10");
+                   asm = new asmNode("movl   ","-"+v1.getOffset()+"(%ebp)",", %eax");
                    getNodes().add(asm);
-                   asm = new asmNode("mov   ","-"+v2.getRawValue(),", %r11");
+                   asm = new asmNode("movl   ","$"+v2.getRawValue(),", %ebx");
                    getNodes().add(asm);
-                   asm = new asmNode("cmp   ","%r10",", %r11");
+                   asm = new asmNode("cmp   ","%eax",", %ebx");
                    getNodes().add(asm);
                    asm = new asmNode("jge    ",".L1",null);
                    getNodes().add(asm);
-                   asm = new asmNode("mov   ","$1",", -"+res.getOffset()+"%(rbp)");
+                   asm = new asmNode("movl   ","$1",", -"+res.getOffset()+"(%ebp)");
                    getNodes().add(asm);
                    asm = new asmNode("jmp   ",".L2",null);
                    getNodes().add(asm);
                    asm = new asmNode(".L1:",null,null);
                    getNodes().add(asm);
-                   asm = new asmNode("mov   ","$0",", -"+res.getOffset()+"%(rbp)");
+                   asm = new asmNode("movl   ","$0",", -"+res.getOffset()+"(%ebp)");
                    getNodes().add(asm);
                    asm = new asmNode(".L2:",null,null);
                    getNodes().add(asm);
@@ -389,21 +389,21 @@ public class asmGen {
                    VarLocation v1 = (VarLocation) node.getV1();
                    VarLocation v2 = (VarLocation) node.getV2();
                    VarLocation res = (VarLocation) node.getResult();
-                   asm = new asmNode("mov   ","$"+v1.getOffset(),", %r10");
+                   asm = new asmNode("movl   ","-"+v1.getOffset()+"(%ebp)",", %eax");
                    getNodes().add(asm);
-                   asm = new asmNode("mov   ","-"+v2.getOffset(),", %r11");
+                   asm = new asmNode("movl   ","-"+v2.getOffset()+"(%ebp)",", %ebx");
                    getNodes().add(asm);
-                   asm = new asmNode("cmp   ","%r10",", %r11");
+                   asm = new asmNode("cmp   ","%eax",", %ebx");
                    getNodes().add(asm);
                    asm = new asmNode("jge    ",".L1",null);
                    getNodes().add(asm);
-                   asm = new asmNode("mov   ","$1",", -"+res.getOffset()+"%(rbp)");
+                   asm = new asmNode("movl   ","$1",", -"+res.getOffset()+"(%ebp)");
                    getNodes().add(asm);
                    asm = new asmNode("jmp   ",".L2",null);
                    getNodes().add(asm);
                    asm = new asmNode(".L1:",null,null);
                    getNodes().add(asm);
-                   asm = new asmNode("mov   ","$0",", -"+res.getOffset()+"%(rbp)");
+                   asm = new asmNode("movl   ","$0",", -"+res.getOffset()+"(%ebp)");
                    getNodes().add(asm);
                    asm = new asmNode(".L2:",null,null);
                    getNodes().add(asm);
@@ -414,21 +414,21 @@ public class asmGen {
                    IntLiteral v1 = (IntLiteral) node.getV1();
                    IntLiteral v2 = (IntLiteral) node.getV2();
                    VarLocation res = (VarLocation) node.getResult();
-                   asm = new asmNode("mov   ","$"+v1.getRawValue(),", %r10");
+                   asm = new asmNode("movl   ","$"+v1.getRawValue(),", %eax");
                    getNodes().add(asm);
-                   asm = new asmNode("mov   ","$"+v2.getRawValue(),", %r11");
+                   asm = new asmNode("movl   ","$"+v2.getRawValue(),", %ebx");
                    getNodes().add(asm);
-                   asm = new asmNode("cmp   ","%r10",", %r11");
+                   asm = new asmNode("cmp   ","%eax",", %ebx");
                    getNodes().add(asm);
                    asm = new asmNode("jg    ",".L1",null);
                    getNodes().add(asm);
-                   asm = new asmNode("mov   ","$1",", -"+res.getOffset()+"%(rbp)");
+                   asm = new asmNode("movl   ","$1",", -"+res.getOffset()+"(%ebp)");
                    getNodes().add(asm);
                    asm = new asmNode("jmp   ",".L2",null);
                    getNodes().add(asm);
                    asm = new asmNode(".L1:",null,null);
                    getNodes().add(asm);
-                   asm = new asmNode("mov   ","$0",", -"+res.getOffset()+"%(rbp)");
+                   asm = new asmNode("movl   ","$0",", -"+res.getOffset()+"(%ebp)");
                    getNodes().add(asm);
                    asm = new asmNode(".L2:",null,null);
                    getNodes().add(asm);
@@ -436,21 +436,21 @@ public class asmGen {
                    IntLiteral v1 = (IntLiteral) node.getV1();
                    VarLocation v2 = (VarLocation) node.getV2();
                    VarLocation res = (VarLocation) node.getResult();
-                   asm = new asmNode("mov   ","$"+v1.getRawValue(),", %r10");
+                   asm = new asmNode("movl   ","$"+v1.getRawValue(),", %eax");
                    getNodes().add(asm);
-                   asm = new asmNode("mov   ","-"+v2.getOffset(),", %r11");
+                   asm = new asmNode("movl   ","-"+v2.getOffset()+"(%ebp)",", %ebx");
                    getNodes().add(asm);
-                   asm = new asmNode("cmp   ","%r10",", %r11");
+                   asm = new asmNode("cmp   ","%eax",", %ebx");
                    getNodes().add(asm);
                    asm = new asmNode("jg    ",".L1",null);
                    getNodes().add(asm);
-                   asm = new asmNode("mov   ","$1",", -"+res.getOffset()+"%(rbp)");
+                   asm = new asmNode("movl   ","$1",", -"+res.getOffset()+"(%ebp)");
                    getNodes().add(asm);
                    asm = new asmNode("jmp   ",".L2",null);
                    getNodes().add(asm);
                    asm = new asmNode(".L1:",null,null);
                    getNodes().add(asm);
-                   asm = new asmNode("mov   ","$0",", -"+res.getOffset()+"%(rbp)");
+                   asm = new asmNode("movl   ","$0",", -"+res.getOffset()+"(%ebp)");
                    getNodes().add(asm);
                    asm = new asmNode(".L2:",null,null);
                    getNodes().add(asm);
@@ -458,21 +458,21 @@ public class asmGen {
                    IntLiteral v2 = (IntLiteral) node.getV2();
                    VarLocation v1 = (VarLocation) node.getV1();
                    VarLocation res = (VarLocation) node.getResult();
-                   asm = new asmNode("mov   ","$"+v1.getOffset(),", %r10");
+                   asm = new asmNode("movl   ","-"+v1.getOffset()+"(%ebp)",", %eax");
                    getNodes().add(asm);
-                   asm = new asmNode("mov   ","-"+v2.getRawValue(),", %r11");
+                   asm = new asmNode("movl   ","$"+v2.getRawValue(),", %ebx");
                    getNodes().add(asm);
-                   asm = new asmNode("cmp   ","%r10",", %r11");
+                   asm = new asmNode("cmp   ","%eax",", %ebx");
                    getNodes().add(asm);
                    asm = new asmNode("jg    ",".L1",null);
                    getNodes().add(asm);
-                   asm = new asmNode("mov   ","$1",", -"+res.getOffset()+"%(rbp)");
+                   asm = new asmNode("movl   ","$1",", -"+res.getOffset()+"(%ebp)");
                    getNodes().add(asm);
                    asm = new asmNode("jmp   ",".L2",null);
                    getNodes().add(asm);
                    asm = new asmNode(".L1:",null,null);
                    getNodes().add(asm);
-                   asm = new asmNode("mov   ","$0",", -"+res.getOffset()+"%(rbp)");
+                   asm = new asmNode("movl   ","$0",", -"+res.getOffset()+"(%ebp)");
                    getNodes().add(asm);
                    asm = new asmNode(".L2:",null,null);
                    getNodes().add(asm);
@@ -480,21 +480,21 @@ public class asmGen {
                    VarLocation v1 = (VarLocation) node.getV1();
                    VarLocation v2 = (VarLocation) node.getV2();
                    VarLocation res = (VarLocation) node.getResult();
-                   asm = new asmNode("mov   ","$"+v1.getOffset(),", %r10");
+                   asm = new asmNode("movl   ","-"+v1.getOffset()+"(%ebp)",", %eax");
                    getNodes().add(asm);
-                   asm = new asmNode("mov   ","-"+v2.getOffset(),", %r11");
+                   asm = new asmNode("movl   ","-"+v2.getOffset()+"(%ebp)",", %ebx");
                    getNodes().add(asm);
-                   asm = new asmNode("cmp   ","%r10",", %r11");
+                   asm = new asmNode("cmp   ","%eax",", %ebx");
                    getNodes().add(asm);
                    asm = new asmNode("jg    ",".L1",null);
                    getNodes().add(asm);
-                   asm = new asmNode("mov   ","$1",", -"+res.getOffset()+"%(rbp)");
+                   asm = new asmNode("movl   ","$1",", -"+res.getOffset()+"(%ebp)");
                    getNodes().add(asm);
                    asm = new asmNode("jmp   ",".L2",null);
                    getNodes().add(asm);
                    asm = new asmNode(".L1:",null,null);
                    getNodes().add(asm);
-                   asm = new asmNode("mov   ","$0",", -"+res.getOffset()+"%(rbp)");
+                   asm = new asmNode("movl   ","$0",", -"+res.getOffset()+"(%ebp)");
                    getNodes().add(asm);
                    asm = new asmNode(".L2:",null,null);
                    getNodes().add(asm);
@@ -505,21 +505,21 @@ public class asmGen {
                    IntLiteral v1 = (IntLiteral) node.getV1();
                    IntLiteral v2 = (IntLiteral) node.getV2();
                    VarLocation res = (VarLocation) node.getResult();
-                   asm = new asmNode("mov   ","$"+v1.getRawValue(),", %r10");
+                   asm = new asmNode("movl   ","$"+v1.getRawValue(),", %eax");
                    getNodes().add(asm);
-                   asm = new asmNode("mov   ","$"+v2.getRawValue(),", %r11");
+                   asm = new asmNode("movl   ","$"+v2.getRawValue(),", %ebx");
                    getNodes().add(asm);
-                   asm = new asmNode("cmp   ","%r10",", %r11");
+                   asm = new asmNode("cmp   ","%eax",", %ebx");
                    getNodes().add(asm);
                    asm = new asmNode("jg    ",".L1",null);
                    getNodes().add(asm);
-                   asm = new asmNode("mov   ","$0",", -"+res.getOffset()+"%(rbp)");
+                   asm = new asmNode("movl   ","$0",", -"+res.getOffset()+"(%ebp)");
                    getNodes().add(asm);
                    asm = new asmNode("jmp   ",".L2",null);
                    getNodes().add(asm);
                    asm = new asmNode(".L1:",null,null);
                    getNodes().add(asm);
-                   asm = new asmNode("mov   ","$1",", -"+res.getOffset()+"%(rbp)");
+                   asm = new asmNode("movl   ","$1",", -"+res.getOffset()+"(%ebp)");
                    getNodes().add(asm);
                    asm = new asmNode(".L2:",null,null);
                    getNodes().add(asm);
@@ -527,21 +527,21 @@ public class asmGen {
                    IntLiteral v1 = (IntLiteral) node.getV1();
                    VarLocation v2 = (VarLocation) node.getV2();
                    VarLocation res = (VarLocation) node.getResult();
-                   asm = new asmNode("mov   ","$"+v1.getRawValue(),", %r10");
+                   asm = new asmNode("movl   ","$"+v1.getRawValue(),", %eax");
                    getNodes().add(asm);
-                   asm = new asmNode("mov   ","-"+v2.getOffset(),", %r11");
+                   asm = new asmNode("movl   ","-"+v2.getOffset()+"(%ebp)",", %ebx");
                    getNodes().add(asm);
-                   asm = new asmNode("cmp   ","%r10",", %r11");
+                   asm = new asmNode("cmp   ","%eax",", %ebx");
                    getNodes().add(asm);
                    asm = new asmNode("jg    ",".L1",null);
                    getNodes().add(asm);
-                   asm = new asmNode("mov   ","$0",", -"+res.getOffset()+"%(rbp)");
+                   asm = new asmNode("movl   ","$0",", -"+res.getOffset()+"(%ebp)");
                    getNodes().add(asm);
                    asm = new asmNode("jmp   ",".L2",null);
                    getNodes().add(asm);
                    asm = new asmNode(".L1:",null,null);
                    getNodes().add(asm);
-                   asm = new asmNode("mov   ","$1",", -"+res.getOffset()+"%(rbp)");
+                   asm = new asmNode("movl   ","$1",", -"+res.getOffset()+"(%ebp)");
                    getNodes().add(asm);
                    asm = new asmNode(".L2:",null,null);
                    getNodes().add(asm);
@@ -549,21 +549,21 @@ public class asmGen {
                    IntLiteral v2 = (IntLiteral) node.getV2();
                    VarLocation v1 = (VarLocation) node.getV1();
                    VarLocation res = (VarLocation) node.getResult();
-                   asm = new asmNode("mov   ","$"+v1.getOffset(),", %r10");
+                   asm = new asmNode("movl   ","-"+v1.getOffset()+"(%ebp)",", %eax");
                    getNodes().add(asm);
-                   asm = new asmNode("mov   ","-"+v2.getRawValue(),", %r11");
+                   asm = new asmNode("movl   ","$"+v2.getRawValue(),", %edx");
                    getNodes().add(asm);
-                   asm = new asmNode("cmp   ","%r10",", %r11");
+                   asm = new asmNode("cmp   ","%eax",", %edx");
                    getNodes().add(asm);
                    asm = new asmNode("jg    ",".L1",null);
                    getNodes().add(asm);
-                   asm = new asmNode("mov   ","$0",", -"+res.getOffset()+"%(rbp)");
+                   asm = new asmNode("movl   ","$0",", -"+res.getOffset()+"(%ebp)");
                    getNodes().add(asm);
                    asm = new asmNode("jmp   ",".L2",null);
                    getNodes().add(asm);
                    asm = new asmNode(".L1:",null,null);
                    getNodes().add(asm);
-                   asm = new asmNode("mov   ","$1",", -"+res.getOffset()+"%(rbp)");
+                   asm = new asmNode("movl   ","$1",", -"+res.getOffset()+"(%ebp)");
                    getNodes().add(asm);
                    asm = new asmNode(".L2:",null,null);
                    getNodes().add(asm);
@@ -571,21 +571,21 @@ public class asmGen {
                    VarLocation v1 = (VarLocation) node.getV1();
                    VarLocation v2 = (VarLocation) node.getV2();
                    VarLocation res = (VarLocation) node.getResult();
-                   asm = new asmNode("mov   ","$"+v1.getOffset(),", %r10");
+                   asm = new asmNode("movl   ","-"+v1.getOffset()+"(%ebp)",", %eax");
                    getNodes().add(asm);
-                   asm = new asmNode("mov   ","-"+v2.getOffset(),", %r11");
+                   asm = new asmNode("movl   ","-"+v2.getOffset()+"(%ebp)",", %edx");
                    getNodes().add(asm);
-                   asm = new asmNode("cmp   ","%r10",", %r11");
+                   asm = new asmNode("cmp   ","%eax",", %edx");
                    getNodes().add(asm);
                    asm = new asmNode("jg    ",".L1",null);
                    getNodes().add(asm);
-                   asm = new asmNode("mov   ","$0",", -"+res.getOffset()+"%(rbp)");
+                   asm = new asmNode("movl   ","$0",", -"+res.getOffset()+"(%ebp)");
                    getNodes().add(asm);
                    asm = new asmNode("jmp   ",".L2",null);
                    getNodes().add(asm);
                    asm = new asmNode(".L1:",null,null);
                    getNodes().add(asm);
-                   asm = new asmNode("mov   ","$1",", -"+res.getOffset()+"%(rbp)");
+                   asm = new asmNode("movl   ","$1",", -"+res.getOffset()+"(%ebp)");
                    getNodes().add(asm);
                    asm = new asmNode(".L2:",null,null);
                    getNodes().add(asm);
@@ -596,21 +596,21 @@ public class asmGen {
                    IntLiteral v1 = (IntLiteral) node.getV1();
                    IntLiteral v2 = (IntLiteral) node.getV2();
                    VarLocation res = (VarLocation) node.getResult();
-                   asm = new asmNode("mov   ","$"+v1.getRawValue(),", %r10");
+                   asm = new asmNode("movl   ","$"+v1.getRawValue(),", %eax");
                    getNodes().add(asm);
-                   asm = new asmNode("mov   ","$"+v2.getRawValue(),", %r11");
+                   asm = new asmNode("movl   ","$"+v2.getRawValue(),", %edx");
                    getNodes().add(asm);
-                   asm = new asmNode("cmp   ","%r10",", %r11");
+                   asm = new asmNode("cmp   ","%eax",", %edx");
                    getNodes().add(asm);
                    asm = new asmNode("jge    ",".L1",null);
                    getNodes().add(asm);
-                   asm = new asmNode("mov   ","$1",", -"+res.getOffset()+"%(rbp)");
+                   asm = new asmNode("movl   ","$1",", -"+res.getOffset()+"(%ebp)");
                    getNodes().add(asm);
                    asm = new asmNode("jmp   ",".L2",null);
                    getNodes().add(asm);
                    asm = new asmNode(".L1:",null,null);
                    getNodes().add(asm);
-                   asm = new asmNode("mov   ","$0",", -"+res.getOffset()+"%(rbp)");
+                   asm = new asmNode("movl   ","$0",", -"+res.getOffset()+"(%ebp)");
                    getNodes().add(asm);
                    asm = new asmNode(".L2:",null,null);
                    getNodes().add(asm);
@@ -618,21 +618,21 @@ public class asmGen {
                    IntLiteral v1 = (IntLiteral) node.getV1();
                    VarLocation v2 = (VarLocation) node.getV2();
                    VarLocation res = (VarLocation) node.getResult();
-                   asm = new asmNode("mov   ","$"+v1.getRawValue(),", %r10");
+                   asm = new asmNode("movl   ","$"+v1.getRawValue(),", %eax");
                    getNodes().add(asm);
-                   asm = new asmNode("mov   ","-"+v2.getOffset(),", %r11");
+                   asm = new asmNode("movl   ","-"+v2.getOffset()+"(%ebp)",", %edx");
                    getNodes().add(asm);
-                   asm = new asmNode("cmp   ","%r10",", %r11");
+                   asm = new asmNode("cmp   ","%eax",", %edx");
                    getNodes().add(asm);
                    asm = new asmNode("jge    ",".L1",null);
                    getNodes().add(asm);
-                   asm = new asmNode("mov   ","$1",", -"+res.getOffset()+"%(rbp)");
+                   asm = new asmNode("movl   ","$1",", -"+res.getOffset()+"(%ebp)");
                    getNodes().add(asm);
                    asm = new asmNode("jmp   ",".L2",null);
                    getNodes().add(asm);
                    asm = new asmNode(".L1:",null,null);
                    getNodes().add(asm);
-                   asm = new asmNode("mov   ","$0",", -"+res.getOffset()+"%(rbp)");
+                   asm = new asmNode("movl   ","$0",", -"+res.getOffset()+"(%ebp)");
                    getNodes().add(asm);
                    asm = new asmNode(".L2:",null,null);
                    getNodes().add(asm);
@@ -640,21 +640,21 @@ public class asmGen {
                    IntLiteral v2 = (IntLiteral) node.getV2();
                    VarLocation v1 = (VarLocation) node.getV1();
                    VarLocation res = (VarLocation) node.getResult();
-                   asm = new asmNode("mov   ","$"+v1.getOffset(),", %r10");
+                   asm = new asmNode("movl   ","-"+v1.getOffset()+"(%ebp)",", %eax");
                    getNodes().add(asm);
-                   asm = new asmNode("mov   ","-"+v2.getRawValue(),", %r11");
+                   asm = new asmNode("movl   ","$"+v2.getRawValue(),", %edx");
                    getNodes().add(asm);
-                   asm = new asmNode("cmp   ","%r10",", %r11");
+                   asm = new asmNode("cmp   ","%eax",", %edx");
                    getNodes().add(asm);
                    asm = new asmNode("jge    ",".L1",null);
                    getNodes().add(asm);
-                   asm = new asmNode("mov   ","$1",", -"+res.getOffset()+"%(rbp)");
+                   asm = new asmNode("movl   ","$1",", -"+res.getOffset()+"(%ebp)");
                    getNodes().add(asm);
                    asm = new asmNode("jmp   ",".L2",null);
                    getNodes().add(asm);
                    asm = new asmNode(".L1:",null,null);
                    getNodes().add(asm);
-                   asm = new asmNode("mov   ","$0",", -"+res.getOffset()+"%(rbp)");
+                   asm = new asmNode("movl   ","$0",", -"+res.getOffset()+"(%ebp)");
                    getNodes().add(asm);
                    asm = new asmNode(".L2:",null,null);
                    getNodes().add(asm);
@@ -662,21 +662,21 @@ public class asmGen {
                    VarLocation v1 = (VarLocation) node.getV1();
                    VarLocation v2 = (VarLocation) node.getV2();
                    VarLocation res = (VarLocation) node.getResult();
-                   asm = new asmNode("mov   ","$"+v1.getOffset(),", %r10");
+                   asm = new asmNode("movl   ","-"+v1.getOffset()+"(%ebp)",", %eax");
                    getNodes().add(asm);
-                   asm = new asmNode("mov   ","-"+v2.getOffset(),", %r11");
+                   asm = new asmNode("movl   ","-"+v2.getOffset()+"(%ebp)",", %edx");
                    getNodes().add(asm);
-                   asm = new asmNode("cmp   ","%r10",", %r11");
+                   asm = new asmNode("cmp   ","%eax",", %edx");
                    getNodes().add(asm);
                    asm = new asmNode("jge    ",".L1",null);
                    getNodes().add(asm);
-                   asm = new asmNode("mov   ","$1",", -"+res.getOffset()+"%(rbp)");
+                   asm = new asmNode("movl   ","$1",", -"+res.getOffset()+"(%ebp)");
                    getNodes().add(asm);
                    asm = new asmNode("jmp   ",".L2",null);
                    getNodes().add(asm);
                    asm = new asmNode(".L1:",null,null);
                    getNodes().add(asm);
-                   asm = new asmNode("mov   ","$0",", -"+res.getOffset()+"%(rbp)");
+                   asm = new asmNode("movl   ","$0",", -"+res.getOffset()+"(%ebp)");
                    getNodes().add(asm);
                    asm = new asmNode(".L2:",null,null);
                    getNodes().add(asm);
@@ -687,21 +687,21 @@ public class asmGen {
                    IntLiteral v1 = (IntLiteral) node.getV1();
                    IntLiteral v2 = (IntLiteral) node.getV2();
                    VarLocation res = (VarLocation) node.getResult();
-                   asm = new asmNode("mov   ","$"+v1.getRawValue(),", %r10");
+                   asm = new asmNode("movl   ","$"+v1.getRawValue(),", %eax");
                    getNodes().add(asm);
-                   asm = new asmNode("mov   ","$"+v2.getRawValue(),", %r11");
+                   asm = new asmNode("movl   ","$"+v2.getRawValue(),", %edx");
                    getNodes().add(asm);
-                   asm = new asmNode("cmp   ","%r10",", %r11");
+                   asm = new asmNode("cmp   ","%eax",", %edx");
                    getNodes().add(asm);
                    asm = new asmNode("je    ",".L1",null);
                    getNodes().add(asm);
-                   asm = new asmNode("mov   ","$0",", -"+res.getOffset()+"%(rbp)");
+                   asm = new asmNode("movl   ","$0",", -"+res.getOffset()+"(%ebp)");
                    getNodes().add(asm);
                    asm = new asmNode("jmp   ",".L2",null);
                    getNodes().add(asm);
                    asm = new asmNode(".L1:",null,null);
                    getNodes().add(asm);
-                   asm = new asmNode("mov   ","$1",", -"+res.getOffset()+"%(rbp)");
+                   asm = new asmNode("movl   ","$1",", -"+res.getOffset()+"(%ebp)");
                    getNodes().add(asm);
                    asm = new asmNode(".L2:",null,null);
                    getNodes().add(asm);
@@ -709,21 +709,21 @@ public class asmGen {
                    IntLiteral v1 = (IntLiteral) node.getV1();
                    VarLocation v2 = (VarLocation) node.getV2();
                    VarLocation res = (VarLocation) node.getResult();
-                   asm = new asmNode("mov   ","$"+v1.getRawValue(),", %r10");
+                   asm = new asmNode("movl   ","$"+v1.getRawValue(),", %eax");
                    getNodes().add(asm);
-                   asm = new asmNode("mov   ","-"+v2.getOffset(),", %r11");
+                   asm = new asmNode("movl   ","-"+v2.getOffset()+"(%ebp)",", %edx");
                    getNodes().add(asm);
-                   asm = new asmNode("cmp   ","%r10",", %r11");
+                   asm = new asmNode("cmp   ","%eax",", %edx");
                    getNodes().add(asm);
                    asm = new asmNode("je    ",".L1",null);
                    getNodes().add(asm);
-                   asm = new asmNode("mov   ","$0",", -"+res.getOffset()+"%(rbp)");
+                   asm = new asmNode("movl   ","$0",", -"+res.getOffset()+"(%ebp)");
                    getNodes().add(asm);
                    asm = new asmNode("jmp   ",".L2",null);
                    getNodes().add(asm);
                    asm = new asmNode(".L1:",null,null);
                    getNodes().add(asm);
-                   asm = new asmNode("mov   ","$1",", -"+res.getOffset()+"%(rbp)");
+                   asm = new asmNode("movl   ","$1",", -"+res.getOffset()+"(%ebp)");
                    getNodes().add(asm);
                    asm = new asmNode(".L2:",null,null);
                    getNodes().add(asm);
@@ -731,21 +731,21 @@ public class asmGen {
                    IntLiteral v2 = (IntLiteral) node.getV2();
                    VarLocation v1 = (VarLocation) node.getV1();
                    VarLocation res = (VarLocation) node.getResult();
-                   asm = new asmNode("mov   ","$"+v1.getOffset(),", %r10");
+                   asm = new asmNode("movl   ","-"+v1.getOffset()+"(%ebp)",", %eax");
                    getNodes().add(asm);
-                   asm = new asmNode("mov   ","-"+v2.getRawValue(),", %r11");
+                   asm = new asmNode("movl   ","$"+v2.getRawValue(),", %edx");
                    getNodes().add(asm);
-                   asm = new asmNode("cmp   ","%r10",", %r11");
+                   asm = new asmNode("cmp   ","%eax",", %edx");
                    getNodes().add(asm);
                    asm = new asmNode("je    ",".L1",null);
                    getNodes().add(asm);
-                   asm = new asmNode("mov   ","$0",", -"+res.getOffset()+"%(rbp)");
+                   asm = new asmNode("movl   ","$0",", -"+res.getOffset()+"(%ebp)");
                    getNodes().add(asm);
                    asm = new asmNode("jmp   ",".L2",null);
                    getNodes().add(asm);
                    asm = new asmNode(".L1:",null,null);
                    getNodes().add(asm);
-                   asm = new asmNode("mov   ","$1",", -"+res.getOffset()+"%(rbp)");
+                   asm = new asmNode("movl   ","$1",", -"+res.getOffset()+"(%ebp)");
                    getNodes().add(asm);
                    asm = new asmNode(".L2:",null,null);
                    getNodes().add(asm);
@@ -753,21 +753,21 @@ public class asmGen {
                    VarLocation v1 = (VarLocation) node.getV1();
                    VarLocation v2 = (VarLocation) node.getV2();
                    VarLocation res = (VarLocation) node.getResult();
-                   asm = new asmNode("mov   ","$"+v1.getOffset(),", %r10");
+                   asm = new asmNode("movl   ","-"+v1.getOffset()+"(%ebp)",", %eax");
                    getNodes().add(asm);
-                   asm = new asmNode("mov   ","-"+v2.getOffset(),", %r11");
+                   asm = new asmNode("movl   ","-"+v2.getOffset()+"(%ebp)",", %edx");
                    getNodes().add(asm);
-                   asm = new asmNode("cmp   ","%r10",", %r11");
+                   asm = new asmNode("cmp   ","%eax",", %edx");
                    getNodes().add(asm);
                    asm = new asmNode("je    ",".L1",null);
                    getNodes().add(asm);
-                   asm = new asmNode("mov   ","$0",", -"+res.getOffset()+"%(rbp)");
+                   asm = new asmNode("movl   ","$0",", -"+res.getOffset()+"(%ebp)");
                    getNodes().add(asm);
                    asm = new asmNode("jmp   ",".L2",null);
                    getNodes().add(asm);
                    asm = new asmNode(".L1:",null,null);
                    getNodes().add(asm);
-                   asm = new asmNode("mov   ","$1",", -"+res.getOffset()+"%(rbp)");
+                   asm = new asmNode("movl   ","$1",", -"+res.getOffset()+"(%ebp)");
                    getNodes().add(asm);
                    asm = new asmNode(".L2:",null,null);
                    getNodes().add(asm);
@@ -778,21 +778,21 @@ public class asmGen {
                    IntLiteral v1 = (IntLiteral) node.getV1();
                    IntLiteral v2 = (IntLiteral) node.getV2();
                    VarLocation res = (VarLocation) node.getResult();
-                   asm = new asmNode("mov   ","$"+v1.getRawValue(),", %r10");
+                   asm = new asmNode("movl   ","$"+v1.getRawValue(),", %eax");
                    getNodes().add(asm);
-                   asm = new asmNode("mov   ","$"+v2.getRawValue(),", %r11");
+                   asm = new asmNode("movl   ","$"+v2.getRawValue(),", %edx");
                    getNodes().add(asm);
-                   asm = new asmNode("cmp   ","%r10",", %r11");
+                   asm = new asmNode("cmp   ","%eax",", %edx");
                    getNodes().add(asm);
                    asm = new asmNode("jne    ",".L1",null);
                    getNodes().add(asm);
-                   asm = new asmNode("mov   ","$0",", -"+res.getOffset()+"%(rbp)");
+                   asm = new asmNode("movl   ","$0",", -"+res.getOffset()+"(%ebp)");
                    getNodes().add(asm);
                    asm = new asmNode("jmp   ",".L2",null);
                    getNodes().add(asm);
                    asm = new asmNode(".L1:",null,null);
                    getNodes().add(asm);
-                   asm = new asmNode("mov   ","$1",", -"+res.getOffset()+"%(rbp)");
+                   asm = new asmNode("movl   ","$1",", -"+res.getOffset()+"(%ebp)");
                    getNodes().add(asm);
                    asm = new asmNode(".L2:",null,null);
                    getNodes().add(asm);
@@ -800,21 +800,21 @@ public class asmGen {
                    IntLiteral v1 = (IntLiteral) node.getV1();
                    VarLocation v2 = (VarLocation) node.getV2();
                    VarLocation res = (VarLocation) node.getResult();
-                   asm = new asmNode("mov   ","$"+v1.getRawValue(),", %r10");
+                   asm = new asmNode("movl   ","$"+v1.getRawValue(),", %eax");
                    getNodes().add(asm);
-                   asm = new asmNode("mov   ","-"+v2.getOffset(),", %r11");
+                   asm = new asmNode("movl   ","-"+v2.getOffset()+"(%ebp)",", %edx");
                    getNodes().add(asm);
-                   asm = new asmNode("cmp   ","%r10",", %r11");
+                   asm = new asmNode("cmp   ","%eax",", %edx");
                    getNodes().add(asm);
                    asm = new asmNode("jne    ",".L1",null);
                    getNodes().add(asm);
-                   asm = new asmNode("mov   ","$0",", -"+res.getOffset()+"%(rbp)");
+                   asm = new asmNode("movl   ","$0",", -"+res.getOffset()+"(%ebp)");
                    getNodes().add(asm);
                    asm = new asmNode("jmp   ",".L2",null);
                    getNodes().add(asm);
                    asm = new asmNode(".L1:",null,null);
                    getNodes().add(asm);
-                   asm = new asmNode("mov   ","$1",", -"+res.getOffset()+"%(rbp)");
+                   asm = new asmNode("movl   ","$1",", -"+res.getOffset()+"(%ebp)");
                    getNodes().add(asm);
                    asm = new asmNode(".L2:",null,null);
                    getNodes().add(asm);
@@ -822,21 +822,21 @@ public class asmGen {
                    IntLiteral v2 = (IntLiteral) node.getV2();
                    VarLocation v1 = (VarLocation) node.getV1();
                    VarLocation res = (VarLocation) node.getResult();
-                   asm = new asmNode("mov   ","$"+v1.getOffset(),", %r10");
+                   asm = new asmNode("movl   ","-"+v1.getOffset()+"(%ebp)",", %eax");
                    getNodes().add(asm);
-                   asm = new asmNode("mov   ","-"+v2.getRawValue(),", %r11");
+                   asm = new asmNode("movl   ","$"+v2.getRawValue(),", %edx");
                    getNodes().add(asm);
-                   asm = new asmNode("cmp   ","%r10",", %r11");
+                   asm = new asmNode("cmp   ","%eax",", %edx");
                    getNodes().add(asm);
                    asm = new asmNode("jne    ",".L1",null);
                    getNodes().add(asm);
-                   asm = new asmNode("mov   ","$0",", -"+res.getOffset()+"%(rbp)");
+                   asm = new asmNode("movl   ","$0",", -"+res.getOffset()+"(%ebp)");
                    getNodes().add(asm);
                    asm = new asmNode("jmp   ",".L2",null);
                    getNodes().add(asm);
                    asm = new asmNode(".L1:",null,null);
                    getNodes().add(asm);
-                   asm = new asmNode("mov   ","$1",", -"+res.getOffset()+"%(rbp)");
+                   asm = new asmNode("movl   ","$1",", -"+res.getOffset()+"(%ebp)");
                    getNodes().add(asm);
                    asm = new asmNode(".L2:",null,null);
                    getNodes().add(asm);
@@ -844,21 +844,21 @@ public class asmGen {
                    VarLocation v1 = (VarLocation) node.getV1();
                    VarLocation v2 = (VarLocation) node.getV2();
                    VarLocation res = (VarLocation) node.getResult();
-                   asm = new asmNode("mov   ","$"+v1.getOffset(),", %r10");
+                   asm = new asmNode("movl   ","-"+v1.getOffset()+"(%ebp)",", %eax");
                    getNodes().add(asm);
-                   asm = new asmNode("mov   ","-"+v2.getOffset(),", %r11");
+                   asm = new asmNode("movl   ","-"+v2.getOffset()+"(%ebp)",", %edx");
                    getNodes().add(asm);
-                   asm = new asmNode("cmp   ","%r10",", %r11");
+                   asm = new asmNode("cmp   ","%eax",", %edx");
                    getNodes().add(asm);
                    asm = new asmNode("jne    ",".L1",null);
                    getNodes().add(asm);
-                   asm = new asmNode("mov   ","$0",", -"+res.getOffset()+"%(rbp)");
+                   asm = new asmNode("movl   ","$0",", -"+res.getOffset()+"(%ebp)");
                    getNodes().add(asm);
                    asm = new asmNode("jmp   ",".L2",null);
                    getNodes().add(asm);
                    asm = new asmNode(".L1:",null,null);
                    getNodes().add(asm);
-                   asm = new asmNode("mov   ","$1",", -"+res.getOffset()+"%(rbp)");
+                   asm = new asmNode("movl   ","$1",", -"+res.getOffset()+"(%ebp)");
                    getNodes().add(asm);
                    asm = new asmNode(".L2:",null,null);
                    getNodes().add(asm);
@@ -870,9 +870,9 @@ public class asmGen {
                    BoolLiteral v2 = (BoolLiteral) node.getV2();
                    VarLocation res = (VarLocation) node.getResult();
                    if (v1.getRawValue().equals("true") && v2.getRawValue().equals("true")){
-                       asm = new asmNode("mov   ","$1",", -"+res.getOffset()+"%(rbp)");
+                       asm = new asmNode("movl   ","$1",", -"+res.getOffset()+"(%ebp)");
                    } else {
-                       asm = new asmNode("mov   ","$0",", -"+res.getOffset()+"%(rbp)");
+                       asm = new asmNode("movl   ","$0",", -"+res.getOffset()+"(%ebp)");
                    }
                    getNodes().add(asm);
                    
@@ -881,47 +881,47 @@ public class asmGen {
                    VarLocation v2 = (VarLocation) node.getV2();
                    VarLocation res = (VarLocation) node.getResult();
                    if (v1.getRawValue().equals("true")){
-                       asm = new asmNode("mov   ","-"+v2.getOffset()+"%(rbp)",", %r10");
+                       asm = new asmNode("movl   ","-"+v2.getOffset()+"(%ebp)",", %eax");
                        getNodes().add(asm);
-                       asm = new asmNode("cmp   ","%r10",", $1");
+                       asm = new asmNode("cmp   ","%eax",", $1");
                        getNodes().add(asm);
                        asm = new asmNode("je    ",".AND1",null);
                        getNodes().add(asm);
-                       asm = new asmNode("mov   ","$0",", -"+res.getOffset()+"%(rbp)");
+                       asm = new asmNode("movl   ","$0",", -"+res.getOffset()+"(%ebp)");
                        getNodes().add(asm);
                        asm = new asmNode("jmp   ",".ENDAND",null);
                        getNodes().add(asm);
                        asm = new asmNode(".AND1",null,null);
                        getNodes().add(asm);
-                       asm = new asmNode("mov   ","$1",", -"+res.getOffset()+"%(rbp)");
+                       asm = new asmNode("movl   ","$1",", -"+res.getOffset()+"(%ebp)");
                        getNodes().add(asm);
                        asm = new asmNode(".ENDAND",null,null);
                        getNodes().add(asm);
                    } else {
-                       asm = new asmNode("mov   ","$0",", -"+res.getOffset()+"%(rbp)");
+                       asm = new asmNode("movl   ","$0",", -"+res.getOffset()+"(%ebp)");
                        getNodes().add(asm);
                    }
                 }   else if ((node.getV2() instanceof BoolLiteral) && (node.getV1() instanceof VarLocation)){
                     BoolLiteral v2 = (BoolLiteral) node.getV1();
                     VarLocation v1 = (VarLocation) node.getV2();
                     VarLocation res = (VarLocation) node.getResult();
-                       asm = new asmNode("mov   ","-"+v1.getOffset()+"%(rbp)",", %r10");
+                       asm = new asmNode("movl   ","-"+v1.getOffset()+"(%ebp)",", %eax");
                        getNodes().add(asm);
-                       asm = new asmNode("cmp   ","%r10",", $1");
+                       asm = new asmNode("cmp   ","%eax",", $1");
                        getNodes().add(asm);
                        asm = new asmNode("je    ",".AND1",null);
                        getNodes().add(asm);
-                       asm = new asmNode("mov   ","$0",", -"+res.getOffset()+"%(rbp)");
+                       asm = new asmNode("movl   ","$0",", -"+res.getOffset()+"(%ebp)");
                        getNodes().add(asm);
                        asm = new asmNode("jmp   ",".ENDAND",null);
                        getNodes().add(asm);
                        asm = new asmNode(".AND1",null,null);
                        getNodes().add(asm);
                        if (v2.getRawValue().equals("true")){
-                            asm = new asmNode("mov   ","$1",", -"+res.getOffset()+"%(rbp)");
+                            asm = new asmNode("movl   ","$1",", -"+res.getOffset()+"(%ebp)");
                             getNodes().add(asm);
                        } else {
-                            asm = new asmNode("mov   ","$0",", -"+res.getOffset()+"%(rbp)");
+                            asm = new asmNode("movl   ","$0",", -"+res.getOffset()+"(%ebp)");
                             getNodes().add(asm);
                        }
                        asm = new asmNode(".ENDAND",null,null);
@@ -930,31 +930,31 @@ public class asmGen {
                    VarLocation v1 = (VarLocation) node.getV1();
                    VarLocation v2 = (VarLocation) node.getV2();
                    VarLocation res = (VarLocation) node.getResult();
-                   asm = new asmNode("mov   ","-"+v1.getOffset()+"%(rbp)",", %r10");
+                   asm = new asmNode("movl   ","-"+v1.getOffset()+"(%ebp)",", %eax");
                    getNodes().add(asm);
-                   asm = new asmNode("cmp   ","%r10",", $1");
+                   asm = new asmNode("cmp   ","%eax",", $1");
                    getNodes().add(asm);
                    asm = new asmNode("je    ",".AND1",null);
                    getNodes().add(asm);
-                   asm = new asmNode("mov   ","$0",", -"+res.getOffset()+"%(rbp)");
+                   asm = new asmNode("movl   ","$0",", -"+res.getOffset()+"(%ebp)");
                    getNodes().add(asm);
                    asm = new asmNode("jmp   ",".ENDAND",null);
                    getNodes().add(asm);
                    asm = new asmNode(".AND1",null,null);
                    getNodes().add(asm);
-                   asm = new asmNode("mov   ","-"+v2.getOffset()+"%(rbp)",", %r11");
+                   asm = new asmNode("movl   ","-"+v2.getOffset()+"(%ebp)",", %edx");
                    getNodes().add(asm);
-                   asm = new asmNode("cmp   ","%r11",", $1");
+                   asm = new asmNode("cmp   ","%edx",", $1");
                    getNodes().add(asm);
                    asm = new asmNode("je    ",".AND2",null);
                    getNodes().add(asm);
-                   asm = new asmNode("mov   ","$0",", -"+res.getOffset()+"%(rbp)");
+                   asm = new asmNode("movl   ","$0",", -"+res.getOffset()+"(%ebp)");
                    getNodes().add(asm);
                    asm = new asmNode("jmp   ",".ENDAND",null);
                    getNodes().add(asm);
                    asm = new asmNode(".AND2",null,null);
                    getNodes().add(asm);
-                   asm = new asmNode("mov   ","$1",", -"+res.getOffset()+"%(rbp)");
+                   asm = new asmNode("movl   ","$1",", -"+res.getOffset()+"(%ebp)");
                    getNodes().add(asm);
                    asm = new asmNode(".ENDAND",null,null);
                    getNodes().add(asm); 
@@ -966,9 +966,9 @@ public class asmGen {
                    BoolLiteral v2 = (BoolLiteral) node.getV2();
                    VarLocation res = (VarLocation) node.getResult();
                    if (v1.getRawValue().equals("true") || v2.getRawValue().equals("true")){
-                       asm = new asmNode("mov   ","$1",", -"+res.getOffset()+"%(rbp)");
+                       asm = new asmNode("movl   ","$1",", -"+res.getOffset()+"(%ebp)");
                    } else {
-                       asm = new asmNode("mov   ","$0",", -"+res.getOffset()+"%(rbp)");
+                       asm = new asmNode("movl   ","$0",", -"+res.getOffset()+"(%ebp)");
                    }
                    getNodes().add(asm);
                    
@@ -977,22 +977,22 @@ public class asmGen {
                    VarLocation v2 = (VarLocation) node.getV2();
                    VarLocation res = (VarLocation) node.getResult();
                    if (v1.getRawValue().equals("true")){
-                       asm = new asmNode("mov   ","$1",", -"+res.getOffset()+"%(rbp)");
+                       asm = new asmNode("movl   ","$1",", -"+res.getOffset()+"(%ebp)");
                        getNodes().add(asm);
                    } else {
-                       asm = new asmNode("mov   ","-"+v2.getOffset()+"%(rbp)",", %r10");
+                       asm = new asmNode("movl   ","-"+v2.getOffset()+"(%ebp)",", %eax");
                        getNodes().add(asm);
-                       asm = new asmNode("cmp   ","%r10",", $1");
+                       asm = new asmNode("cmp   ","%eax",", $1");
                        getNodes().add(asm);
                        asm = new asmNode("je    ",".OR1",null);
                        getNodes().add(asm);
-                       asm = new asmNode("mov   ","$0",", -"+res.getOffset()+"%(rbp)");
+                       asm = new asmNode("movl   ","$0",", -"+res.getOffset()+"(%ebp)");
                        getNodes().add(asm);
                        asm = new asmNode("jmp   ",".ENDOR",null);
                        getNodes().add(asm);
                        asm = new asmNode(".OR1",null,null);
                        getNodes().add(asm);
-                       asm = new asmNode("mov   ","$1",", -"+res.getOffset()+"%(rbp)");
+                       asm = new asmNode("movl   ","$1",", -"+res.getOffset()+"(%ebp)");
                        getNodes().add(asm);
                        asm = new asmNode(".ENDOR",null,null);
                        getNodes().add(asm);
@@ -1001,17 +1001,17 @@ public class asmGen {
                     BoolLiteral v2 = (BoolLiteral) node.getV1();
                     VarLocation v1 = (VarLocation) node.getV2();
                     VarLocation res = (VarLocation) node.getResult();
-                       asm = new asmNode("mov   ","-"+v1.getOffset()+"%(rbp)",", %r10");
+                       asm = new asmNode("movl   ","-"+v1.getOffset()+"(%ebp)",", %eax");
                        getNodes().add(asm);
-                       asm = new asmNode("cmp   ","%r10",", $1");
+                       asm = new asmNode("cmp   ","%eax",", $1");
                        getNodes().add(asm);
                        asm = new asmNode("je    ",".OR1",null);
                        getNodes().add(asm);
                        if (v2.getRawValue().equals("true")){
-                            asm = new asmNode("mov   ","$1",", -"+res.getOffset()+"%(rbp)");
+                            asm = new asmNode("movl   ","$1",", -"+res.getOffset()+"(%ebp)");
                             getNodes().add(asm);
                        } else {
-                            asm = new asmNode("mov   ","$0",", -"+res.getOffset()+"%(rbp)");
+                            asm = new asmNode("movl   ","$0",", -"+res.getOffset()+"(%ebp)");
                             getNodes().add(asm);
                        }
                        getNodes().add(asm);
@@ -1019,7 +1019,7 @@ public class asmGen {
                        getNodes().add(asm);
                        asm = new asmNode(".OR1",null,null);
                        getNodes().add(asm);
-                       asm = new asmNode("mov   ","$1",", -"+res.getOffset()+"%(rbp)");
+                       asm = new asmNode("movl   ","$1",", -"+res.getOffset()+"(%ebp)");
                        getNodes().add(asm);
                        asm = new asmNode(".ENDOR",null,null);
                        getNodes().add(asm);  
@@ -1027,25 +1027,25 @@ public class asmGen {
                    VarLocation v1 = (VarLocation) node.getV1();
                    VarLocation v2 = (VarLocation) node.getV2();
                    VarLocation res = (VarLocation) node.getResult();
-                   asm = new asmNode("mov   ","-"+v1.getOffset()+"%(rbp)",", %r10");
+                   asm = new asmNode("movl   ","-"+v1.getOffset()+"(%ebp)",", %eax");
                    getNodes().add(asm);
-                   asm = new asmNode("cmp   ","%r10",", $1");
-                   getNodes().add(asm);
-                   asm = new asmNode("je    ",".or1",null);
-                   getNodes().add(asm);
-                   asm = new asmNode("mov   ","-"+v2.getOffset()+"%(rbp)",", %r11");
-                   getNodes().add(asm);
-                   asm = new asmNode("cmp   ","%r11",", $1");
+                   asm = new asmNode("cmp   ","%eax",", $1");
                    getNodes().add(asm);
                    asm = new asmNode("je    ",".or1",null);
                    getNodes().add(asm);
-                   asm = new asmNode("mov   ","$0",", -"+res.getOffset()+"%(rbp)");
+                   asm = new asmNode("movl   ","-"+v2.getOffset()+"(%ebp)",", %edx");
+                   getNodes().add(asm);
+                   asm = new asmNode("cmp   ","%edx",", $1");
+                   getNodes().add(asm);
+                   asm = new asmNode("je    ",".or1",null);
+                   getNodes().add(asm);
+                   asm = new asmNode("movl   ","$0",", -"+res.getOffset()+"(%ebp)");
                    getNodes().add(asm);
                    asm = new asmNode("jmp   ",".endor",null);
                    getNodes().add(asm);
                    asm = new asmNode(".OR1",null,null);
                    getNodes().add(asm);
-                   asm = new asmNode("mov   ","$1",", -"+res.getOffset()+"%(rbp)");
+                   asm = new asmNode("movl   ","$1",", -"+res.getOffset()+"(%ebp)");
                    getNodes().add(asm);
                    asm = new asmNode(".endor",null,null);
                    getNodes().add(asm); 
@@ -1056,27 +1056,27 @@ public class asmGen {
                    VarLocation res = (VarLocation) node.getResult();
                    BoolLiteral v1 = (BoolLiteral) node.getV1();
                    if (v1.getRawValue().equals("true")){
-                       asm = new asmNode("mov   ","$1",", -"+res.getOffset()+"%(rbp)");
+                       asm = new asmNode("movl   ","$1",", -"+res.getOffset()+"(%ebp)");
                    } else {
-                       asm = new asmNode("mov   ","$0",", -"+res.getOffset()+"%(rbp)");
+                       asm = new asmNode("movl   ","$0",", -"+res.getOffset()+"(%ebp)");
                    }
                    getNodes().add(asm);
                } else if (node.getV1() instanceof VarLocation){
                    VarLocation res = (VarLocation) node.getResult();
                    VarLocation v1 = (VarLocation) node.getV1();
-                   asm = new asmNode("mov   ","-"+v1.getOffset()+"%(rbp)",", %r10");
+                   asm = new asmNode("movl   ","-"+v1.getOffset()+"(%ebp)",", %eax");
                    getNodes().add(asm);
-                   asm = new asmNode("cmp   ","$1",", %r10");
+                   asm = new asmNode("cmp   ","$1",", %eax");
                    getNodes().add(asm);
                    asm = new asmNode("je   ",".nt",null);
                    getNodes().add(asm);
-                   asm = new asmNode("mov   ","$1",", -"+res.getOffset()+"%(rbp)");
+                   asm = new asmNode("movl   ","$1",", -"+res.getOffset()+"(%ebp)");
                    getNodes().add(asm);
                    asm = new asmNode("jmp   ",".endnot",null);
                    getNodes().add(asm);
                    asm = new asmNode(".nt",null,null);
                    getNodes().add(asm);
-                   asm = new asmNode("mov   ","$0",", -"+res.getOffset()+"%(rbp)");
+                   asm = new asmNode("movl   ","$0",", -"+res.getOffset()+"(%ebp)");
                    getNodes().add(asm);
                    asm = new asmNode(".endnot",null,null);
                    getNodes().add(asm);
@@ -1086,20 +1086,20 @@ public class asmGen {
                if (node.getV1() instanceof IntLiteral){
                    VarLocation res = (VarLocation) node.getResult();
                    IntLiteral v1 = (IntLiteral) node.getV1();
-                   asm = new asmNode("mov   ","$"+v1.getRawValue(),", %r10");
+                   asm = new asmNode("movl   ","$"+v1.getRawValue(),", %eax");
                    getNodes().add(asm);
-                   asm = new asmNode("imul  ","$-1",", %r10");
+                   asm = new asmNode("imul  ","$-1",", %eax");
                    getNodes().add(asm);
-                   asm = new asmNode("mov  ","%r10",", -"+res.getOffset()+"%(rbp)");
+                   asm = new asmNode("movl  ","%eax",", -"+res.getOffset()+"(%ebp)");
                    getNodes().add(asm);
                } else if(node.getV1() instanceof VarLocation) {
                    VarLocation res = (VarLocation) node.getResult();
                    VarLocation v1 = (VarLocation) node.getV1();
-                   asm = new asmNode("mov   ","-"+v1.getOffset()+"%(rbp)",", %r10");
+                   asm = new asmNode("movl   ","-"+v1.getOffset()+"(%ebp)",", %eax");
                    getNodes().add(asm);
-                   asm = new asmNode("imul  ","$-1",", %r10");
+                   asm = new asmNode("imul  ","$-1",", %eax");
                    getNodes().add(asm);
-                   asm = new asmNode("mov   ","%r10",", -"+res.getOffset()+"%(rbp)");
+                   asm = new asmNode("movl   ","%eax",", -"+res.getOffset()+"(%ebp)");
                    getNodes().add(asm);
                }
                break;
@@ -1112,19 +1112,19 @@ public class asmGen {
                } else if (node.getV1() instanceof BoolLiteral){
                    BoolLiteral v1 = (BoolLiteral) node.getV1();
                    if (v1.getValue() == true){
-                       asm = new asmNode("mov   ","$1",", "+res_location.getOffset()+"(%ebp)");
+                       asm = new asmNode("movl   ","$1",", "+res_location.getOffset()+"(%ebp)");
                        getNodes().add(asm);
                    } else if (v1.getValue() == false){
-                       asm = new asmNode("mov   ","$0",", "+res_location.getOffset()+"(%ebp)");
+                       asm = new asmNode("movl   ","$0",", "+res_location.getOffset()+"(%ebp)");
                        getNodes().add(asm);
                    }
                } else if (node.getV1() instanceof IntLiteral){
                    IntLiteral v1 = (IntLiteral) node.getV1();
-                   asm = new asmNode("mov   ","$"+v1,", "+res_location.getOffset()+"(%ebp)");
+                   asm = new asmNode("movl   ","$"+v1,", "+res_location.getOffset()+"(%ebp)");
                    getNodes().add(asm);
                } else if (node.getV1() instanceof FloatLiteral){
                    FloatLiteral v1 = (FloatLiteral) node.getV1();
-                   asm = new asmNode("mov   ","$"+v1,", "+res_location.getOffset()+"(%ebp)");
+                   asm = new asmNode("movl   ","$"+v1,", "+res_location.getOffset()+"(%ebp)");
                    getNodes().add(asm);
                }
                break;
@@ -1132,82 +1132,82 @@ public class asmGen {
                 if (node.getV1() instanceof VarLocation){
                    VarLocation v1 = (VarLocation) node.getV1();
                    VarLocation res = (VarLocation) node.getResult();
-                   asm = new asmNode("mov   ","-"+v1.getOffset()+"%(rbp)",", %r10");
+                   asm = new asmNode("movl   ","-"+v1.getOffset()+"(%ebp)",", %eax");
                    getNodes().add(asm);
-                   asm = new asmNode("mov   ","-"+res.getOffset()+"%(rbp)",", %r11");
+                   asm = new asmNode("movl   ","-"+res.getOffset()+"(%ebp)",", %edx");
                    getNodes().add(asm);
-                   asm = new asmNode("add   ","%r10",", %r11");
+                   asm = new asmNode("add   ","%eax",", %edx");
                    getNodes().add(asm);
-                   asm = new asmNode("mov   ","%r11",", -"+res.getOffset()+"%(rbp)");
+                   asm = new asmNode("movl   ","%edx",", -"+res.getOffset()+"(%ebp)");
                } else if (node.getV1() instanceof FloatLiteral){
                    FloatLiteral v1 = (FloatLiteral) node.getV1();
                    VarLocation res = (VarLocation) node.getResult();
-                   asm = new asmNode("mov   ","$"+v1.getRawValue(),", %r10");
+                   asm = new asmNode("movl   ","$"+v1.getRawValue(),", %eax");
                    getNodes().add(asm);
-                   asm = new asmNode("mov   ","-"+res.getOffset()+"%(rbp)",", %r11");
+                   asm = new asmNode("movl   ","-"+res.getOffset()+"(%ebp)",", %edx");
                    getNodes().add(asm);
-                   asm = new asmNode("add   ","%r10, ",", %r11");
+                   asm = new asmNode("add   ","%eax, ",", %edx");
                    getNodes().add(asm);
-                   asm = new asmNode("mov   ","%r11, ",", -"+res.getOffset()+"%(rbp)");
+                   asm = new asmNode("movl   ","%edx, ",", -"+res.getOffset()+"(%ebp)");
                } else if (node.getV1() instanceof IntLiteral){
                    IntLiteral v1 = (IntLiteral) node.getV1();
                    VarLocation res = (VarLocation) node.getResult();
-                   asm = new asmNode("mov   ","$"+v1.getRawValue(),", %r10");
+                   asm = new asmNode("movl   ","$"+v1.getRawValue(),", %eax");
                    getNodes().add(asm);
-                   asm = new asmNode("mov   ","-"+res.getOffset()+"%(rbp)",", %r11");
+                   asm = new asmNode("movl   ","-"+res.getOffset()+"(%ebp)",", %edx");
                    getNodes().add(asm);
-                   asm = new asmNode("add   ","%r10, ",", %r11");
+                   asm = new asmNode("add   ","%eax, ",", %edx");
                    getNodes().add(asm);
-                   asm = new asmNode("mov   ","%r11, ",", -"+res.getOffset()+"%(rbp)");
+                   asm = new asmNode("movl   ","%edx, ",", -"+res.getOffset()+"(%ebp)");
                }
                break;
            case DEC:
               if (node.getV1() instanceof VarLocation){
                    VarLocation v1 = (VarLocation) node.getV1();
                    VarLocation res = (VarLocation) node.getResult();
-                   asm = new asmNode("mov   ","-"+v1.getOffset()+"%(rbp)",", %r10");
+                   asm = new asmNode("movl   ","-"+v1.getOffset()+"(%ebp)",", %eax");
                    getNodes().add(asm);
-                   asm = new asmNode("mov   ","-"+res.getOffset()+"%(rbp)",", %r11");
+                   asm = new asmNode("movl   ","-"+res.getOffset()+"(%ebp)",", %edx");
                    getNodes().add(asm);
-                   asm = new asmNode("sub   ","%r10",", %r11");
+                   asm = new asmNode("subl   ","%eax",", %edx");
                    getNodes().add(asm);
-                   asm = new asmNode("mov   ","%r11",", -"+res.getOffset()+"%(rbp)");
+                   asm = new asmNode("movl   ","%edx",", -"+res.getOffset()+"(%ebp)");
                } else if (node.getV1() instanceof FloatLiteral){
                    FloatLiteral v1 = (FloatLiteral) node.getV1();
                    VarLocation res = (VarLocation) node.getResult();
-                   asm = new asmNode("mov   ","$"+v1.getRawValue(),", %r10");
+                   asm = new asmNode("movl   ","$"+v1.getRawValue(),", %eax");
                    getNodes().add(asm);
-                   asm = new asmNode("mov   ","-"+res.getOffset()+"%(rbp)",", %r11");
+                   asm = new asmNode("movl   ","-"+res.getOffset()+"(%ebp)",", %edx");
                    getNodes().add(asm);
-                   asm = new asmNode("sub   ","%r10, ",", %r11");
+                   asm = new asmNode("subl   ","%eax, ",", %edx");
                    getNodes().add(asm);
-                   asm = new asmNode("mov   ","%r11, ",", -"+res.getOffset()+"%(rbp)");
+                   asm = new asmNode("movl   ","%edx, ",", -"+res.getOffset()+"(%ebp)");
                } else if (node.getV1() instanceof IntLiteral){
                    IntLiteral v1 = (IntLiteral) node.getV1();
                    VarLocation res = (VarLocation) node.getResult();
-                   asm = new asmNode("mov   ","$"+v1.getRawValue(),", %r10");
+                   asm = new asmNode("movl   ","$"+v1.getRawValue(),", %eax");
                    getNodes().add(asm);
-                   asm = new asmNode("mov   ","-"+res.getOffset()+"%(rbp)",", %r11");
+                   asm = new asmNode("movl   ","-"+res.getOffset()+"(%ebp)",", %edx");
                    getNodes().add(asm);
-                   asm = new asmNode("sub   ","%r10, ",", %r11");
+                   asm = new asmNode("subl   ","%eax, ",", %edx");
                    getNodes().add(asm);
-                   asm = new asmNode("mov   ","%r11, ",", -"+res.getOffset()+"%(rbp)");
+                   asm = new asmNode("movl   ","%edx, ",", -"+res.getOffset()+"(%ebp)");
                }
                break;
            case LABELRETCALL:
-               getNodes().add(new asmNode("leave",null,null));
+               getNodes().add(new asmNode("     pop %ebp",null,null));
                getNodes().add(new asmNode("ret",null,null));
                break;
            case LABELRETURN:
                if (node.getV1() instanceof IntLiteral){
                    IntLiteral v1 = (IntLiteral) node.getV1();
-                   asm = new asmNode("mov   ","$"+v1.getRawValue(),"%rax");
+                   asm = new asmNode("movl   ","$"+v1.getRawValue(),"%rax");
                    getNodes().add(asm);
                } else if (node.getV1() instanceof VarLocation){
                    VarLocation v1 = (VarLocation) node.getV1();
-                   asm = new asmNode("mov   ","-"+v1.getOffset()+"%(rbp)","%r10");
+                   asm = new asmNode("movl   ","-"+v1.getOffset()+"(%ebp)","%eax");
                    getNodes().add(asm);
-                   asm = new asmNode("mov   ","%r10","%rax");
+                   asm = new asmNode("movl   ","%eax","%rax");
                    getNodes().add(asm);
                }
                break;
@@ -1216,9 +1216,9 @@ public class asmGen {
                    VarLocation v1 = (VarLocation) node.getV1();
                    VarLocation v2 = (VarLocation) node.getV2();
                    VarLocation res = (VarLocation) node.getResult();
-                   asm = new asmNode("mov   ","-"+v1.getOffset()+"%(rbp)",", %r10");
+                   asm = new asmNode("movl   ","-"+v1.getOffset()+"(%ebp)",", %eax");
                    getNodes().add(asm);
-                   asm = new asmNode("cmp   ","%r10",", $1");
+                   asm = new asmNode("cmp   ","%eax",", $1");
                    getNodes().add(asm);
                    asm = new asmNode("jne   ",v2.toString().toLowerCase(), null);
                    getNodes().add(asm);
@@ -1246,9 +1246,9 @@ public class asmGen {
            case CONDITIONWHILE:
                if (node.getV1() instanceof VarLocation){
                    VarLocation v1 = (VarLocation) node.getV1();
-                   asm = new asmNode("mov   ","-"+v1.getOffset()+"%(rbp)",", %r10");
+                   asm = new asmNode("movl   ","-"+v1.getOffset()+"(%ebp)",", %eax");
                    getNodes().add(asm);
-                   asm = new asmNode("cmp   ","%r10",", $1");
+                   asm = new asmNode("cmp   ","%eax",", $1");
                    getNodes().add(asm);
                    asm = new asmNode("jne   ",node.getResult().toString().toLowerCase(),null);
                    getNodes().add(asm);
@@ -1288,15 +1288,15 @@ public class asmGen {
            case LABELPARAMADD:
                if (node.getResult() instanceof VarLocation){
                    VarLocation res = (VarLocation) node.getResult();
-                   asm = new asmNode("push  ","-"+res.getOffset()+"%(rbp)",null);
+                   asm = new asmNode("pushl  ","-"+res.getOffset()+"(%ebp)",null);
                    getNodes().add(asm);
                } else if (node.getResult() instanceof IntLiteral){
                    IntLiteral res = (IntLiteral) node.getResult();
-                   asm = new asmNode("push  ","$"+res.toString(),null);
+                   asm = new asmNode("pushl  ","$"+res.toString(),null);
                    getNodes().add(asm);
                } else if (node.getResult() instanceof FloatLiteral){
                    FloatLiteral res = (FloatLiteral) node.getResult();
-                   asm = new asmNode("push  ","$"+res.toString(),null);
+                   asm = new asmNode("pushl  ","$"+res.toString(),null);
                    getNodes().add(asm);
                }
                params++;
@@ -1313,27 +1313,27 @@ public class asmGen {
                    while (i<=params){
                        switch (i){
                                case 1:            
-                                   asm = new asmNode("mov  ","%rdi",", -8(%rbp)");
+                                   asm = new asmNode("movl  ","%rdi",", -8(%rbp)");
                                    getNodes().add(asm);
                                    i++;
                                case 2: 
-                                   asm = new asmNode("mov  ","%rsi",", -16(%rbp)");
+                                   asm = new asmNode("movl  ","%rsi",", -16(%rbp)");
                                    getNodes().add(asm);
                                    i++;
                                case 3:
-                                   asm = new asmNode("mov   ","%rdx",", -24(%rbp)");
+                                   asm = new asmNode("movl   ","%rdx",", -24(%rbp)");
                                    getNodes().add(asm);
                                    i++;
                                case 4:
-                                   asm = new asmNode("mov   ","%rcx",", -32(%rbp)");
+                                   asm = new asmNode("movl   ","%rcx",", -32(%rbp)");
                                    getNodes().add(asm);
                                    i++;
                                case 5:
-                                   asm = new asmNode("mov   ","%r8",",  -40(%rbp)");
+                                   asm = new asmNode("movl   ","%r8",",  -40(%rbp)");
                                    getNodes().add(asm);
                                    i++;
                                case 6:
-                                   asm = new asmNode("mov   ","%r9",",  -48(%rbp)");
+                                   asm = new asmNode("movl   ","%r9",",  -48(%rbp)");
                                    getNodes().add(asm);
                                    i++;
                        } 
