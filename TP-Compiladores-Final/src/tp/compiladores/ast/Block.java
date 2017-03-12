@@ -7,7 +7,7 @@ import tp.compiladores.ASTVisitor;
 
 public class Block extends Statement {
 	private List<Statement> statements;
-	private List<String> fields;
+	private List<VarLocation> fields;
         private int blockId;
         private boolean inCycleB = false;
 	
@@ -18,10 +18,10 @@ public class Block extends Statement {
 	}
         
         	
-	public Block(int bId, List<Statement> s, List<String> f) {
+	public Block(int bId, List<Statement> s, List<VarLocation> f) {
 		blockId = bId;
 		statements = (s == null) ? new LinkedList<Statement>() : s;
-                fields = f == null ? new LinkedList<String>() : f;
+                fields = f == null ? new LinkedList<VarLocation>() : f;
                 System.out.println("F: "+fields.toString());
 	}
 	
@@ -45,8 +45,8 @@ public class Block extends Statement {
 	public String toString() {
 		String rtn = "";
                 rtn += "\n Fields: ";
-            for (String f : fields){
-                rtn += f + ", ";
+            for (VarLocation f : fields){
+                rtn += f.getId() + ", ";
             }
             rtn += "\n Statements: ";
 	    for (Statement s: statements) {
@@ -66,7 +66,7 @@ public class Block extends Statement {
     /**
      * @return the fields
      */
-    public List<String> getFields() {
+    public List<VarLocation> getFields() {
         return fields;
     }
 

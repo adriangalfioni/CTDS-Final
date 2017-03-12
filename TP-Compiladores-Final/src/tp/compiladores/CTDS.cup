@@ -94,7 +94,10 @@ action code {:
     LinkedList<Statement> stmtList = new LinkedList<Statement>();
 
     // List of fields
-    LinkedList<String> fieldList = new LinkedList<String>();
+    LinkedList<VarLocation> fieldList = new LinkedList<VarLocation>();
+
+    // List of fields aux
+    LinkedList<VarLocation> fieldListAux = new LinkedList<VarLocation>();
 
     //List of errors found
     LinkedList<SemError> errors = new LinkedList<SemError>();
@@ -155,10 +158,10 @@ terminal UMINUS;
 non terminal program, declaration;
 non terminal LinkedList<MethodDecl> method_decls;
 non terminal MethodDecl method_decl;
-non terminal LinkedList<String> field_decl, field_decls;
+non terminal LinkedList<VarLocation> field_decl, field_decls;
 /*Identificators, parameters, statements, blocks*/
-non terminal LinkedList<String> identificadores;
-non terminal String identificador;
+non terminal LinkedList<VarLocation> identificadores;
+non terminal VarLocation identificador;
 non terminal param;
 non terminal LinkedList<Statement> recursive_statement;
 non terminal Statement statement;
@@ -218,41 +221,45 @@ declaration ::= field_decls //One or more fields, no methods
                                             }    
                                             :};
 
-field_decls ::= field_decl:fd PUNTOYCOMA {:RESULT = new LinkedList(fd);:} //Just one field declaration
-		| field_decls:fds field_decl:fd PUNTOYCOMA {:for(String s: fd){fds.add(s);}RESULT = fds;:}; //At least two fields are declarated
+field_decls ::= field_decl:fd PUNTOYCOMA {:fieldList = new LinkedList(); fieldList.addAll(fd); RESULT = fieldList;:} //Just one field declaration
+		| field_decls:fds field_decl:fd PUNTOYCOMA {:fds.addAll(fd); RESULT = fds;:}; //At least two fields are declarated
+
 
 field_decl ::= type:t identificadores:idents{:
-        for (String at: fieldList) {
+        for (VarLocation at: fieldListAux) {
             // Obtain field (unique in the enviroment) and set type
-            MyAttribute actualAttr = (MyAttribute) entStack.peek().get(at).value;
+            MyAttribute actualAttr = (MyAttribute) entStack.peek().get(at.getId()).value;
             actualAttr.setType(t);
         }
         RESULT = idents;
         :};
 
-identificadores ::= identificador:id {:fieldList= new LinkedList(); fieldList.add(id); RESULT = fieldList;:}//Only one identifier
+identificadores ::= identificador:id {:fieldListAux= new LinkedList(); fieldListAux.add(id); RESULT = fieldListAux;:}//Only one identifier
                     | identificadores:idList COMA identificador:id {:idList.add(id); RESULT = idList;:}; //At least two identifiers
 
-identificador ::= ID:ident {:if(isGlobal){vars.add(ident);}list.add(new MyAttribute(ident,null)); RESULT = ident;entStack.peek().put(ident,new MyAttribute(ident,Type.VOID));offset+=8;VarLocation varL = new VarLocation(ident,offset);ASTList.add(varL);:} //New identifier
+identificador ::= ID:ident {:if(isGlobal){vars.add(ident);}list.add(new MyAttribute(ident,null)); entStack.peek().put(ident,new MyAttribute(ident,Type.VOID));offset-=8;VarLocation varL = new VarLocation(ident,offset);RESULT = varL;:} //New identifier
 		| ID:ident LCORCHETE INTEGER:length RCORCHETE{: //New array
                     int intLength = length; //Parse the length of the array
+                    VarLocation varL = new VarLocation("null");
                     if(intLength > 0){  
                         list.add(new MyAttribute((String) ident,null, intLength));
-                        entStack.peek().put(ident,new MyAttribute(ident,Type.VOID,length));} //If the array length is greater than zero, then it's added to the scope
+                        entStack.peek().put(ident,new MyAttribute(ident,Type.VOID,length)); //If the array length is greater than zero, then it's added to the scope
+                        varL = new VarLocation(ident,offset);}
                     else {
                         errors.add(new SemError(lengthleft,lengthright,"Array length lower than 1")); //Creates a new error and adds it to the error list
                         this.parser.report_error("Array length lower than 1", length); //Reports the error
                     }
-                    RESULT = ident;
+                    /*RESULT = ident;*/
+                    RESULT = varL;
                     :};
 
 method_decls ::=  method_decl//Just one method
 		| method_decls method_decl; //At least two methods
 
-method_decl ::=   type:t ID:ident LPARENTESIS RPARENTESIS {:isGlobal = false;auxList= new LinkedList(); entStack.peek().put(ident,new MyAttribute(ident,t,auxList));list = new LinkedList(); Ent actual = new Ent(entStack.peek());entStack.push(actual);:} block: blk {: MethodDecl methD = new MethodDecl(ident,t,null,blk,blkleft,blkright,offset);ASTList.add(methD);offset=0;:}  //Method without arguments, creates a new scope.
-                | type_void:t ID:ident LPARENTESIS RPARENTESIS {:isGlobal = false;auxList= new LinkedList(); entStack.peek().put(ident,new MyAttribute(ident,t,auxList));list = new LinkedList(); Ent actual = new Ent(entStack.peek());entStack.push(actual);:} block: blk {: MethodDecl methD = new MethodDecl(ident,t,null,blk,blkleft,blkright,offset);ASTList.add(methD);offset=0;:}  //Method without arguments, creates a new scope.
-		| type:t ID:ident LPARENTESIS {:isGlobal = false;auxList = new LinkedList();list = new LinkedList();Ent actual = new Ent(entStack.peek());entStack.push(actual);:}param RPARENTESIS {:entStack.peek().getPrev().put(ident,new MyAttribute(ident,t,auxList));:} block: blk {:/*ASTList.add(blk);*/MethodDecl methD = new MethodDecl(ident,t,auxList,blk,blkleft,blkright,offset);ASTList.add(methD); offset=0;System.out.println("Declara metodo con argumentos");:} //Method with arguments, adds the arguments to the scope and creates a new one
-                | type_void:t ID:ident LPARENTESIS {:isGlobal = false;auxList = new LinkedList();list = new LinkedList();Ent actual = new Ent(entStack.peek());entStack.push(actual);:}param RPARENTESIS {:entStack.peek().getPrev().put(ident,new MyAttribute(ident,t,auxList));:} block: blk {:/*ASTList.add(blk);*/MethodDecl methD = new MethodDecl(ident,t,auxList,blk,blkleft,blkright,offset);ASTList.add(methD); offset=0; System.out.println("Declara metodo con argumentos");:}; //Method with arguments, adds the arguments to the scope and creates a new one
+method_decl ::=   type:t ID:ident LPARENTESIS RPARENTESIS {:isGlobal = false; fieldListAux = new LinkedList(); fieldList = new LinkedList(); auxList= new LinkedList(); entStack.peek().put(ident,new MyAttribute(ident,t,auxList));list = new LinkedList(); Ent actual = new Ent(entStack.peek());entStack.push(actual);:} block: blk {: MethodDecl methD = new MethodDecl(ident,t,null,blk,blkleft,blkright,offset);ASTList.add(methD);offset=0;:}  //Method without arguments, creates a new scope.
+                | type_void:t ID:ident LPARENTESIS RPARENTESIS {:isGlobal = false; fieldListAux = new LinkedList(); fieldList = new LinkedList(); auxList= new LinkedList(); entStack.peek().put(ident,new MyAttribute(ident,t,auxList));list = new LinkedList(); Ent actual = new Ent(entStack.peek());entStack.push(actual);:} block: blk {: MethodDecl methD = new MethodDecl(ident,t,null,blk,blkleft,blkright,offset);ASTList.add(methD);offset=0;:}  //Method without arguments, creates a new scope.
+		| type:t ID:ident LPARENTESIS {:isGlobal = false;fieldListAux = new LinkedList(); fieldList = new LinkedList(); auxList = new LinkedList();list = new LinkedList();Ent actual = new Ent(entStack.peek());entStack.push(actual);:}param RPARENTESIS {:entStack.peek().getPrev().put(ident,new MyAttribute(ident,t,auxList));:} block: blk {:/*ASTList.add(blk);*/MethodDecl methD = new MethodDecl(ident,t,auxList,blk,blkleft,blkright,offset);ASTList.add(methD); offset=0;System.out.println("Declara metodo con argumentos");:} //Method with arguments, adds the arguments to the scope and creates a new one
+                | type_void:t ID:ident LPARENTESIS {:isGlobal = false;fieldListAux = new LinkedList(); fieldList = new LinkedList(); auxList = new LinkedList();list = new LinkedList();Ent actual = new Ent(entStack.peek());entStack.push(actual);:}param RPARENTESIS {:entStack.peek().getPrev().put(ident,new MyAttribute(ident,t,auxList));:} block: blk {:/*ASTList.add(blk);*/MethodDecl methD = new MethodDecl(ident,t,auxList,blk,blkleft,blkright,offset);ASTList.add(methD); offset=0; System.out.println("Declara metodo con argumentos");:}; //Method with arguments, adds the arguments to the scope and creates a new one
 
 param ::= type:t ID: id  {:if (t.equals(Type.VOID)){
                     errors.add(new SemError(tleft,tright,"Void can't be used as type for a parameter")); //If a parameter is declared as Void
@@ -276,7 +283,7 @@ recursive_statement ::= statement:st {:stmtList= new LinkedList(); stmtList.add(
 statement ::= location:l assign_op:assOp expr:e PUNTOYCOMA {: RESULT = new AssignStmt(l,assOp,e,assOpleft,assOpright) ;:} //Assign operation.
 	      | method_call:methCall PUNTOYCOMA {:RESULT = new MethodStmt(methCall,methCallleft,methCallright);:} //Method call as a statement
 	      | IF LPARENTESIS expr:exp RPARENTESIS {:list = new LinkedList();Ent actual = new Ent(entStack.peek());entStack.push(actual);list = new LinkedList();:} block:ifBlock else_stmt:elseBlock {:RESULT = new IfStmt(exp, ifBlock, elseBlock,expleft,expright);:} //New scope for the if block
-              | FOR ID:id IGUAL expr:expI COMA expr:expF {:/*Ent sup = actual; Ent actual = new Ent(sup);*/Ent actual = new Ent(entStack.peek()/*sup*/);entStack.push(actual);list = new LinkedList();:} block:b {:b.setInCycleB(true);offset=offset+8;  System.out.println("+8 offset FOR"); RESULT = new ForStmt(new VarLocation(id,Type.VOID,offset,idleft,idright),expI,expF,b,idleft,idright);:} //For statement
+              | FOR ID:id IGUAL expr:expI COMA expr:expF {:/*Ent sup = actual; Ent actual = new Ent(sup);*/Ent actual = new Ent(entStack.peek()/*sup*/);entStack.push(actual);list = new LinkedList();:} block:b {:b.setInCycleB(true)/*;offset=offset-8*/;  System.out.println("+8 offset FOR"); RESULT = new ForStmt(new VarLocation(id,Type.VOID,offset,idleft,idright,true),expI,expF,b,idleft,idright);:} //For statement
 	      | WHILE expr:cond {:list = new LinkedList();Ent actual = new Ent(entStack.peek());entStack.push(actual);list = new LinkedList();:} block:b {:b.setInCycleB(true);RESULT = new WhileStmt(cond,b,condleft,condright);:} //While statement
 	      | RETURN expr:exp PUNTOYCOMA {:RESULT = new ReturnStmt(exp);:} //Return statement with a expression
 	      | RETURN PUNTOYCOMA {:RESULT = new ReturnStmt();:} //Empty return statement
@@ -342,22 +349,22 @@ expr ::= location:loc {:RESULT = loc;:}
 	| method_call:methCall {:RESULT = methCall; System.out.println("Method call inside expression");:}
 	| literal:lit {:RESULT = lit;:}
 	
-        | expr:e1 SUMA expr:e2 {:offset+=8;RESULT = new BinOpExpr(e1,BinOpType.PLUS,e2,e1left,e1right); System.out.println("BinOp: ");:}
-        | expr:e1 MENOS expr:e2 {:offset+=8;RESULT = new BinOpExpr(e1,BinOpType.MINUS,e2,e1left,e1right); System.out.println("BinOp: ");:}
-        | expr:e1 MULTIPLICACION expr:e2 {:offset+=8;RESULT = new BinOpExpr(e1,BinOpType.MULTIPLY,e2,e1left,e1right); System.out.println("BinOp: ");:}
-        | expr:e1 DIVENTERA expr:e2 {:offset+=8;RESULT = new BinOpExpr(e1,BinOpType.MOD,e2,e1left,e1right); System.out.println("BinOp: ");:}
-        | expr:e1 DIVISION expr:e2 {:offset+=8;RESULT = new BinOpExpr(e1,BinOpType.DIVIDE,e2,e1left,e1right); System.out.println("BinOp: ");:}
-        | expr:e1 MENOR expr:e2 {:offset+=8;RESULT = new BinOpExpr(e1,BinOpType.LE,e2,e1left,e1right); System.out.println("BinOp: ");:}
-        | expr:e1 MAYOR expr:e2 {:offset+=8;RESULT = new BinOpExpr(e1,BinOpType.GE,e2,e1left,e1right); System.out.println("BinOp: ");:}
-        | expr:e1 MENORIGUAL expr:e2 {:offset+=8;RESULT = new BinOpExpr(e1,BinOpType.LEQ,e2,e1left,e1right); System.out.println("BinOp: ");:}
-        | expr:e1 MAYORIGUAL expr:e2 {:offset+=8;RESULT = new BinOpExpr(e1,BinOpType.GEQ,e2,e1left,e1right); System.out.println("BinOp: ");:}
-        | expr:e1 IGUALIGUAL expr:e2 {:offset+=8;RESULT = new BinOpExpr(e1,BinOpType.CEQ,e2,e1left,e1right); System.out.println("BinOp: igualigual");:}
-        | expr:e1 ADMIRACIONIGUAL expr:e2 {:offset+=8;RESULT = new BinOpExpr(e1,BinOpType.NEQ,e2,e1left,e1right); System.out.println("BinOp: ");:}
-        | expr:e1 CONJUNCION expr:e2 {:offset+=8;RESULT = new BinOpExpr(e1,BinOpType.AND,e2,e1left,e1right); System.out.println("BinOp: ");:}
-        | expr:e1 DISYUNCION expr:e2 {:offset+=8;RESULT = new BinOpExpr(e1,BinOpType.OR,e2,e1left,e1right); System.out.println("BinOp: ");:}
+        | expr:e1 SUMA expr:e2 {:offset-=8;RESULT = new BinOpExpr(e1,BinOpType.PLUS,e2,e1left,e1right); System.out.println("BinOp: ");:}
+        | expr:e1 MENOS expr:e2 {:offset-=8;RESULT = new BinOpExpr(e1,BinOpType.MINUS,e2,e1left,e1right); System.out.println("BinOp: ");:}
+        | expr:e1 MULTIPLICACION expr:e2 {:offset-=8;RESULT = new BinOpExpr(e1,BinOpType.MULTIPLY,e2,e1left,e1right); System.out.println("BinOp: ");:}
+        | expr:e1 DIVENTERA expr:e2 {:offset-=8;RESULT = new BinOpExpr(e1,BinOpType.MOD,e2,e1left,e1right); System.out.println("BinOp: ");:}
+        | expr:e1 DIVISION expr:e2 {:offset-=8;RESULT = new BinOpExpr(e1,BinOpType.DIVIDE,e2,e1left,e1right); System.out.println("BinOp: ");:}
+        | expr:e1 MENOR expr:e2 {:offset-=8;RESULT = new BinOpExpr(e1,BinOpType.LE,e2,e1left,e1right); System.out.println("BinOp: ");:}
+        | expr:e1 MAYOR expr:e2 {:offset-=8;RESULT = new BinOpExpr(e1,BinOpType.GE,e2,e1left,e1right); System.out.println("BinOp: ");:}
+        | expr:e1 MENORIGUAL expr:e2 {:offset-=8;RESULT = new BinOpExpr(e1,BinOpType.LEQ,e2,e1left,e1right); System.out.println("BinOp: ");:}
+        | expr:e1 MAYORIGUAL expr:e2 {:offset-=8;RESULT = new BinOpExpr(e1,BinOpType.GEQ,e2,e1left,e1right); System.out.println("BinOp: ");:}
+        | expr:e1 IGUALIGUAL expr:e2 {:offset-=8;RESULT = new BinOpExpr(e1,BinOpType.CEQ,e2,e1left,e1right); System.out.println("BinOp: igualigual");:}
+        | expr:e1 ADMIRACIONIGUAL expr:e2 {:offset-=8;RESULT = new BinOpExpr(e1,BinOpType.NEQ,e2,e1left,e1right); System.out.println("BinOp: ");:}
+        | expr:e1 CONJUNCION expr:e2 {:offset-=8;RESULT = new BinOpExpr(e1,BinOpType.AND,e2,e1left,e1right); System.out.println("BinOp: ");:}
+        | expr:e1 DISYUNCION expr:e2 {:offset-=8;RESULT = new BinOpExpr(e1,BinOpType.OR,e2,e1left,e1right); System.out.println("BinOp: ");:}
 
-        | MENOS:minus expr:e1 {:offset+=8;RESULT = new UnaryOpExpr(e1,UnaryOpType.MINUS,e1left,e1right);:} %prec UMINUS
-	| ADMIRACION:not expr:e1 {:offset+=8;RESULT = new UnaryOpExpr(e1,UnaryOpType.NOT,e1left,e1right);:} %prec UMINUS
+        | MENOS:minus expr:e1 {:offset-=8;RESULT = new UnaryOpExpr(e1,UnaryOpType.MINUS,e1left,e1right);:} %prec UMINUS
+	| ADMIRACION:not expr:e1 {:offset-=8;RESULT = new UnaryOpExpr(e1,UnaryOpType.NOT,e1left,e1right);:} %prec UMINUS
 	| LPARENTESIS expr:e RPARENTESIS {:RESULT = e;:};
 
 location ::= ID:id {:if(entStack.peek().get(id) == null){
@@ -365,7 +372,7 @@ location ::= ID:id {:if(entStack.peek().get(id) == null){
                             this.parser.report_error("Null id: "+id, id);
                     }
                 
-                MyAttribute var = (MyAttribute) entStack.peek().get(id).value;offset = offset+8; System.out.println("+8 offset LOCATION"); VarLocation varL = new VarLocation(id,var.getType(),offset,idleft,idright); RESULT= varL;:}
+                MyAttribute var = (MyAttribute) entStack.peek().get(id).value/*;offset = offset-8*/; System.out.println("+8 offset LOCATION"); VarLocation varL = new VarLocation(id,var.getType(),offset,idleft,idright,true); RESULT= varL;:}
 	   | ID:id LCORCHETE expr:exp RCORCHETE {:
                     if(/*actual*/entStack.peek().get(id) == null){
                             errors.add(new SemError(idleft,idright,"Null id: "));

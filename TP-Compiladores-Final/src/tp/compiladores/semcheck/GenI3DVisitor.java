@@ -46,12 +46,14 @@ public class GenI3DVisitor implements ASTVisitor<Object>  {
     private int index = 1;
     private int offset = 0;
     Object actual;
+    private int orden = 1;
+    
     
     @Override
     public Object visit(AssignStmt stmt) {
         I3D res;
         Object expr = stmt.getExpression().accept(this);
-        Object varLoc = stmt.getLocation().accept(this); 
+        Object varLoc = stmt.getLocation(); 
         System.out.println("VARLOC "+varLoc.getClass());
         switch (stmt.getOperator()){
             case ASSIGN: 
@@ -170,9 +172,17 @@ public class GenI3DVisitor implements ASTVisitor<Object>  {
 
     @Override
     public Object visit(Block block) {
+        System.out.println("Entro a block!!!");
+        
+        for(VarLocation varL: block.getFields()){
+            varL.accept(this);
+        }
+        
         for(Statement state: block.getStatements()){
+            System.out.println("Statemens del block "+state.toString());
             state.accept(this);
         }
+        
         return null;
     }
 
@@ -304,7 +314,12 @@ public class GenI3DVisitor implements ASTVisitor<Object>  {
 
     @Override
     public Object visit(VarLocation loc) {
-        getI3d().add(new I3D(OpName.LOCALVAR,loc.getId(),null,loc.getOffset()));
+        //System.out.println("Orden: "+orden+ " varLoc");
+        //orden++;
+        /*if(!loc.getIsOnlyLocation()){
+            this.offset = this.offset + 8;
+            getI3d().add(new I3D(OpName.LOCALVAR,loc.getId(),null,loc.getOffset()));
+        }*/
         return loc;
     }
 
@@ -346,10 +361,12 @@ public class GenI3DVisitor implements ASTVisitor<Object>  {
 
     @Override
     public Object visit(MethodDecl methD) {
+        System.out.println("Orden: "+orden+" mehtodDecl");
+        orden++;
         int aux = this.offset;
         int i3dOffset;
-        VarLocation varloc = new VarLocation(methD.getId().toString());
-        getI3d().add(new I3D(OpName.LABELMETHOD,null,null,varloc));
+        //VarLocation varloc = new VarLocation(methD.getId().toString());
+        getI3d().add(new I3D(OpName.LABELMETHOD,null,null,methD.getId().toString()));
         i3dOffset = getI3d().size();
         this.offset = 0;
         if(methD.getParmsType() != null) this.offset = methD.getParmsType().size() * 8;
