@@ -43,6 +43,7 @@ import tp.compiladores.ast.WhileStmt;
 public class GenI3DVisitor implements ASTVisitor<Object>  {
     //private LinkedList<LinkedList<I3D>> lists = new LinkedList();
     private final LinkedList<I3D> i3d = new LinkedList();
+    private LinkedList<Object> methodParams = new LinkedList();
     private int index = 1;
     private int offset = 0;
     Object actual;
@@ -74,7 +75,6 @@ public class GenI3DVisitor implements ASTVisitor<Object>  {
 
     @Override
     public Object visit(ReturnStmt stmt) { 
-        this.offset = this.offset + 8;
         Expression expression = stmt.getExpression();
         if(expression != null){
             expression.accept(this);
@@ -158,7 +158,35 @@ public class GenI3DVisitor implements ASTVisitor<Object>  {
 
     @Override
     public Object visit(MethodStmt methStmt) {
-          getI3d().add(new I3D(OpName.CALLMETHOD, null, null, methStmt.getMethodId()));
+        
+        methodParams = new LinkedList<>();
+        Object result;
+        
+        if (methStmt.getExpression() != null){
+            for(Expression e: methStmt.getExpression()){
+                result = e.accept(this);
+                switch (e.getClass().getSimpleName()){
+                    case "IntLiteral": 
+                        IntLiteral intL = (IntLiteral) result;
+                        methodParams.add(intL);
+                        break;
+                    case "StringLiteral":
+                        StringLiteral stringL = (StringLiteral) result;
+                        methodParams.add(stringL);
+                        break;
+                    case "FloatLiteral": 
+                        FloatLiteral floatL = (FloatLiteral) result;
+                        methodParams.add(floatL);
+                        break;
+                    case "BooleanLiteral":
+                        BoolLiteral boolL = (BoolLiteral) result;
+                        methodParams.add(boolL);
+                        break;
+                    default: break;
+                }
+            }
+        }
+        getI3d().add(new I3D(OpName.CALLMETHOD, methodParams, null, methStmt.getMethodId()));
 //        VarLocation varloc = new VarLocation(methStmt.getMethodId());
 //        getI3d().add(new I3D(OpName.LABELMETHOD,null,null,varloc));
 //        if (methStmt.getExpression() != null){
@@ -195,54 +223,67 @@ public class GenI3DVisitor implements ASTVisitor<Object>  {
         VarLocation res = new VarLocation("RES"+index, offset) ;
         switch (expr.getOperator()){
             case PLUS:
+                methodParams.add(res);
                 node = new I3D(OpName.ADD,op1,op2,res);
                 getI3d().add(node);
                 break;
             case MINUS:
+                methodParams.add(res);
                 node = new I3D(OpName.SUB,op1,op2,res);
                 getI3d().add(node);
                 break;
             case MULTIPLY:
+                methodParams.add(res);
                 node = new I3D(OpName.MULT,op1,op2,res);
                 getI3d().add(node);
                 break;
             case DIVIDE:
+                methodParams.add(res);
                 node = new I3D(OpName.DIV,op1,op2,res);
                 getI3d().add(node);
                 break;
             case MOD: 
+                methodParams.add(res);
                 node = new I3D(OpName.MOD,op1,op2,res);
                 getI3d().add(node);
                 break;
             case LE:
+                methodParams.add(res);
                 node = new I3D(OpName.LESSER,op1,op2,res);
                 getI3d().add(node);
                 break;
             case LEQ: 
+                methodParams.add(res);
                 node = new I3D(OpName.LESSEREQ,op1,op2,res);
                 getI3d().add(node);
                 break;
             case GE:
+                methodParams.add(res);
                 node = new I3D(OpName.GREATER,op1,op2,res);
                 getI3d().add(node);
                 break;
             case GEQ:
+                methodParams.add(res);
                 node = new I3D(OpName.GREATEREQ,op1,op2,res);
                 getI3d().add(node);
                 break;
             case NEQ:
+                methodParams.add(res);
                 node = new I3D(OpName.NOTEQ,op1,op2,res);
                 getI3d().add(node);
                 break;
             case CEQ:
+                methodParams.add(res);
                 node = new I3D(OpName.EQ,op1,op2,res);
                 getI3d().add(node);
                 break;
             case AND:
+                methodParams.add(res);
                 node = new I3D(OpName.AND,op1,op2,res);
                 getI3d().add(node);
                 break;
             case OR:
+                methodParams.add(res);
                 node = new I3D(OpName.OR,op1,op2,res);
                 getI3d().add(node);
                 break;
@@ -259,9 +300,11 @@ public class GenI3DVisitor implements ASTVisitor<Object>  {
         VarLocation res = new VarLocation("RES"+index,offset);
         switch (unaryExpr.getOperator()){
             case NOT: 
+                methodParams.add(res);
                 node = new I3D(OpName.NOT,operand,null,res);
                 getI3d().add(node);
             case MINUS:
+                methodParams.add(res);
                 node = new I3D(OpName.MINUS,operand,null,res);
                 getI3d().add(node);
         }
@@ -298,7 +341,6 @@ public class GenI3DVisitor implements ASTVisitor<Object>  {
 
     @Override
     public Object visit(BoolLiteral lit) {
-        System.out.println("Entro por acá?");
         return lit;
     }
 
