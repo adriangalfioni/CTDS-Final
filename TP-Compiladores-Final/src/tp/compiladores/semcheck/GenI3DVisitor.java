@@ -358,6 +358,7 @@ public class GenI3DVisitor implements ASTVisitor<Object>  {
     @Override
     public Object visit(VarLocation loc) {
         System.out.println(loc.toString()+" offset: "+loc.getOffset());
+        methodParams.add(loc);
         //System.out.println("Orden: "+orden+ " varLoc");
         //orden++;
         /*if(!loc.getIsOnlyLocation()){
@@ -413,7 +414,7 @@ public class GenI3DVisitor implements ASTVisitor<Object>  {
         getI3d().add(new I3D(OpName.LABELMETHOD,null,null,methD.getId().toString()));
         i3dOffset = getI3d().size();
         this.offset = 0;
-        if(methD.getParmsType() != null) this.offset = methD.getParmsType().size() * 8;
+        //if(methD.getParmsType() != null) this.offset = methD.getParmsType().size() * 8;
         Object block = methD.getBlock().accept(this);
         getI3d().add(i3dOffset, new I3D(OpName.OFFSET,null,null,this.offset));
         getI3d().add(new I3D(OpName.LABELRETCALL,null,null,"RET"));

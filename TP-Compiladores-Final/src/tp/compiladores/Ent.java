@@ -120,8 +120,8 @@ public class Ent {
     
     public static void main(String[] args){
         Ent sup=null;
-        MyAttribute intAtr = new MyAttribute("y",Type.INT);
-        MyAttribute asd = new MyAttribute("asd",Type.BOOLEAN);
+        MyAttribute intAtr = new MyAttribute("y",Type.INT,0,true);
+        MyAttribute asd = new MyAttribute("asd",Type.BOOLEAN,0,true);
         
         
         Ent one = new Ent(sup, "uno");

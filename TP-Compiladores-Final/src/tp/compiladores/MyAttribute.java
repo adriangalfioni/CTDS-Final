@@ -19,13 +19,15 @@ public class MyAttribute {
     private String id;
     private Type type;
     private int length = -1;
+    private int offset;
     private LinkedList<Type> list;
     
     // Constructor for variables
-    public MyAttribute(String id, Type type){
+    public MyAttribute(String id, Type type, int offset, boolean param){
         this.list = new LinkedList<>();
         this.type = type;
         this.id=id;
+        this.offset = offset;
     }
     
     // Constructor for arrays
@@ -48,6 +50,13 @@ public class MyAttribute {
      */
     public Type getType() {
         return type;
+    }
+    
+    /**
+     * @return offset
+     */
+    public int getOffset() {
+        return offset;
     }
 
     /**

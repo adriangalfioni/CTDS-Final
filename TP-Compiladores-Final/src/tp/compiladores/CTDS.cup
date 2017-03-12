@@ -106,6 +106,7 @@ action code {:
     LinkedList<MethodDecl> methDList = new LinkedList<MethodDecl>();
 
     int offset = 0;
+    int paramOffset = 0;
     boolean isGlobal = true;
 
     public LinkedList<AST> getAST(){
@@ -237,7 +238,7 @@ field_decl ::= type:t identificadores:idents{:
 identificadores ::= identificador:id {:fieldListAux= new LinkedList(); fieldListAux.add(id); RESULT = fieldListAux;:}//Only one identifier
                     | identificadores:idList COMA identificador:id {:idList.add(id); RESULT = idList;:}; //At least two identifiers
 
-identificador ::= ID:ident {:if(isGlobal){vars.add(ident);}list.add(new MyAttribute(ident,null)); entStack.peek().put(ident,new MyAttribute(ident,Type.VOID));offset-=8;VarLocation varL = new VarLocation(ident,offset);RESULT = varL;:} //New identifier
+identificador ::= ID:ident {:if(isGlobal){vars.add(ident);};offset-=8;list.add(new MyAttribute(ident,null,offset,false)); entStack.peek().put(ident,new MyAttribute(ident,Type.VOID,offset,false));VarLocation varL = new VarLocation(ident,offset);RESULT = varL;:} //New identifier
 		| ID:ident LCORCHETE INTEGER:length RCORCHETE{: //New array
                     int intLength = length; //Parse the length of the array
                     VarLocation varL = new VarLocation("null");
@@ -258,19 +259,19 @@ method_decls ::=  method_decl//Just one method
 
 method_decl ::=   type:t ID:ident LPARENTESIS RPARENTESIS {:isGlobal = false; fieldListAux = new LinkedList(); fieldList = new LinkedList(); auxList= new LinkedList(); entStack.peek().put(ident,new MyAttribute(ident,t,auxList));list = new LinkedList(); Ent actual = new Ent(entStack.peek());entStack.push(actual);:} block: blk {: MethodDecl methD = new MethodDecl(ident,t,null,blk,blkleft,blkright,offset);ASTList.add(methD);offset=0;:}  //Method without arguments, creates a new scope.
                 | type_void:t ID:ident LPARENTESIS RPARENTESIS {:isGlobal = false; fieldListAux = new LinkedList(); fieldList = new LinkedList(); auxList= new LinkedList(); entStack.peek().put(ident,new MyAttribute(ident,t,auxList));list = new LinkedList(); Ent actual = new Ent(entStack.peek());entStack.push(actual);:} block: blk {: MethodDecl methD = new MethodDecl(ident,t,null,blk,blkleft,blkright,offset);ASTList.add(methD);offset=0;:}  //Method without arguments, creates a new scope.
-		| type:t ID:ident LPARENTESIS {:isGlobal = false;fieldListAux = new LinkedList(); fieldList = new LinkedList(); auxList = new LinkedList();list = new LinkedList();Ent actual = new Ent(entStack.peek());entStack.push(actual);:}param RPARENTESIS {:entStack.peek().getPrev().put(ident,new MyAttribute(ident,t,auxList));:} block: blk {:/*ASTList.add(blk);*/MethodDecl methD = new MethodDecl(ident,t,auxList,blk,blkleft,blkright,offset);ASTList.add(methD); offset=0;System.out.println("Declara metodo con argumentos");:} //Method with arguments, adds the arguments to the scope and creates a new one
-                | type_void:t ID:ident LPARENTESIS {:isGlobal = false;fieldListAux = new LinkedList(); fieldList = new LinkedList(); auxList = new LinkedList();list = new LinkedList();Ent actual = new Ent(entStack.peek());entStack.push(actual);:}param RPARENTESIS {:entStack.peek().getPrev().put(ident,new MyAttribute(ident,t,auxList));:} block: blk {:/*ASTList.add(blk);*/MethodDecl methD = new MethodDecl(ident,t,auxList,blk,blkleft,blkright,offset);ASTList.add(methD); offset=0; System.out.println("Declara metodo con argumentos");:}; //Method with arguments, adds the arguments to the scope and creates a new one
+		| type:t ID:ident LPARENTESIS {:isGlobal = false;fieldListAux = new LinkedList(); fieldList = new LinkedList(); auxList = new LinkedList();list = new LinkedList();Ent actual = new Ent(entStack.peek());entStack.push(actual);paramOffset=0;:}param RPARENTESIS {:entStack.peek().getPrev().put(ident,new MyAttribute(ident,t,auxList));:} block: blk {:/*ASTList.add(blk);*/MethodDecl methD = new MethodDecl(ident,t,auxList,blk,blkleft,blkright,offset);ASTList.add(methD); offset=0;System.out.println("Declara metodo con argumentos");:} //Method with arguments, adds the arguments to the scope and creates a new one
+                | type_void:t ID:ident LPARENTESIS {:isGlobal = false;fieldListAux = new LinkedList(); fieldList = new LinkedList(); auxList = new LinkedList();list = new LinkedList();Ent actual = new Ent(entStack.peek());entStack.push(actual);paramOffset=0;:}param RPARENTESIS {:entStack.peek().getPrev().put(ident,new MyAttribute(ident,t,auxList));:} block: blk {:/*ASTList.add(blk);*/MethodDecl methD = new MethodDecl(ident,t,auxList,blk,blkleft,blkright,offset);ASTList.add(methD); offset=0; System.out.println("Declara metodo con argumentos");:}; //Method with arguments, adds the arguments to the scope and creates a new one
 
 param ::= type:t ID: id  {:if (t.equals(Type.VOID)){
                     errors.add(new SemError(tleft,tright,"Void can't be used as type for a parameter")); //If a parameter is declared as Void
                     this.parser.report_error("Void can't be used as type for a parameter", t);
 
-                }auxList.add(t);entStack.peek().put(id, new MyAttribute(id,t)); System.out.println("Parametro a agregar: "+id);:} //One param, with type and id.
+                }auxList.add(t);paramOffset+=8;entStack.peek().put(id, new MyAttribute(id,t,paramOffset,true)); System.out.println("Parametro a agregar: "+id);:} //One param, with type and id.
 	| param COMA type:t ID: id {:if (t.equals(Type.VOID)){
                     errors.add(new SemError(tleft,tright,"Void can't be used as type for a parameter")); //If a parameter is declared as Void
                     this.parser.report_error("Void can't be used as type for a parameter", t);
 
-                }auxList.add(t);/*actual*/entStack.peek().put(id, new MyAttribute(id,t));:}; //At least two parameters
+                }auxList.add(t);paramOffset+=8;/*actual*/entStack.peek().put(id, new MyAttribute(id,t,paramOffset,true));:}; //At least two parameters
 
 block ::= LLLAVE RLLAVE {:RESULT = new Block(1);entStack.pop();list = new LinkedList();:} //Empty block
 	| LLLAVE field_decls:fieldDecl RLLAVE {:RESULT = new Block(1,null,fieldDecl);entStack.pop();list = new LinkedList();:} //Block with field declarations but no statements
@@ -372,7 +373,7 @@ location ::= ID:id {:if(entStack.peek().get(id) == null){
                             this.parser.report_error("Null id: "+id, id);
                     }
                 
-                MyAttribute var = (MyAttribute) entStack.peek().get(id).value/*;offset = offset-8*/; System.out.println("+8 offset LOCATION"); VarLocation varL = new VarLocation(id,var.getType(),offset,idleft,idright,true); RESULT= varL;:}
+                MyAttribute var = (MyAttribute) entStack.peek().get(id).value/*;offset = offset-8*/; System.out.println("+8 offset LOCATION"); VarLocation varL = new VarLocation(id,var.getType(),var.getOffset(),idleft,idright,true); RESULT= varL;:}
 	   | ID:id LCORCHETE expr:exp RCORCHETE {:
                     if(/*actual*/entStack.peek().get(id) == null){
                             errors.add(new SemError(idleft,idright,"Null id: "));
