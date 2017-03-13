@@ -278,28 +278,6 @@ block ::= LLLAVE RLLAVE {:RESULT = new Block(1);entStack.pop();list = new Linked
 	| LLLAVE recursive_statement:recurSt RLLAVE {:RESULT = new Block(1,recurSt,null);entStack.pop();list = new LinkedList();:} //Block with one or more statements, but no field declarations
 	| LLLAVE field_decls:fieldDecl recursive_statement:recurSt RLLAVE{:RESULT = new Block(1,recurSt,fieldDecl);Ent a = entStack.pop();list = new LinkedList();a.showCurrent();:}; //Both statements and field declarations
 
-recursive_statement ::= statement:st {:stmtList= new LinkedList(); stmtList.add(st); RESULT = stmtList;:} //One statement, adds this statement to the statement list.
-			| recursive_statement:recSt statement:st {:recSt.add(st); RESULT = recSt;:}; //At least two statements
-
-statement ::= location:l assign_op:assOp expr:e PUNTOYCOMA {: RESULT = new AssignStmt(l,assOp,e,assOpleft,assOpright) ;:} //Assign operation.
-	      | method_call:methCall PUNTOYCOMA {:RESULT = new MethodStmt(methCall,methCallleft,methCallright);:} //Method call as a statement
-	      | IF LPARENTESIS expr:exp RPARENTESIS {:list = new LinkedList();Ent actual = new Ent(entStack.peek());entStack.push(actual);list = new LinkedList();:} block:ifBlock else_stmt:elseBlock {:RESULT = new IfStmt(exp, ifBlock, elseBlock,expleft,expright);:} //New scope for the if block
-              | FOR ID:id IGUAL expr:expI COMA expr:expF {:/*Ent sup = actual; Ent actual = new Ent(sup);*/Ent actual = new Ent(entStack.peek()/*sup*/);entStack.push(actual);list = new LinkedList();:} block:b {:b.setInCycleB(true)/*;offset=offset-8*/;  System.out.println("+8 offset FOR"); RESULT = new ForStmt(new VarLocation(id,Type.VOID,offset,idleft,idright,true),expI,expF,b,idleft,idright);:} //For statement
-	      | WHILE expr:cond {:list = new LinkedList();Ent actual = new Ent(entStack.peek());entStack.push(actual);list = new LinkedList();:} block:b {:b.setInCycleB(true);RESULT = new WhileStmt(cond,b,condleft,condright);:} //While statement
-	      | RETURN expr:exp PUNTOYCOMA {:RESULT = new ReturnStmt(exp);:} //Return statement with a expression
-	      | RETURN PUNTOYCOMA {:RESULT = new ReturnStmt();:} //Empty return statement
-	      | BREAK PUNTOYCOMA {:RESULT = new BreakStmt();:} //Break.
-	      | CONTINUE PUNTOYCOMA {:RESULT = new ContinueStmt();:} //Continue.
-	      | PUNTOYCOMA {:RESULT = new PuntoYComaStmt();:} 
-	      | {:list = new LinkedList();Ent actual = new Ent(entStack.peek());entStack.push(actual);:} block:b {:RESULT = new Block(1);:};//New block with a new scope
-
-else_stmt::= 
-            | ELSE {:list = new LinkedList();Ent actual = new Ent(entStack.peek());entStack.push(actual);list = new LinkedList();:} block:bElse {:RESULT = bElse;:}; //Else statement with a new block.
-
-assign_op ::= IGUAL {:RESULT = AssignOpType.ASSIGN;:}
-	     | SUMAIGUAL {:RESULT = AssignOpType.INCREMENT;:}
-	     | MENOSIGUAL {:RESULT = AssignOpType.DECREMENT;:};
-
 method_call ::= ID:ident LPARENTESIS RPARENTESIS {:MyAttribute method = (MyAttribute) /*actual*/entStack.peek().get(ident).value ;
                                                 System.out.println("averrr "+method.getList().size());
                                                 if (method.getList().size() != 0){
@@ -337,6 +315,28 @@ method_call ::= ID:ident LPARENTESIS RPARENTESIS {:MyAttribute method = (MyAttri
                 :}
 	      | EXTERNINVK:e LPARENTESIS STRING:s COMA type:t COMA externinvk_args:exArg RPARENTESIS {:/*System.out.println("Nunca entra3");*/ RESULT = new MethodExpr(s,t,exArg,true,eleft,eright); :}
               | EXTERNINVK:e LPARENTESIS STRING:s COMA type_void:t COMA externinvk_args:exArg RPARENTESIS {:/*System.out.println("Nunca entra3");*/ RESULT = new MethodExpr(s,t,exArg,true,eleft,eright); :}; 
+
+recursive_statement ::= statement:st {:stmtList= new LinkedList(); stmtList.add(st); RESULT = stmtList;:} //One statement, adds this statement to the statement list.
+			| recursive_statement:recSt statement:st {:recSt.add(st); RESULT = recSt;:}; //At least two statements
+
+statement ::= location:l assign_op:assOp expr:e PUNTOYCOMA {: RESULT = new AssignStmt(l,assOp,e,assOpleft,assOpright) ;:} //Assign operation.
+	      | method_call:methCall PUNTOYCOMA {:RESULT = new MethodStmt(methCall,methCallleft,methCallright);:} //Method call as a statement
+	      | IF LPARENTESIS expr:exp RPARENTESIS {:list = new LinkedList();Ent actual = new Ent(entStack.peek());entStack.push(actual);list = new LinkedList();:} block:ifBlock else_stmt:elseBlock {:RESULT = new IfStmt(exp, ifBlock, elseBlock,expleft,expright);:} //New scope for the if block
+              | FOR ID:id IGUAL expr:expI COMA expr:expF {:/*Ent sup = actual; Ent actual = new Ent(sup);*/Ent actual = new Ent(entStack.peek()/*sup*/);entStack.push(actual);list = new LinkedList();:} block:b {:b.setInCycleB(true)/*;offset=offset-8*/;  System.out.println("+8 offset FOR"); RESULT = new ForStmt(new VarLocation(id,Type.VOID,offset,idleft,idright,true),expI,expF,b,idleft,idright);:} //For statement
+	      | WHILE expr:cond {:list = new LinkedList();Ent actual = new Ent(entStack.peek());entStack.push(actual);list = new LinkedList();:} block:b {:b.setInCycleB(true);RESULT = new WhileStmt(cond,b,condleft,condright);:} //While statement
+	      | RETURN expr:exp PUNTOYCOMA {:RESULT = new ReturnStmt(exp);:} //Return statement with a expression
+	      | RETURN PUNTOYCOMA {:RESULT = new ReturnStmt();:} //Empty return statement
+	      | BREAK PUNTOYCOMA {:RESULT = new BreakStmt();:} //Break.
+	      | CONTINUE PUNTOYCOMA {:RESULT = new ContinueStmt();:} //Continue.
+	      | PUNTOYCOMA {:RESULT = new PuntoYComaStmt();:} 
+	      | {:list = new LinkedList();Ent actual = new Ent(entStack.peek());entStack.push(actual);:} block:b {:RESULT = new Block(1);:};//New block with a new scope
+
+else_stmt::= 
+            | ELSE {:list = new LinkedList();Ent actual = new Ent(entStack.peek());entStack.push(actual);list = new LinkedList();:} block:bElse {:RESULT = bElse;:}; //Else statement with a new block.
+
+assign_op ::= IGUAL {:RESULT = AssignOpType.ASSIGN;:}
+	     | SUMAIGUAL {:RESULT = AssignOpType.INCREMENT;:}
+	     | MENOSIGUAL {:RESULT = AssignOpType.DECREMENT;:};
 
 externinvk_args ::= {: exArgList = new LinkedList();:} externinvk_arg:exArg {: exArgList.add((Expression)exArg); RESULT = exArgList;:}
 		   | externinvk_args: exArgs COMA externinvk_arg: exArg {:exArgs.add((Expression)exArg); RESULT = exArgs;:}; 
