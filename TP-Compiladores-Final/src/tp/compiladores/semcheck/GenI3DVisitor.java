@@ -208,7 +208,7 @@ public class GenI3DVisitor implements ASTVisitor<Object>  {
         }
         
         for(Statement state: block.getStatements()){
-            System.out.println("Statemens del block "+state.toString());
+            //System.out.println("Statemens del block "+state.toString());
             state.accept(this);
         }
         
@@ -317,67 +317,34 @@ public class GenI3DVisitor implements ASTVisitor<Object>  {
     public Object visit(MethodExpr methExpr) { 
         
         methodParams = new LinkedList<>();
-        Object result;
-        System.out.println("error: METHEXPR "+methExpr.toStringName());
-        if (!methExpr.getIsExternInvk()){
-            if (methExpr.getExpression() != null){
-                for(Expression e: methExpr.getExpression()){
-                    //getI3d().add(new I3D(OpName.LABELPARAMADD,null,null,e.accept(this)));
-                    result = e.accept(this);
-                    switch (e.getClass().getSimpleName()){
-                        case "IntLiteral": 
-                            IntLiteral intL = (IntLiteral) result;
-                            methodParams.add(intL);
-                            break;
-                        case "StringLiteral":
-                            StringLiteral stringL = (StringLiteral) result;
-                            methodParams.add(stringL);
-                            break;
-                        case "FloatLiteral": 
-                            FloatLiteral floatL = (FloatLiteral) result;
-                            methodParams.add(floatL);
-                            break;
-                        case "BooleanLiteral":
-                            BoolLiteral boolL = (BoolLiteral) result;
-                            methodParams.add(boolL);
-                            break;
-                        default: break;
-                    }
+        Object result;        
+        if (methExpr.getExpression() != null){
+            for(Expression e: methExpr.getExpression()){
+                //getI3d().add(new I3D(OpName.LABELPARAMADD,null,null,e.accept(this)));
+                result = e.accept(this);
+                switch (e.getClass().getSimpleName()){
+                    case "IntLiteral": 
+                        IntLiteral intL = (IntLiteral) result;
+                        methodParams.add(intL);
+                        break;
+                    case "StringLiteral":
+                        StringLiteral stringL = (StringLiteral) result;
+                        methodParams.add(stringL);
+                        break;
+                    case "FloatLiteral": 
+                        FloatLiteral floatL = (FloatLiteral) result;
+                        methodParams.add(floatL);
+                        break;
+                    case "BooleanLiteral":
+                        BoolLiteral boolL = (BoolLiteral) result;
+                        methodParams.add(boolL);
+                        break;
+                    default: break;
                 }
             }
-            getI3d().add(new I3D(OpName.CALLMETHOD,methodParams,null,methExpr.getMethodId()));
-            return null;
-        }else{ // Is an exterinvk
-            methodParams = new LinkedList<>();
-            if (methExpr.getExpression() != null){
-                for(Expression e: methExpr.getExpression()){
-                    //getI3d().add(new I3D(OpName.LABELPARAMADD,null,null,e.accept(this)));
-                    result = e.accept(this);
-                    switch (e.getClass().getSimpleName()){
-                        case "IntLiteral": 
-                            IntLiteral intL = (IntLiteral) result;
-                            methodParams.add(intL);
-                            break;
-                        case "StringLiteral":
-                            StringLiteral stringL = (StringLiteral) result;
-                            methodParams.add(stringL);
-                            break;
-                        case "FloatLiteral": 
-                            FloatLiteral floatL = (FloatLiteral) result;
-                            methodParams.add(floatL);
-                            break;
-                        case "BooleanLiteral":
-                            BoolLiteral boolL = (BoolLiteral) result;
-                            methodParams.add(boolL);
-                            break;
-                        default: break;
-                    }
-                }
-            }
-            getI3d().add(new I3D(OpName.EXTINV,methodParams,null,methExpr.getMethodId()));
-            return null;
         }
-        
+        getI3d().add(new I3D(OpName.CALLMETHOD,methodParams,null,methExpr.getMethodId()));
+        return null;
     }
 
     @Override
@@ -433,21 +400,40 @@ public class GenI3DVisitor implements ASTVisitor<Object>  {
 
     @Override
     public Object visit(ExternInvkStmt extInvStmt) {
-        VarLocation varloc = new VarLocation(extInvStmt.toString());
-        getI3d().add(new I3D(OpName.EXTINV,null,null,varloc));
-        LinkedList<Expression> param = new LinkedList();
-        for( Expression e : extInvStmt.getParams()){
-            param.add((Expression) e.accept(this));
+        System.out.println("Entra caaaa");
+        methodParams = new LinkedList<>();
+        Object result;
+        
+        if (extInvStmt.getParams() != null){
+            for(Expression e: extInvStmt.getParams()){
+                result = e.accept(this);
+                switch (e.getClass().getSimpleName()){
+                    case "IntLiteral": 
+                        IntLiteral intL = (IntLiteral) result;
+                        methodParams.add(intL);
+                        break;
+                    case "StringLiteral":
+                        StringLiteral stringL = (StringLiteral) result;
+                        methodParams.add(stringL);
+                        break;
+                    case "FloatLiteral": 
+                        FloatLiteral floatL = (FloatLiteral) result;
+                        methodParams.add(floatL);
+                        break;
+                    case "BooleanLiteral":
+                        BoolLiteral boolL = (BoolLiteral) result;
+                        methodParams.add(boolL);
+                        break;
+                    default: break;
+                }
+            }
         }
-        ExternInvkStmt invo = new ExternInvkStmt(extInvStmt.getName(),extInvStmt.getType(),param);
-        getI3d().add(new I3D(OpName.GOTO,invo,null,varloc));
+        getI3d().add(new I3D(OpName.EXTINV,methodParams,null,extInvStmt.getName()));
         return null;
     }
 
     @Override
     public Object visit(MethodDecl methD) {
-        //System.out.println("Orden: "+orden+" mehtodDecl");
-        //orden++;
         int aux = this.offset;
         int i3dOffset;
         //VarLocation varloc = new VarLocation(methD.getId().toString());

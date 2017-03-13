@@ -58,6 +58,6 @@ public class ExternInvkStmt extends Statement {
 
     @Override
     public <T> T accept(ASTVisitor<T> v) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        return v.visit(this);
     }
 }
