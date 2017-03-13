@@ -56,6 +56,7 @@ public class GenI3DVisitor implements ASTVisitor<Object>  {
         Object expr = stmt.getExpression().accept(this);
         Object varLoc = stmt.getLocation(); 
         System.out.println("VARLOC "+varLoc.getClass());
+        System.out.println("EXPR "+expr.toString());
         switch (stmt.getOperator()){
             case ASSIGN: 
                 res = new I3D(OpName.ASSIGN, expr, null, varLoc);
@@ -161,7 +162,7 @@ public class GenI3DVisitor implements ASTVisitor<Object>  {
         
         methodParams = new LinkedList<>();
         Object result;
-        
+        System.out.println("CACA");
         if (methStmt.getExpression() != null){
             for(Expression e: methStmt.getExpression()){
                 result = e.accept(this);
@@ -316,8 +317,7 @@ public class GenI3DVisitor implements ASTVisitor<Object>  {
     public Object visit(MethodExpr methExpr) { 
         
         methodParams = new LinkedList<>();
-        Object result;
-        
+        Object result;        
         if (methExpr.getExpression() != null){
             for(Expression e: methExpr.getExpression()){
                 //getI3d().add(new I3D(OpName.LABELPARAMADD,null,null,e.accept(this)));
