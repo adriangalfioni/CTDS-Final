@@ -298,7 +298,7 @@ public class GenI3DVisitor implements ASTVisitor<Object>  {
         I3D node;
         this.offset = this.offset + 8;
         Object operand = unaryExpr.getOperand().accept(this);
-        VarLocation res = new VarLocation("RES"+index,offset);
+        VarLocation res = new VarLocation("RES"+index,-offset);
         switch (unaryExpr.getOperator()){
             case NOT: 
                 methodParams.add(res);
@@ -315,21 +315,65 @@ public class GenI3DVisitor implements ASTVisitor<Object>  {
 
     @Override
     public Object visit(MethodExpr methExpr) { 
+        
+        methodParams = new LinkedList<>();
+        Object result;
+        
         if (methExpr.getIsMethod()){
             if (methExpr.getExpression() != null){
                 for(Expression e: methExpr.getExpression()){
-                    getI3d().add(new I3D(OpName.LABELPARAMADD,null,null,e.accept(this)));
+                    //getI3d().add(new I3D(OpName.LABELPARAMADD,null,null,e.accept(this)));
+                    result = e.accept(this);
+                    switch (e.getClass().getSimpleName()){
+                        case "IntLiteral": 
+                            IntLiteral intL = (IntLiteral) result;
+                            methodParams.add(intL);
+                            break;
+                        case "StringLiteral":
+                            StringLiteral stringL = (StringLiteral) result;
+                            methodParams.add(stringL);
+                            break;
+                        case "FloatLiteral": 
+                            FloatLiteral floatL = (FloatLiteral) result;
+                            methodParams.add(floatL);
+                            break;
+                        case "BooleanLiteral":
+                            BoolLiteral boolL = (BoolLiteral) result;
+                            methodParams.add(boolL);
+                            break;
+                        default: break;
+                    }
                 }
             }
-            getI3d().add(new I3D(OpName.CALLMETHOD,null,null,methExpr.getMethodId()));
+            getI3d().add(new I3D(OpName.CALLMETHOD,methodParams,null,methExpr.getMethodId()));
             return null;
         }else{ // Is an exterinvk
             if (methExpr.getExpression() != null){
                 for(Expression e: methExpr.getExpression()){
-                    getI3d().add(new I3D(OpName.LABELPARAMADD,null,null,e.accept(this)));
+                    //getI3d().add(new I3D(OpName.LABELPARAMADD,null,null,e.accept(this)));
+                    result = e.accept(this);
+                    switch (e.getClass().getSimpleName()){
+                        case "IntLiteral": 
+                            IntLiteral intL = (IntLiteral) result;
+                            methodParams.add(intL);
+                            break;
+                        case "StringLiteral":
+                            StringLiteral stringL = (StringLiteral) result;
+                            methodParams.add(stringL);
+                            break;
+                        case "FloatLiteral": 
+                            FloatLiteral floatL = (FloatLiteral) result;
+                            methodParams.add(floatL);
+                            break;
+                        case "BooleanLiteral":
+                            BoolLiteral boolL = (BoolLiteral) result;
+                            methodParams.add(boolL);
+                            break;
+                        default: break;
+                    }
                 }
             }
-            getI3d().add(new I3D(OpName.GOTO,null,null,methExpr.getMethodId()));
+            getI3d().add(new I3D(OpName.EXTINV,methodParams,null,methExpr.getMethodId()));
             return null;
         }
         
@@ -406,8 +450,8 @@ public class GenI3DVisitor implements ASTVisitor<Object>  {
 
     @Override
     public Object visit(MethodDecl methD) {
-        System.out.println("Orden: "+orden+" mehtodDecl");
-        orden++;
+        //System.out.println("Orden: "+orden+" mehtodDecl");
+        //orden++;
         int aux = this.offset;
         int i3dOffset;
         //VarLocation varloc = new VarLocation(methD.getId().toString());
