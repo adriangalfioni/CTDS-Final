@@ -428,7 +428,9 @@ public class GenI3DVisitor implements ASTVisitor<Object>  {
                 }
             }
         }
-        getI3d().add(new I3D(OpName.EXTINV,methodParams,null,extInvStmt.getName()));
+        LinkedList aux = new LinkedList();
+        aux.addAll(methodParams);
+        getI3d().add(new I3D(OpName.EXTINV,aux,null,extInvStmt.getName()));
         return null;
     }
 
