@@ -347,6 +347,7 @@ public class GenI3DVisitor implements ASTVisitor<Object>  {
             getI3d().add(new I3D(OpName.CALLMETHOD,methodParams,null,methExpr.getMethodId()));
             return null;
         }else{ // Is an exterinvk
+            methodParams = new LinkedList<>();
             if (methExpr.getExpression() != null){
                 for(Expression e: methExpr.getExpression()){
                     //getI3d().add(new I3D(OpName.LABELPARAMADD,null,null,e.accept(this)));
