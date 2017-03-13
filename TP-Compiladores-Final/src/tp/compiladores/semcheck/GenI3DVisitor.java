@@ -75,11 +75,12 @@ public class GenI3DVisitor implements ASTVisitor<Object>  {
     @Override
     public Object visit(ReturnStmt stmt) { 
         Expression expression = stmt.getExpression();
+        Object result = null;
         if(expression != null){
-            expression.accept(this);
+            result = expression.accept(this);
         }
         VarLocation rtrn = new VarLocation("LABELRETURN",offset);
-        getI3d().add(new I3D(OpName.LABELRETURN,expression,null,rtrn));
+        getI3d().add(new I3D(OpName.LABELRETURN,result,null,rtrn));
         return rtrn;
     }
 
