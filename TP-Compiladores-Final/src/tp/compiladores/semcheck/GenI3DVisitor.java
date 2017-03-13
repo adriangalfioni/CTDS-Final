@@ -54,7 +54,10 @@ public class GenI3DVisitor implements ASTVisitor<Object>  {
         I3D res;
         Object expr = stmt.getExpression().accept(this);
         Object varLoc = stmt.getLocation(); 
+<<<<<<< HEAD
         
+=======
+>>>>>>> 8c7ea0dfd64c5e78a1c87db183cc197b77eb80fb
         switch (stmt.getOperator()){
             case ASSIGN: 
                 res = new I3D(OpName.ASSIGN, expr, null, varLoc);
