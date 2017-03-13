@@ -221,7 +221,7 @@ public class GenI3DVisitor implements ASTVisitor<Object>  {
         this.offset = this.offset + 8;
         Object op1 = expr.getLeftOperand().accept(this);
         Object op2 = expr.getRightOperand().accept(this);
-        VarLocation res = new VarLocation("RES"+index, offset) ;
+        VarLocation res = new VarLocation("RES"+index, -offset) ;
         switch (expr.getOperator()){
             case PLUS:
                 methodParams.add(res);
