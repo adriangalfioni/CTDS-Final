@@ -41,7 +41,6 @@ import tp.compiladores.ast.WhileStmt;
  * @author Max
  */
 public class GenI3DVisitor implements ASTVisitor<Object>  {
-    //private LinkedList<LinkedList<I3D>> lists = new LinkedList();
     private final LinkedList<I3D> i3d = new LinkedList();
     private LinkedList<Object> methodParams = new LinkedList();
     private int index = 1;
@@ -55,7 +54,6 @@ public class GenI3DVisitor implements ASTVisitor<Object>  {
         I3D res;
         Object expr = stmt.getExpression().accept(this);
         Object varLoc = stmt.getLocation(); 
-        System.out.println("VARLOC "+varLoc.getClass());
         
         switch (stmt.getOperator()){
             case ASSIGN: 
@@ -163,7 +161,6 @@ public class GenI3DVisitor implements ASTVisitor<Object>  {
         
         methodParams = new LinkedList<>();
         Object result;
-        System.out.println("CACA");
         if (methStmt.getExpression() != null){
             for(Expression e: methStmt.getExpression()){
                 result = e.accept(this);
@@ -191,14 +188,6 @@ public class GenI3DVisitor implements ASTVisitor<Object>  {
         LinkedList aux = new LinkedList();
         aux.addAll(methodParams);
         getI3d().add(new I3D(OpName.CALLMETHOD, aux, null, methStmt.getMethodId()));
-//        VarLocation varloc = new VarLocation(methStmt.getMethodId());
-//        getI3d().add(new I3D(OpName.LABELMETHOD,null,null,varloc));
-//        if (methStmt.getExpression() != null){
-//            for(Expression e: methStmt.getExpression()){
-//                e.accept(this);
-//            }
-//        }
-//        getI3d().add(new I3D(OpName.GOTO,null,null,methStmt.getMethodId()));
         return null;
     }
 
@@ -211,7 +200,6 @@ public class GenI3DVisitor implements ASTVisitor<Object>  {
         }
         
         for(Statement state: block.getStatements()){
-            //System.out.println("Statemens del block "+state.toString());
             state.accept(this);
         }
         
@@ -323,7 +311,6 @@ public class GenI3DVisitor implements ASTVisitor<Object>  {
         Object result;        
         if (methExpr.getExpression() != null){
             for(Expression e: methExpr.getExpression()){
-                //getI3d().add(new I3D(OpName.LABELPARAMADD,null,null,e.accept(this)));
                 result = e.accept(this);
                 switch (e.getClass().getSimpleName()){
                     case "IntLiteral": 
@@ -374,7 +361,6 @@ public class GenI3DVisitor implements ASTVisitor<Object>  {
 
     @Override
     public Object visit(VarLocation loc) {
-        System.out.println(loc.toString()+" offset: "+loc.getOffset());
         methodParams.add(loc);
         
         return loc;
@@ -405,7 +391,6 @@ public class GenI3DVisitor implements ASTVisitor<Object>  {
 
     @Override
     public Object visit(ExternInvkStmt extInvStmt) {
-        System.out.println("Entra caaaa");
         methodParams = new LinkedList<>();
         Object result;
         
@@ -443,11 +428,9 @@ public class GenI3DVisitor implements ASTVisitor<Object>  {
     public Object visit(MethodDecl methD) {
         int aux = this.offset;
         int i3dOffset;
-        //VarLocation varloc = new VarLocation(methD.getId().toString());
         getI3d().add(new I3D(OpName.LABELMETHOD,null,null,methD.getId().toString()));
         i3dOffset = getI3d().size();
         this.offset = 0;
-        //if(methD.getParmsType() != null) this.offset = methD.getParmsType().size() * 8;
         Object block = methD.getBlock().accept(this);
         getI3d().add(i3dOffset, new I3D(OpName.OFFSET,null,null,this.offset));
         getI3d().add(new I3D(OpName.LABELRETCALL,null,null,"RET"));

@@ -17,9 +17,12 @@ import tp.compiladores.ast.OpName;
  *    GOTOF: {v1 = a que Statement le corresponde, v2 = null, result = null}
  *    GOTOT: {v1 = a que Statementle corresponde, v2 = null, result = null}
  *    GOTO: {v1 = a que Statement le corresponde, v2 = null, result = Adonde dirigirse}
+ *    OperacionUnaria: {v1 = expr, v2 = null, result = varLoc que contiene el offset}
  *    OperacionesBinarias: {v1 = 1er operando, v2 = segundo operando, result = Adonde se guarda el resultado}
  *    LABELMETHOD: {v1 = null, v2 = null, result = Nombre del metodo}
  *    LOCALVAR: {v1 = VarLocation name, v2 = null, result = offset}
+ *    EXTINV: {v1 = methodParams, v2 = null , result = nombre del ExternInv}
+ *    CALLMETHOD: {v1 = methodParams, v2 = null, resutl = nombre del metodo}
  */
 /**
  *

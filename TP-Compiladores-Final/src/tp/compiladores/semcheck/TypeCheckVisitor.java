@@ -20,48 +20,31 @@ public class TypeCheckVisitor implements ASTVisitor<Type> {
         AssignOpType op = stmt.getOperator();
         Type exprType = stmt.getExpression().accept(this);
         if (stmt.getLocation().getIsArrayLocation()) {
-            //System.out.println("ENTRAAAASDADSASDASD");
             locType = stmt.getLocation().getType();
-            //System.out.println("Type= "+locType);
         } else {
             locType = stmt.getLocation().getType();
-            System.out.println("El type es asdasdasdasd: "+locType);
-            System.out.println(stmt.getLocation().toString());
         }
-//            System.out.print(locType.toString()+" ");
-//            System.out.print(stmt.getLocation().toString()+" ");
-//            System.out.print(op.toString()+" ");
-//            System.out.print(stmt.getExpression().toString()+" ");
-//            System.out.println(exprType.toString()+" ");
-        //System.out.println("HOLAAAA");
         if (op.equals(AssignOpType.DECREMENT) || op.equals(AssignOpType.INCREMENT)) { //If the operator is Increment or Decrement
             if (exprType.equals(locType)) { //Check if Expr and Loc types are equals
                 if (exprType.equals(Type.INT) || exprType.equals(Type.FLOAT)) { //Checks that both types are valid
-                    //System.out.println("Assign stmt type: "+exprType.toString());
                     return exprType; //Returns Float or Int
                 } else { //Else, if the types are other than Int or Float, returns an error
                     addError(stmt, "Wrong type assign, should be Int of Float");
-                    //System.out.println("Assign stmt error");
                     return Type.ERROR;
                 }
             } else { //If the types are different
                 if ((exprType.equals(Type.INT) || exprType.equals(Type.FLOAT)) && (locType.equals(Type.INT) || locType.equals(Type.FLOAT))) { //Checks that both types are valid
-                    //System.out.println("Assign stmt type: FLOAT");
                     return Type.FLOAT;
                 } else { //Otherwise, returns an Error
                     addError(stmt, "Wrong type assignation, should be Int or Flaot");
-                    //System.out.println("Assign stmt error");
                     return Type.ERROR;
                 }
             }
         } else { //If the operator is an Assign
-            //System.out.println(stmt.getExpression().toString()+" "+stmt.getExpression().accept(this));
             if (stmt.getExpression().accept(this).equals(stmt.getLocation().getType())) { //Checks that both types are the same
-                //System.out.println("Assign stmt type: "+stmt.getExpression().getType().toString());
                 return exprType; //Returns the type
             } else {
                 addError(stmt, "Var and expression types are not the same");
-                //System.out.println("Assign stmt error");
                 return Type.ERROR; //Otherwise, error.
             }
         }
@@ -73,9 +56,6 @@ public class TypeCheckVisitor implements ASTVisitor<Type> {
         Type lExpType, rExpType; // Variables for the operands
         lExpType = expr.getLeftOperand().accept(this);
         rExpType = expr.getRightOperand().accept(this);
-        System.out.println(expr.getLeftOperand().toString() + " LEXP Type: " + lExpType.toString());
-        System.out.println("Operador: " + binOp.toString());
-        System.out.println(expr.getRightOperand().toString() + " REXP Type: " + rExpType.toString());
         if (binOp.equals(BinOpType.OR) || binOp.equals(BinOpType.AND)) { //If the operator is Conditional 
             if (lExpType.equals(Type.BOOLEAN) && rExpType.equals(Type.BOOLEAN)) { // Checks that both values are Boolean
                 return Type.BOOLEAN;
@@ -126,7 +106,6 @@ public class TypeCheckVisitor implements ASTVisitor<Type> {
 
     @Override
     public Type visit(IfStmt stmt) {
-        System.out.println("Estoy visitando el if");
         Block ifBlock = stmt.getIfBlock();
         Block elseBlock = stmt.getElseBlock();
 
@@ -149,7 +128,6 @@ public class TypeCheckVisitor implements ASTVisitor<Type> {
 
     @Override
     public Type visit(VarLocation loc) {
-        System.out.println("Visitando VARLOCATION !!!!!!!!!! "+loc.getType());
         return loc.getType();
     }
 
@@ -167,8 +145,6 @@ public class TypeCheckVisitor implements ASTVisitor<Type> {
         UnaryOpType unOp = unaryExpr.getOperator();
         Expression expr = unaryExpr.getOperand();
         Type exprType = expr.accept(this);
-        //System.out.println("Unary operador "+unOp.toString());
-        //System.out.println("Unary operando "+expr.toString());
         if (unOp.equals(UnaryOpType.MINUS) && (exprType.equals(Type.FLOAT) || exprType.equals(Type.INT))) {
             return expr.getType();
         } else if (unOp.equals(UnaryOpType.NOT) && (exprType.equals(Type.BOOLEAN))) {
@@ -181,8 +157,6 @@ public class TypeCheckVisitor implements ASTVisitor<Type> {
 
     @Override
     public Type visit(ForStmt stmt) {
-        //System.out.println(stmt.getInitial().accept(this).toString());
-        //System.out.println(stmt.getEnd().accept(this).toString());
         if (!stmt.getInitial().accept(this).equals(Type.INT) || !stmt.getEnd().accept(this).equals(Type.INT)) {
             addError(stmt, "Expressions in for must be int");
             return Type.ERROR;
@@ -192,16 +166,11 @@ public class TypeCheckVisitor implements ASTVisitor<Type> {
 
     @Override
     public Type visit(Block block) {
-        System.out.println("Entro bloqueeee");
-        System.out.println(block.toString());
-        System.out.println(block.getStatements().size());
         boolean someIsReturn = false;
         for (Statement st : block.getStatements()) {
-            System.out.println("Statement " + st.toString() + " es un return? " + st.getIsReturnStmt());
             Type stmtType = st.accept(this);
             if (st.getIsReturnStmt() == true) {
                 someIsReturn = true;
-                System.out.println("stmtType " + stmtType.toString());
                 if (visitedMethodType != stmtType) {
                     allBlocksWithSameMethodType = false;
                 }
@@ -304,7 +273,6 @@ public class TypeCheckVisitor implements ASTVisitor<Type> {
             LinkedList<Expression> methodParams = methExpr.getExpression();
             LinkedList<Type> tableParams = methExpr.getTableSymParamsType();
             if (tableParams != null) {
-                //if(methodParams.size() != tableParams.size()){
                 if (methExpr.getNumberOfParams() != tableParams.size()) {
                     addError(methExpr, "Wrong number of arguments");
                     return Type.ERROR;
@@ -330,21 +298,6 @@ public class TypeCheckVisitor implements ASTVisitor<Type> {
 
     @Override
     public Type visit(ArrayLocation arrLoc) {
-//        System.out.println("ENTRAA?");
-//        if (arrLoc.getExpr().getType().equals(Type.INT)){
-//            IntLiteral intLit = (IntLiteral) arrLoc.getExpr();
-//            if(intLit.getValue()>=0){ // Check if intLiteral in [] is >= 0
-//                return Type.INTARRAY;
-//            }else{
-//                addError(arrLoc,"Wrong size in array declaration.");
-//                System.out.println("Wrong size in array declaration.");
-//                return Type.ERROR;
-//            }
-//        }else{
-//            addError(arrLoc,"Wrong type in array declaration.");
-//            System.out.println("Wrong type in array declaration.");
-//            return Type.ERROR;
-//        }
         return arrLoc.getType();
     }
 
@@ -364,9 +317,7 @@ public class TypeCheckVisitor implements ASTVisitor<Type> {
     }
 
     private void addError(AST a, String desc) {
-        //errors.add(new SemError(a.getLineNumber(), a.getColumnNumber(), desc));
         report_error(desc, a.getLineNumber(), a.getColumnNumber());
-        //System.out.println(desc);
     }
 
     public List<SemError> getErrors() {
@@ -381,15 +332,6 @@ public class TypeCheckVisitor implements ASTVisitor<Type> {
 
         StringBuilder m = new StringBuilder("Error");
 
-//            if (info instanceof java_cup.runtime.Symbol) {
-//                java_cup.runtime.Symbol s = ((java_cup.runtime.Symbol) info);
-//
-//                if (s.left >= 0) {                
-//                    m.append(" in line "+(s.left+1));
-//                    if (s.right >= 0)                    
-//                        m.append(", column "+(s.right+1));
-//                }
-//            }
         if (row != 0 && column != 0) {
             m.append(" in row " + row + ", column " + column + " : " + message);
         } else {

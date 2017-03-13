@@ -29,9 +29,7 @@ public class TPCompiladores {
      * @throws java.io.FileNotFoundException
      */
     public static void main(String[] args) throws FileNotFoundException, IOException, Exception {
-        //System.out.println("Nombre de archivo para compilar:");
-        //BufferedReader r = new BufferedReader( new InputStreamReader(System.in));
-        //String path = r.readLine();
+        
         BufferedReader br = new BufferedReader(new FileReader(System.getProperty("user.dir")+"/"+args[0]));
         Yylex lex = new Yylex(br);
         parser p = new parser(lex);
@@ -40,13 +38,11 @@ public class TPCompiladores {
         lista = p.action_obj.getAST();
         TypeCheckVisitor astv = new TypeCheckVisitor();
         GenI3DVisitor gen3d = new GenI3DVisitor();
-        asmGen asmG = new asmGen(/*p.action_obj.vars*/);
-        //System.out.println("Size: "+lista.size());
+        asmGen asmG = new asmGen();
         
         for (AST a: lista){
             a.accept(gen3d);
             a.accept(astv);
-            //a.accept(astv).toString();
         }
         PrintWriter writer = new PrintWriter("i3d.txt","UTF-8");
         for (I3D i: gen3d.getI3d()){
