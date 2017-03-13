@@ -187,7 +187,9 @@ public class GenI3DVisitor implements ASTVisitor<Object>  {
                 }
             }
         }
-        getI3d().add(new I3D(OpName.CALLMETHOD, methodParams, null, methStmt.getMethodId()));
+        LinkedList aux = new LinkedList();
+        aux.addAll(methodParams);
+        getI3d().add(new I3D(OpName.CALLMETHOD, aux, null, methStmt.getMethodId()));
 //        VarLocation varloc = new VarLocation(methStmt.getMethodId());
 //        getI3d().add(new I3D(OpName.LABELMETHOD,null,null,varloc));
 //        if (methStmt.getExpression() != null){
@@ -343,7 +345,9 @@ public class GenI3DVisitor implements ASTVisitor<Object>  {
                 }
             }
         }
-        getI3d().add(new I3D(OpName.CALLMETHOD,methodParams,null,methExpr.getMethodId()));
+        LinkedList aux = new LinkedList();
+        aux.addAll(methodParams);
+        getI3d().add(new I3D(OpName.CALLMETHOD,aux,null,methExpr.getMethodId()));
         return null;
     }
 
