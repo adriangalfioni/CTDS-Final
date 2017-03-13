@@ -200,7 +200,6 @@ public class GenI3DVisitor implements ASTVisitor<Object>  {
 
     @Override
     public Object visit(Block block) {
-        System.out.println("Entro a block!!!");
         
         for(VarLocation varL: block.getFields()){
             offset+=8;
@@ -319,7 +318,7 @@ public class GenI3DVisitor implements ASTVisitor<Object>  {
         methodParams = new LinkedList<>();
         Object result;
         
-        if (methExpr.getIsMethod()){
+        if (!methExpr.getIsExternInvk()){
             if (methExpr.getExpression() != null){
                 for(Expression e: methExpr.getExpression()){
                     //getI3d().add(new I3D(OpName.LABELPARAMADD,null,null,e.accept(this)));
@@ -403,12 +402,7 @@ public class GenI3DVisitor implements ASTVisitor<Object>  {
     public Object visit(VarLocation loc) {
         System.out.println(loc.toString()+" offset: "+loc.getOffset());
         methodParams.add(loc);
-        //System.out.println("Orden: "+orden+ " varLoc");
-        //orden++;
-        /*if(!loc.getIsOnlyLocation()){
-            this.offset = this.offset + 8;
-            getI3d().add(new I3D(OpName.LOCALVAR,loc.getId(),null,loc.getOffset()));
-        }*/
+        
         return loc;
     }
 
