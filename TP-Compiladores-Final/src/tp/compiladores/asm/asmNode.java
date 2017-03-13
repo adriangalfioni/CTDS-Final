@@ -24,9 +24,9 @@ public class asmNode {
     
     @Override
     public String toString(){
-        String val1S = (String) val1;
-        String val2S = (String) val2;
-        String opS = (String) op;
+        Object val1S =  val1;
+        Object val2S =  val2;
+        Object opS =  op;
         if (val1S == null){
             val1S="";
         }
@@ -36,6 +36,6 @@ public class asmNode {
         if (opS == null){
             opS="";
         }
-        return opS+val1S+val2S;
+        return opS.toString()+val1S.toString()+val2S.toString();
     }
 }
